@@ -1,0 +1,210 @@
+"use client";
+import React, { useState } from "react";
+import { ChevronDown } from "lucide-react";
+
+export default function BusinessRegistration() {
+  const [brandName, setBrandName] = useState("");
+  const [businessEmail, setBusinessEmail] = useState("");
+  const [businessMobile, setBusinessMobile] = useState("");
+  const [location, setLocation] = useState("");
+  const [vendorType, setVendorType] = useState("");
+  const [referId, setReferId] = useState("");
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+
+  const handleRegistration = () => {
+    console.log("Business Registration:", {
+      brandName,
+      businessEmail,
+      businessMobile,
+      location,
+      vendorType,
+      referId,
+    });
+  };
+
+  return (
+    <div className="h-screen flex bg-gray-50 p-3 overflow-hidden">
+      {/* Left Side - Image and Testimonial */}
+      <div
+        className="hidden lg:flex lg:w-1/2 relative bg-cover bg-center rounded-3xl overflow-hidden"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1555244162-803834f70033?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`,
+        }}
+      >
+        <div className="absolute inset-0 flex flex-col justify-end p-12 text-white">
+          <div className="max-w-md">
+            <div className="text-7xl mb-4 font-serif">"</div>
+            <p className="text-xl mb-8 leading-relaxed">
+              Joining CatererBazar transformed my business! I now reach
+              thousands of customers looking for quality catering services.
+            </p>
+            <div>
+              <p className="font-semibold text-lg">Rajesh Kumar</p>
+              <p className="text-gray-300 text-sm">
+                Owner, Spice Haven Catering
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Business Registration Form */}
+      <div className="w-full lg:w-1/2 flex  justify-center px-8 lg:px-20 overflow-y-auto">
+        <div className="w-full max-w-lg py-8">
+          {/* Logo */}
+          <div className="mb-2">
+            <img
+              src="/images/logo.png"
+              alt="Caterbazar Logo"
+              className="h-10 w-auto mb-1"
+            />
+          </div>
+
+          {/* Header */}
+          <div className="mb-4">
+            <div className="inline-block bg-orange-100 px-3 py-1 rounded-full mb-2">
+              <p className="text-[10px] text-orange-500 font-semibold uppercase tracking-wide">
+                VENDOR ONBOARDING
+              </p>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Register Your Business
+            </h2>
+            <p className="text-gray-500 text-xs">
+              Join CatererBazar to reach more events
+            </p>
+          </div>
+
+          {/* Business Registration Form */}
+          <div className="space-y-5">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                1. Brand Name
+              </label>
+              <input
+                type="text"
+                value={brandName}
+                onChange={(e) => setBrandName(e.target.value)}
+                placeholder="Enter your brand name e.g., Spice Haven"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm placeholder:text-gray-400"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                2. Business Email
+              </label>
+              <input
+                type="email"
+                value={businessEmail}
+                onChange={(e) => setBusinessEmail(e.target.value)}
+                placeholder="Enter business email"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm placeholder:text-gray-400"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                3. Business Mobile
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value="+91"
+                  readOnly
+                  className="w-20 px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-600 text-center"
+                />
+                <input
+                  type="tel"
+                  value={businessMobile}
+                  onChange={(e) => setBusinessMobile(e.target.value)}
+                  placeholder="Enter mobile number"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm placeholder:text-gray-400"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                4. Location
+              </label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="City, State e.g., Mumbai, Maharashtra"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm placeholder:text-gray-400"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                5. Vendor Type
+              </label>
+              <div className="relative">
+                <select
+                  value={vendorType}
+                  onChange={(e) => setVendorType(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm bg-white appearance-none text-gray-600"
+                >
+                  <option value="">Select Type</option>
+                  <option value="wedding-catering">Wedding Catering</option>
+                  <option value="corporate-catering">Corporate Catering</option>
+                  <option value="party-catering">Party Catering</option>
+                  <option value="event-catering">Event Catering</option>
+                  <option value="full-service">Full Service Catering</option>
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                6. Refer id ( Optional )
+              </label>
+              <input
+                type="text"
+                value={referId}
+                onChange={(e) => setReferId(e.target.value)}
+                placeholder="CB1234"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm placeholder:text-gray-400"
+              />
+            </div>
+
+            <div className="flex items-center pt-2">
+              <input
+                type="checkbox"
+                checked={agreeToTerms}
+                onChange={(e) => setAgreeToTerms(e.target.checked)}
+                className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+              />
+              <label className="ml-3 text-sm text-gray-600">
+                I agree to the{" "}
+                <button className="text-orange-500 hover:text-orange-600 font-medium">
+                  terms
+                </button>{" "}
+                and{" "}
+                <button className="text-orange-500 hover:text-orange-600 font-medium">
+                  privacy policy
+                </button>
+              </label>
+            </div>
+
+            <button
+              onClick={handleRegistration}
+              className="w-full bg-orange-400 hover:bg-orange-500 text-white py-3.5 rounded-lg font-semibold transition-colors text-sm mt-2"
+            >
+              Complete Registration
+            </button>
+          </div>
+
+          <p className="mt-6 text-center text-sm">
+            <button className="text-orange-500 hover:text-orange-600 font-semibold">
+              Back to Login
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
