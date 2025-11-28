@@ -186,4 +186,23 @@ export const userLogout = async (): Promise<void> => {
   }
 };
 
+// Get Google OAuth URL
+export const getGoogleAuthURL = async (): Promise<{ url: string }> => {
+  try {
+    const response = await userAuthAPI.get<{
+      statusCode: number;
+      data: { url: string };
+      message: string;
+      success: boolean;
+    }>("/auth/google");
+    
+    return response.data.data;
+  } catch (error: any) {
+    throw error.response?.data || {
+      message: "Failed to get Google auth URL. Please try again.",
+      success: false,
+    };
+  }
+};
+
 export type { User, SignupResponse, LoginResponse, VerifyOTPResponse, ResendOTPResponse };

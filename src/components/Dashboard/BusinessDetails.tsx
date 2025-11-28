@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { Upload, Clock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Upload, Clock, Loader2, AlertCircle, CheckCircle, X, Image as ImageIcon } from 'lucide-react';
+
+import { getVendorProfile, deleteFSSAICertificate } from '@/api/vendor/business.api';
 
 export default function BusinessDetails() {
   const [formData, setFormData] = useState({
@@ -9,7 +11,7 @@ export default function BusinessDetails() {
     minGuests: '',
     maxGuests: '',
     idealBookingTime: '',
-    vendorCategory: 'Food Catering',
+    vendorCategory: 'food_catering',
     country: 'INDIA',
     state: '',
     locality: '',
@@ -54,7 +56,7 @@ export default function BusinessDetails() {
     fssaiCertified: true
   });
 
-  const [refundType, setRefundType] = useState('noRefund');
+  const [refundType, setRefundType] = useState('no_refund');
 
   const [policyDetails, setPolicyDetails] = useState('');
 
@@ -68,6 +70,161 @@ export default function BusinessDetails() {
     bengali: false,
     gujarati: false
   });
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  // FSSAI certificate state
+  const [fssaiCertificate, setFssaiCertificate] = useState<{
+    url: string | null;
+    uploadedAt: string | null;
+    isVerified: boolean;
+  }>({ url: null, uploadedAt: null, isVerified: false });
+  const [uploadingFSSAI, setUploadingFSSAI] = useState(false);
+
+  // Pending FSSAI certificate to upload
+  const [pendingFSSAI, setPendingFSSAI] = useState<{
+    file: File | null;
+    preview: string | null;
+  }>({ file: null, preview: null });
+
+  // Fetch vendor profile on component mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const response = await getVendorProfile();
+        const profile = response.data.profile;
+        
+        // Map backend data to form fields
+        setFormData({
+          yearOfEstablishment: profile.businessInfo.yearOfEstablishment?.toString() || '',
+          yearsInBusiness: profile.businessInfo.yearsInBusiness?.toString() || '',
+          teamSize: profile.businessInfo.teamSize?.toString() || '',
+          minGuests: profile.capacity.minGuests?.toString() || '',
+          maxGuests: profile.capacity.maxGuests?.toString() || '',
+          idealBookingTime: profile.capacity.advanceBookingTime?.toString() || '',
+          vendorCategory: profile.capacity.vendorCategory || 'food_catering',
+          country: profile.address.country || 'INDIA',
+          state: profile.address.state || '',
+          locality: profile.address.locality || '',
+          pin: profile.address.pincode || '',
+          vegPrice: profile.pricing.vegPricePerPlate?.toString() || '',
+          nonVegPrice: profile.pricing.nonVegPricePerPlate?.toString() || '',
+          weeksInAdvance: profile.operations.weeksAdvanceBooking?.toString() || '',
+          operationalRadius: profile.operations.operationalRadius?.toString() || ''
+        });
+
+        // Map service specialization
+        const servicesMap: Record<string, string> = {
+          multi_cuisine: 'multiCuisine',
+          jain_catering: 'jainCateringOnly',
+          chaat_street_food: 'chaatStreetFood',
+          small_gathering: 'smallSizeGathering',
+          drinks_only: 'drinksOnly'
+        };
+        const newServiceSpec: any = {
+          multiCuisine: false,
+          jainCateringOnly: false,
+          chaatStreetFood: false,
+          smallSizeGathering: false,
+          drinksOnly: false
+        };
+        profile.pricing.servicesSpecialization?.forEach((service: string) => {
+          const key = servicesMap[service];
+          if (key) newServiceSpec[key] = true;
+        });
+        setServiceSpecialization(newServiceSpec);
+
+        // Map cuisine options
+        const cuisineMap: Record<string, string> = {
+          north_indian: 'northIndian',
+          south_indian: 'southIndian',
+          chinese: 'chinese',
+          greek: 'greek',
+          lebanese: 'lebanese',
+          thai: 'thai',
+          desserts: 'desserts',
+          bengali: 'bengali',
+          gujarati: 'gujarati',
+          rajasthani: 'rajasthani',
+          goan: 'goab',
+          maharashtrian: 'maharashtrian'
+        };
+        const newCuisines: any = {
+          northIndian: false,
+          southIndian: false,
+          chinese: false,
+          greek: false,
+          lebanese: false,
+          thai: false,
+          desserts: false,
+          bengali: false,
+          gujarati: false,
+          rajasthani: false,
+          goab: false,
+          maharashtrian: false
+        };
+        profile.pricing.cuisineOptions?.forEach((cuisine: string) => {
+          const key = cuisineMap[cuisine];
+          if (key) newCuisines[key] = true;
+        });
+        setCuisineOptions(newCuisines);
+
+        // Map languages
+        const languageMap: Record<string, string> = {
+          hindi: 'hindi',
+          english: 'english',
+          marathi: 'marathi',
+          tamil: 'tamil',
+          telugu: 'telugu',
+          kannada: 'kannada',
+          bengali: 'bengali',
+          gujarati: 'gujarati'
+        };
+        const newLanguages: any = {
+          hindi: false,
+          english: false,
+          marathi: false,
+          tamil: false,
+          telugu: false,
+          kannada: false,
+          bengali: false,
+          gujarati: false
+        };
+        profile.operations.languagesSpoken?.forEach((lang: string) => {
+          const key = languageMap[lang];
+          if (key) newLanguages[key] = true;
+        });
+        setLanguages(newLanguages);
+
+        // Set cancellation policy
+        setRefundType(profile.cancellationPolicy.policyType || 'no_refund');
+        setPolicyDetails(profile.cancellationPolicy.policyDetails || '');
+
+        // Set FSSAI certificate if exists
+        if (profile.fssaiCertificate?.url) {
+          setFssaiCertificate({
+            url: profile.fssaiCertificate.url,
+            uploadedAt: profile.fssaiCertificate.uploadedAt,
+            isVerified: false
+          });
+          setOthers(prev => ({ ...prev, fssaiCertified: true }));
+        }
+
+      } catch (err: any) {
+        console.error('Error fetching profile:', err);
+        setError(err.message || 'Failed to load business details');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -106,23 +263,265 @@ export default function BusinessDetails() {
     }
   };
 
-  const handleSave = () => {
-    console.log('Saving business details:', {
-      formData,
-      serviceSpecialization,
-      cuisineOptions,
-      menuUploads,
-      others,
-      refundType,
-      policyDetails,
-      languages
-    });
+  const handleFSSAIUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+      setError('Please upload a valid file (JPG, PNG, PDF)');
+      setTimeout(() => setError(''), 3000);
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setError('File size must be less than 10MB');
+      setTimeout(() => setError(''), 3000);
+      return;
+    }
+
+    // Create preview URL (for images only)
+    const preview = file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+
+    // Store file for later upload
+    setPendingFSSAI({ file, preview });
+    setSuccess('FSSAI certificate added. Click Save to upload.');
+    setTimeout(() => setSuccess(''), 3000);
+
+    // Reset file input
+    e.target.value = '';
   };
+
+  const handleDeleteFSSAI = async () => {
+    if (!confirm('Are you sure you want to delete the FSSAI certificate?')) return;
+
+    setUploadingFSSAI(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      await deleteFSSAICertificate();
+      
+      // Clear from state
+      setFssaiCertificate({ url: null, uploadedAt: null, isVerified: false });
+      setOthers(prev => ({ ...prev, fssaiCertified: false }));
+      setSuccess('FSSAI certificate deleted successfully!');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err: any) {
+      console.error('Error deleting FSSAI certificate:', err);
+      setError(err.message || 'Failed to delete FSSAI certificate');
+      setTimeout(() => setError(''), 5000);
+    } finally {
+      setUploadingFSSAI(false);
+    }
+  };
+
+  const handleRemovePendingFSSAI = () => {
+    if (pendingFSSAI.preview) {
+      URL.revokeObjectURL(pendingFSSAI.preview);
+    }
+    setPendingFSSAI({ file: null, preview: null });
+  };
+
+  const handleSave = async () => {
+    setError('');
+    setSuccess('');
+    setSaving(true);
+
+    try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+      const accessToken = localStorage.getItem('accessToken');
+
+      if (!accessToken) {
+        throw new Error('Please login to continue');
+      }
+
+      // Prepare form data
+      const formDataToSend = new FormData();
+
+      // Add basic fields (only if they have values)
+      if (formData.yearOfEstablishment) {
+        formDataToSend.append('yearOfEstablishment', formData.yearOfEstablishment);
+      }
+      if (formData.yearsInBusiness) {
+        formDataToSend.append('yearsInBusiness', formData.yearsInBusiness);
+      }
+      if (formData.teamSize) {
+        formDataToSend.append('teamSize', formData.teamSize);
+      }
+      if (formData.minGuests) {
+        formDataToSend.append('minGuests', formData.minGuests);
+      }
+      if (formData.maxGuests) {
+        formDataToSend.append('maxGuests', formData.maxGuests);
+      }
+      if (formData.idealBookingTime) {
+        formDataToSend.append('advanceBookingTime', formData.idealBookingTime);
+      }
+      if (formData.vendorCategory) {
+        formDataToSend.append('vendorCategory', formData.vendorCategory);
+      }
+      if (formData.country) {
+        formDataToSend.append('country', formData.country);
+      }
+      if (formData.state) {
+        formDataToSend.append('state', formData.state);
+      }
+      if (formData.locality) {
+        formDataToSend.append('locality', formData.locality);
+      }
+      if (formData.pin) {
+        formDataToSend.append('pincode', formData.pin);
+      }
+      if (formData.vegPrice) {
+        formDataToSend.append('vegPricePerPlate', formData.vegPrice);
+      }
+      if (formData.nonVegPrice) {
+        formDataToSend.append('nonVegPricePerPlate', formData.nonVegPrice);
+      }
+      if (formData.weeksInAdvance) {
+        formDataToSend.append('weeksAdvanceBooking', formData.weeksInAdvance);
+      }
+      if (formData.operationalRadius) {
+        formDataToSend.append('operationalRadius', formData.operationalRadius);
+      }
+
+      // Map service specialization to backend format
+      const serviceMap: Record<string, string> = {
+        multiCuisine: 'multi_cuisine',
+        jainCateringOnly: 'jain_catering',
+        chaatStreetFood: 'chaat_street_food',
+        smallSizeGathering: 'small_gathering',
+        drinksOnly: 'drinks_only'
+      };
+      const selectedServices = Object.entries(serviceSpecialization)
+        .filter(([_, value]) => value)
+        .map(([key, _]) => serviceMap[key]);
+      if (selectedServices.length > 0) {
+        selectedServices.forEach(service => {
+          formDataToSend.append('servicesSpecialization[]', service);
+        });
+      }
+
+      // Map cuisine options to backend format
+      const cuisineMap: Record<string, string> = {
+        northIndian: 'north_indian',
+        southIndian: 'south_indian',
+        chinese: 'chinese',
+        greek: 'greek',
+        lebanese: 'lebanese',
+        thai: 'thai',
+        desserts: 'desserts',
+        bengali: 'bengali',
+        gujarati: 'gujarati',
+        rajasthani: 'rajasthani',
+        goab: 'goan',
+        maharashtrian: 'maharashtrian'
+      };
+      const selectedCuisines = Object.entries(cuisineOptions)
+        .filter(([_, value]) => value)
+        .map(([key, _]) => cuisineMap[key]);
+      if (selectedCuisines.length > 0) {
+        selectedCuisines.forEach(cuisine => {
+          formDataToSend.append('cuisineOptions[]', cuisine);
+        });
+      }
+
+      // Map languages to backend format
+      const selectedLanguages = Object.entries(languages)
+        .filter(([_, value]) => value)
+        .map(([key, _]) => key);
+      if (selectedLanguages.length > 0) {
+        selectedLanguages.forEach(language => {
+          formDataToSend.append('languagesSpoken[]', language);
+        });
+      }
+
+      // Add cancellation policy
+      if (refundType) {
+        formDataToSend.append('policyType', refundType);
+      }
+      if (policyDetails) {
+        formDataToSend.append('policyDetails', policyDetails);
+      }
+
+      // Add FSSAI certificate if pending
+      if (pendingFSSAI.file) {
+        formDataToSend.append('fssaiCertificate', pendingFSSAI.file);
+      }
+
+      // Make API request
+      const response = await fetch(`${API_BASE_URL}/vendors/profile/business`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+          // Don't set Content-Type - browser will set it with boundary for FormData
+        },
+        body: formDataToSend
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to update business details');
+      }
+
+      // Update FSSAI certificate state if it was uploaded
+      if (pendingFSSAI.file && result.data?.profile?.fssaiCertificate) {
+        setFssaiCertificate({
+          url: result.data.profile.fssaiCertificate.url,
+          uploadedAt: result.data.profile.fssaiCertificate.uploadedAt,
+          isVerified: result.data.profile.fssaiCertificate.isVerified || false
+        });
+        setOthers(prev => ({ ...prev, fssaiCertified: true }));
+        
+        // Clear pending FSSAI
+        if (pendingFSSAI.preview) {
+          URL.revokeObjectURL(pendingFSSAI.preview);
+        }
+        setPendingFSSAI({ file: null, preview: null });
+      }
+
+      setSuccess('Business details updated successfully!');
+      setTimeout(() => setSuccess(''), 3000);
+
+    } catch (err: any) {
+      console.error('Error saving business details:', err);
+      setError(err.message || 'Failed to save business details');
+      setTimeout(() => setError(''), 5000);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+      </div>
+    );
+  }
 
   return (
     <div>
       <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Business Details</h1>
       <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">Manage your catering business information</p>
+      
+      {/* Error/Success Messages */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2 mb-6">
+          <AlertCircle className="h-5 w-5 shrink-0" />
+          <span className="text-sm">{error}</span>
+        </div>
+      )}
+      {success && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2 mb-6">
+          <CheckCircle className="h-5 w-5 shrink-0" />
+          <span className="text-sm">{success}</span>
+        </div>
+      )}
       
       <div className="rounded-xl p-4 sm:p-6 border border-gray-200">
         {/* Business Information */}
@@ -213,11 +612,11 @@ export default function BusinessDetails() {
             </label>
             <div className="relative">
               <input
-                type="time"
+                type="text"
                 name="idealBookingTime"
                 value={formData.idealBookingTime}
                 onChange={handleInputChange}
-                placeholder="12:23 PM"
+                placeholder="e.g., 7 days, 2 weeks, 1 month"
                 className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base"
               />
               <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
@@ -228,21 +627,19 @@ export default function BusinessDetails() {
             <label className="block text-sm font-semibold text-gray-900 mb-2">
               Vendor Category
             </label>
-            <div className="relative">
-              <button className="px-4 py-2 bg-orange-500 text-white rounded-full text-sm font-medium">
-                Food Catering
-              </button>
-              <select
-                name="vendorCategory"
-                value={formData.vendorCategory}
-                onChange={handleInputChange}
-                className="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
-              >
-                <option value="Food Catering">Food Catering</option>
-                <option value="Decoration">Decoration</option>
-                <option value="Photography">Photography</option>
-              </select>
-            </div>
+            <select
+              name="vendorCategory"
+              value={formData.vendorCategory}
+              onChange={handleInputChange}
+              className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base bg-white"
+            >
+              <option value="food_catering">Food Catering</option>
+              <option value="beverage_catering">Beverage Catering</option>
+              <option value="full_service">Full Service</option>
+              <option value="drop_off_catering">Drop Off Catering</option>
+              <option value="buffet_style">Buffet Style</option>
+              <option value="live_counters">Live Counters</option>
+            </select>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
@@ -263,14 +660,50 @@ export default function BusinessDetails() {
               <label className="block text-sm font-semibold text-gray-900 mb-2">
                 State
               </label>
-              <input
-                type="text"
+              <select
                 name="state"
                 value={formData.state}
                 onChange={handleInputChange}
-                placeholder="e.g., Odisha"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base"
-              />
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base bg-white"
+              >
+                <option value="">Select State</option>
+                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                <option value="Assam">Assam</option>
+                <option value="Bihar">Bihar</option>
+                <option value="Chhattisgarh">Chhattisgarh</option>
+                <option value="Goa">Goa</option>
+                <option value="Gujarat">Gujarat</option>
+                <option value="Haryana">Haryana</option>
+                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                <option value="Jharkhand">Jharkhand</option>
+                <option value="Karnataka">Karnataka</option>
+                <option value="Kerala">Kerala</option>
+                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Manipur">Manipur</option>
+                <option value="Meghalaya">Meghalaya</option>
+                <option value="Mizoram">Mizoram</option>
+                <option value="Nagaland">Nagaland</option>
+                <option value="Odisha">Odisha</option>
+                <option value="Punjab">Punjab</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="Sikkim">Sikkim</option>
+                <option value="Tamil Nadu">Tamil Nadu</option>
+                <option value="Telangana">Telangana</option>
+                <option value="Tripura">Tripura</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="Uttarakhand">Uttarakhand</option>
+                <option value="West Bengal">West Bengal</option>
+                <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                <option value="Chandigarh">Chandigarh</option>
+                <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                <option value="Ladakh">Ladakh</option>
+                <option value="Lakshadweep">Lakshadweep</option>
+                <option value="Puducherry">Puducherry</option>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -505,94 +938,86 @@ export default function BusinessDetails() {
           </div>
         </div>
 
-        {/* Menu Details */}
+        {/* FSSAI Certificate */}
         <div className="mb-8">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">Menu Details</h2>
-          <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
-            <div>
-              <label className="flex items-center gap-2 mb-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={menuUploads.starters}
-                  onChange={() => handleCheckboxChange('menu', 'starters')}
-                  className="w-4 h-4 text-orange-500 rounded"
-                />
-                <span className="text-sm font-semibold text-gray-900">Starters</span>
-              </label>
-              <button className="w-full px-4 py-2.5 border-2 border-orange-500 text-orange-500 rounded-lg text-sm font-semibold hover:bg-orange-50 transition-colors flex items-center justify-center gap-2">
-                <Upload className="w-4 h-4" />
-                Upload Document
-              </button>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">FSSAI Certificate</h2>
+          <p className="text-sm text-gray-600 mb-4">Upload your FSSAI certificate (max 10MB, JPG/PNG/PDF)</p>
+          
+          {fssaiCertificate.url ? (
+            <div className="border border-gray-200 rounded-lg p-4">
+              <div className="flex items-start gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <CheckCircle className="w-5 h-5 text-green-500" />
+                    <span className="text-sm font-semibold text-gray-900">Certificate Uploaded</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Uploaded: {new Date(fssaiCertificate.uploadedAt || '').toLocaleDateString()}
+                  </p>
+                  <a
+                    href={fssaiCertificate.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-orange-500 hover:text-orange-600 underline"
+                  >
+                    View Certificate
+                  </a>
+                </div>
+                <button
+                  onClick={handleDeleteFSSAI}
+                  className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
-
-            <div>
-              <label className="flex items-center gap-2 mb-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={menuUploads.vegMainCourse}
-                  onChange={() => handleCheckboxChange('menu', 'vegMainCourse')}
-                  className="w-4 h-4 text-orange-500 rounded"
-                />
-                <span className="text-sm font-semibold text-gray-900">Veg Main Course</span>
-              </label>
-              <button className="w-full px-4 py-2.5 border-2 border-orange-500 text-orange-500 rounded-lg text-sm font-semibold hover:bg-orange-50 transition-colors flex items-center justify-center gap-2">
-                <Upload className="w-4 h-4" />
-                Upload Document
-              </button>
+          ) : pendingFSSAI.file ? (
+            <div className="border-2 border-orange-300 rounded-lg p-4">
+              <div className="flex items-start gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock className="w-5 h-5 text-orange-500" />
+                    <span className="text-sm font-semibold text-gray-900">Certificate Pending Upload</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mb-2">
+                    {pendingFSSAI.file.name} ({(pendingFSSAI.file.size / 1024 / 1024).toFixed(2)} MB)
+                  </p>
+                  {pendingFSSAI.preview && (
+                    <img
+                      src={pendingFSSAI.preview}
+                      alt="FSSAI Preview"
+                      className="w-32 h-32 object-cover rounded-lg mt-2"
+                    />
+                  )}
+                  <p className="text-xs text-orange-600 mt-2">
+                    Click "Save Business Details" to upload this certificate
+                  </p>
+                </div>
+                <button
+                  onClick={handleRemovePendingFSSAI}
+                  className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors"
+                >
+                  Remove
+                </button>
+              </div>
             </div>
-
-            <div>
-              <label className="flex items-center gap-2 mb-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={menuUploads.nonVegMainCourse}
-                  onChange={() => handleCheckboxChange('menu', 'nonVegMainCourse')}
-                  className="w-4 h-4 text-orange-500 rounded"
-                />
-                <span className="text-sm font-semibold text-gray-900">Non-Veg Main Course</span>
-              </label>
-              <button className="w-full px-4 py-2.5 border-2 border-orange-500 text-orange-500 rounded-lg text-sm font-semibold hover:bg-orange-50 transition-colors flex items-center justify-center gap-2">
-                <Upload className="w-4 h-4" />
-                Upload Document
-              </button>
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2 mb-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={menuUploads.dessertsDrinks}
-                  onChange={() => handleCheckboxChange('menu', 'dessertsDrinks')}
-                  className="w-4 h-4 text-orange-500 rounded"
-                />
-                <span className="text-sm font-semibold text-gray-900">Desserts/Drinks (if included)</span>
-              </label>
-              <button className="w-full px-4 py-2.5 border-2 border-orange-500 text-orange-500 rounded-lg text-sm font-semibold hover:bg-orange-50 transition-colors flex items-center justify-center gap-2">
-                <Upload className="w-4 h-4" />
-                Upload Document
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Others */}
-        <div className="mb-8">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">Others</h2>
-          <div className="mb-4">
-            <label className="flex items-center gap-2 mb-3 cursor-pointer">
+          ) : (
+            <label className="inline-flex w-full sm:w-auto px-4 py-2.5 border-2 border-orange-500 text-orange-500 rounded-lg text-sm font-semibold hover:bg-orange-50 transition-colors items-center justify-center gap-2 cursor-pointer">
               <input
-                type="checkbox"
-                checked={others.fssaiCertified}
-                onChange={() => handleCheckboxChange('others', 'fssaiCertified')}
-                className="w-4 h-4 text-orange-500 rounded"
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,application/pdf"
+                onChange={handleFSSAIUpload}
+                className="hidden"
+                disabled={uploadingFSSAI}
               />
-              <span className="text-sm font-semibold text-gray-900">FSSAI Certified</span>
+              {uploadingFSSAI ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Upload className="w-4 h-4" />
+              )}
+              {uploadingFSSAI ? 'Uploading...' : 'Upload Certificate'}
             </label>
-            <button className="w-full sm:w-auto px-4 py-2.5 border-2 border-orange-500 text-orange-500 rounded-lg text-sm font-semibold hover:bg-orange-50 transition-colors flex items-center justify-center gap-2">
-              <Upload className="w-4 h-4" />
-              Upload Document
-            </button>
-          </div>
+          )}
         </div>
 
         {/* Cancellation Policy */}
@@ -607,8 +1032,8 @@ export default function BusinessDetails() {
                 <input
                   type="radio"
                   name="refundType"
-                  value="noRefund"
-                  checked={refundType === 'noRefund'}
+                  value="no_refund"
+                  checked={refundType === 'no_refund'}
                   onChange={(e) => setRefundType(e.target.value)}
                   className="w-4 h-4 text-orange-500"
                 />
@@ -618,19 +1043,19 @@ export default function BusinessDetails() {
                 <input
                   type="radio"
                   name="refundType"
-                  value="partialRefund"
-                  checked={refundType === 'partialRefund'}
+                  value="partial_refund"
+                  checked={refundType === 'partial_refund'}
                   onChange={(e) => setRefundType(e.target.value)}
                   className="w-4 h-4 text-orange-500"
                 />
-                <span className="text-sm text-gray-700">No Refund, but Date Adjustment Possible</span>
+                <span className="text-sm text-gray-700">Partial Refund</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
                   name="refundType"
-                  value="fullRefund"
-                  checked={refundType === 'fullRefund'}
+                  value="full_refund"
+                  checked={refundType === 'full_refund'}
                   onChange={(e) => setRefundType(e.target.value)}
                   className="w-4 h-4 text-orange-500"
                 />
@@ -768,9 +1193,17 @@ export default function BusinessDetails() {
         <div>
           <button
             onClick={handleSave}
-            className="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 bg-orange-500 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-orange-600 transition-colors"
+            disabled={saving}
+            className="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 bg-orange-500 text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-orange-600 transition-colors disabled:bg-orange-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            Save Business Details
+            {saving ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              "Save Business Details"
+            )}
           </button>
         </div>
       </div>

@@ -365,7 +365,7 @@ export default function CaterBazarSignup() {
               <p className="mt-6 text-center text-sm text-gray-600">
                 Already have an account?{" "}
                 <button 
-                  onClick={() => router.push("/auth/customer/signin")}
+                  onClick={() => router.push("/auth")}
                   className="text-orange-500 hover:text-orange-600 font-semibold"
                 >
                   Sign In

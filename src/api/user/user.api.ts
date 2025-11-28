@@ -51,6 +51,15 @@ interface DeleteAccountResponse {
   success: boolean;
 }
 
+interface UploadProfilePictureResponse {
+  statusCode: number;
+  data: {
+    profilePicture: string;
+  };
+  message: string;
+  success: boolean;
+}
+
 // Axios instance for user API
 const userAPI = axios.create({
   baseURL: API_BASE_URL,
@@ -82,7 +91,7 @@ userAPI.interceptors.response.use(
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("userRole");
-      window.location.href = "/auth/customer/signin";
+      window.location.href = "/auth";
     }
     return Promise.reject(error);
   }
@@ -155,4 +164,24 @@ export const deleteUserAccount = async (): Promise<DeleteAccountResponse> => {
   }
 };
 
-export type { User, UserProfileResponse, UpdateProfileResponse, ChangePasswordResponse, DeleteAccountResponse };
+// Upload Profile Picture
+export const uploadProfilePicture = async (profilePicture: File): Promise<UploadProfilePictureResponse> => {
+  try {
+    const formData = new FormData();
+    formData.append('profilePicture', profilePicture);
+
+    const response = await userAPI.put<UploadProfilePictureResponse>("/users/profile-picture", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || {
+      message: "Failed to upload profile picture. Please try again.",
+      success: false,
+    };
+  }
+};
+
+export type { User, UserProfileResponse, UpdateProfileResponse, ChangePasswordResponse, DeleteAccountResponse, UploadProfilePictureResponse };

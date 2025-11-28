@@ -37,6 +37,13 @@ interface UpdateProfileResponse {
   success: boolean;
 }
 
+interface ChangePasswordResponse {
+  statusCode: number;
+  data: null;
+  message: string;
+  success: boolean;
+}
+
 // Axios instance for vendor API
 const vendorAPI = axios.create({
   baseURL: API_BASE_URL,
@@ -69,7 +76,7 @@ vendorAPI.interceptors.response.use(
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("role");
       localStorage.removeItem("vendorData");
-      window.location.href = "/auth/vendor/signin";
+      window.location.href = "/auth";
     }
     return Promise.reject(error);
   }
@@ -91,6 +98,8 @@ export const getVendorProfile = async (): Promise<VendorProfileResponse> => {
 // Update Vendor Profile
 export const updateVendorProfile = async (profileData: {
   fullName?: string;
+  email?: string;
+  phoneNumber?: string;
   profilePicture?: string | null;
 }): Promise<UpdateProfileResponse> => {
   try {
@@ -104,4 +113,97 @@ export const updateVendorProfile = async (profileData: {
   }
 };
 
-export type { Vendor, VendorProfileResponse, UpdateProfileResponse };
+// Update Personal Information
+export const updatePersonalInfo = async (personalData: {
+  facebookHandle?: string;
+  instagramHandle?: string;
+  whatsappNumber?: string;
+  personalWebsite?: string;
+  bio?: string;
+  profilePhoto?: File;
+}): Promise<any> => {
+  try {
+    const formData = new FormData();
+    let hasData = false;
+    
+    // Append text fields to FormData only if they have values
+    if (personalData.facebookHandle && personalData.facebookHandle.trim()) {
+      formData.append('facebookHandle', personalData.facebookHandle);
+      hasData = true;
+    }
+    if (personalData.instagramHandle && personalData.instagramHandle.trim()) {
+      formData.append('instagramHandle', personalData.instagramHandle);
+      hasData = true;
+    }
+    if (personalData.whatsappNumber && personalData.whatsappNumber.trim()) {
+      formData.append('whatsappNumber', personalData.whatsappNumber);
+      hasData = true;
+    }
+    if (personalData.personalWebsite && personalData.personalWebsite.trim()) {
+      formData.append('personalWebsite', personalData.personalWebsite);
+      hasData = true;
+    }
+    if (personalData.bio && personalData.bio.trim()) {
+      formData.append('bio', personalData.bio);
+      hasData = true;
+    }
+    
+    // Append file if provided
+    if (personalData.profilePhoto) {
+      formData.append('profilePhoto', personalData.profilePhoto);
+      hasData = true;
+    }
+    
+    // Check if there's any data to send
+    if (!hasData) {
+      throw {
+        message: "Please provide at least one field to update",
+        success: false,
+      };
+    }
+    
+    const response = await vendorAPI.put("/vendors/profile/personal", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || error || {
+      message: "Failed to update personal information. Please try again.",
+      success: false,
+    };
+  }
+};
+
+// Delete Profile Photo
+export const deleteProfilePhoto = async (): Promise<any> => {
+  try {
+    const response = await vendorAPI.delete("/vendors/profile/photo");
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || {
+      message: "Failed to delete profile photo. Please try again.",
+      success: false,
+    };
+  }
+};
+
+// Change Password
+export const changeVendorPassword = async (passwordData: {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}): Promise<ChangePasswordResponse> => {
+  try {
+    const response = await vendorAPI.put<ChangePasswordResponse>("/vendors/change-password", passwordData);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || {
+      message: "Failed to change password. Please try again.",
+      success: false,
+    };
+  }
+};
+
+export type { Vendor, VendorProfileResponse, UpdateProfileResponse, ChangePasswordResponse };

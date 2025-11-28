@@ -19,6 +19,7 @@ import {
   EyeOff,
   Save,
   X,
+  Upload,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -26,6 +27,7 @@ import {
   updateUserProfile,
   changePassword,
   deleteUserAccount,
+  uploadProfilePicture,
   User,
 } from "@/api/user/user.api";
 import { userLogout } from "@/api/user/auth.api";
@@ -56,6 +58,9 @@ export default function UserProfile() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
 
+  // Profile Picture States
+  const [uploadingPicture, setUploadingPicture] = useState(false);
+
   useEffect(() => {
     fetchUserProfile();
   }, []);
@@ -70,7 +75,7 @@ export default function UserProfile() {
     } catch (err: any) {
       setError(err.message || "Failed to load profile");
       if (err.statusCode === 401) {
-        router.push("/auth/customer/signin");
+        router.push("/auth");
       }
     } finally {
       setLoading(false);
@@ -153,11 +158,49 @@ export default function UserProfile() {
       const response = await deleteUserAccount();
       if (response.success) {
         await userLogout();
-        router.push("/auth/customer/signin");
+        router.push("/auth");
       }
     } catch (err: any) {
       setError(err.message || "Failed to delete account");
       setDeletingAccount(false);
+    }
+  };
+
+  const handleProfilePictureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file (JPG or PNG)');
+      return;
+    }
+
+    // Validate file size (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setError('Image size must be less than 2MB');
+      return;
+    }
+
+    setError("");
+    setSuccess("");
+    setUploadingPicture(true);
+
+    try {
+      const response = await uploadProfilePicture(file);
+      if (response.success && user) {
+        // Update user state with new profile picture URL
+        setUser({
+          ...user,
+          profilePicture: response.data.profilePicture
+        });
+        setSuccess("Profile picture updated successfully!");
+        setTimeout(() => setSuccess(""), 3000);
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to upload profile picture");
+    } finally {
+      setUploadingPicture(false);
     }
   };
 
@@ -194,7 +237,7 @@ export default function UserProfile() {
         <div className="text-center">
           <p className="text-gray-600">Failed to load profile</p>
           <button
-            onClick={() => router.push("/auth/customer/signin")}
+            onClick={() => router.push("/auth")}
             className="mt-4 text-orange-500 hover:text-orange-600"
           >
             Go to Login
@@ -233,25 +276,52 @@ export default function UserProfile() {
         {/* Profile Header Card */}
         <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-6">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-            {user.profilePicture ? (
-              <img
-                src={user.profilePicture}
-                alt={user.fullName}
-                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-orange-100"
+            <div className="relative">
+              {user.profilePicture ? (
+                <img
+                  src={user.profilePicture}
+                  alt={user.fullName}
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-orange-100"
+                />
+              ) : (
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-linear-to-br from-orange-400 to-red-500 flex items-center justify-center border-4 border-orange-100">
+                  <span className="text-white text-2xl sm:text-3xl font-bold">
+                    {getInitials(user.fullName)}
+                  </span>
+                </div>
+              )}
+              
+              {/* Upload Button Overlay */}
+              <button
+                onClick={() => document.getElementById('profilePictureInput')?.click()}
+                disabled={uploadingPicture}
+                className="absolute bottom-0 right-0 w-8 h-8 bg-orange-500 hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-colors disabled:bg-orange-300"
+                title="Upload new profile picture"
+              >
+                {uploadingPicture ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Upload className="w-4 h-4" />
+                )}
+              </button>
+              
+              {/* Hidden File Input */}
+              <input
+                type="file"
+                id="profilePictureInput"
+                accept="image/jpeg,image/png,image/jpg"
+                onChange={handleProfilePictureUpload}
+                className="hidden"
+                disabled={uploadingPicture}
               />
-            ) : (
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-linear-to-br from-orange-400 to-red-500 flex items-center justify-center border-4 border-orange-100">
-                <span className="text-white text-2xl sm:text-3xl font-bold">
-                  {getInitials(user.fullName)}
-                </span>
-              </div>
-            )}
+            </div>
 
             <div className="flex-1 text-center sm:text-left">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                 {user.fullName}
               </h2>
               <p className="text-sm sm:text-base text-gray-600">{user.email}</p>
+              <p className="text-xs text-gray-500 mt-1">Click the upload icon to change your profile picture</p>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-2">
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-semibold ${
@@ -343,13 +413,13 @@ export default function UserProfile() {
                 <div className="flex items-center gap-1 mt-1">
                   {user.isEmailVerified ? (
                     <>
-                      <CheckCircle className="w-3 h-3 text-green-500" />
-                      <span className="text-xs text-green-600">Verified</span>
+                      {/* <CheckCircle className="w-3 h-3 text-green-500" /> */}
+                      {/* <span className="text-xs text-green-600">Verified</span> */}
                     </>
                   ) : (
                     <>
-                      <XCircle className="w-3 h-3 text-red-500" />
-                      <span className="text-xs text-red-600">Not Verified</span>
+                      {/* <XCircle className="w-3 h-3 text-red-500" /> */}
+                      {/* <span className="text-xs text-red-600">Not Verified</span> */}
                     </>
                   )}
                 </div>
@@ -366,13 +436,13 @@ export default function UserProfile() {
                 <div className="flex items-center gap-1 mt-1">
                   {user.isPhoneVerified ? (
                     <>
-                      <CheckCircle className="w-3 h-3 text-green-500" />
-                      <span className="text-xs text-green-600">Verified</span>
+                      {/* <CheckCircle className="w-3 h-3 text-green-500" /> */}
+                      {/* <span className="text-xs text-green-600">Verified</span> */}
                     </>
                   ) : (
                     <>
-                      <XCircle className="w-3 h-3 text-red-500" />
-                      <span className="text-xs text-red-600">Not Verified</span>
+                      {/* <XCircle className="w-3 h-3 text-red-500" /> */}
+                      {/* <span className="text-xs text-red-600">Not Verified</span> */}
                     </>
                   )}
                 </div>

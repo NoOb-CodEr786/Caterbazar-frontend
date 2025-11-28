@@ -6,6 +6,7 @@ import { isAuthenticated, getCurrentUser } from '@/api/superadmin/auth.api';
 import SuperAdminSidebar from '@/components/SuperAdmin/SuperAdminSidebar';
 import SuperAdminMobileMenu from '@/components/SuperAdmin/SuperAdminMobileMenu';
 import VendorManagement from '@/components/SuperAdmin/VendorManagement';
+import BusinessRegistrationManagement from '@/components/SuperAdmin/BusinessRegistrationManagement';
 import CustomerManagement from '@/components/SuperAdmin/CustomerManagement';
 import HeroImageManagement from '@/components/SuperAdmin/HeroImageManagement';
 import TotalOrdersManagement from '@/components/SuperAdmin/TotalOrdersManagement';
@@ -50,6 +51,8 @@ export default function SuperAdminDashboard() {
     switch (activeTab) {
       case 'vendors':
         return <VendorManagement />;
+      case 'business-registrations':
+        return <BusinessRegistrationManagement />;
       case 'customers':
         return <CustomerManagement />;
       case 'hero-images':

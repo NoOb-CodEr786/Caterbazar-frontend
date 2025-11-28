@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { 
   LayoutDashboard, User, Building2, Image, CreditCard, 
-  Star, ShoppingBag, Settings 
+  Star, ShoppingBag, Settings, FileText, MessageSquare 
 } from 'lucide-react';
 
 interface MobileMenuProps {
@@ -17,13 +17,16 @@ export default function MobileMenu({ activeTab, onTabChange }: MobileMenuProps) 
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'profile', label: 'My Profile', icon: User },
     { id: 'personal', label: 'Personal Information', icon: User },
+    { id: 'registration', label: 'Business Registration', icon: FileText },
     { id: 'business', label: 'Business Details', icon: Building2 },
     { id: 'gallery', label: 'Gallery Management', icon: Image },
     { id: 'subscription', label: 'Subscription Plan', icon: CreditCard },
+    { id: 'inquiries', label: 'Inquiries', icon: MessageSquare },
     { id: 'reviews', label: 'Reviews & Ratings', icon: Star },
-    { id: 'orders', label: 'Orders & Bookings', icon: ShoppingBag },
-    { id: 'settings', label: 'Settings', icon: Settings }
+    // { id: 'orders', label: 'Orders & Bookings', icon: ShoppingBag },
+    // { id: 'settings', label: 'Settings', icon: Settings }
   ];
 
   const handleTabChange = (tab: string) => {

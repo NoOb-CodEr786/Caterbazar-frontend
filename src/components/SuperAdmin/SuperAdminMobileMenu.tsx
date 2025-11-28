@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { 
-  Users, UserCheck, Image, ShoppingBag, Menu, X, Shield 
+  Users, UserCheck, Image, ShoppingBag, Menu, X, Shield, FileCheck 
 } from 'lucide-react';
 
 interface SuperAdminMobileMenuProps {
@@ -15,6 +15,7 @@ export default function SuperAdminMobileMenu({ activeTab, onTabChange }: SuperAd
 
   const menuItems = [
     { id: 'vendors', label: 'Vendor Management', icon: Users },
+    { id: 'business-registrations', label: 'Business Registrations', icon: FileCheck },
     { id: 'customers', label: 'Customer Management', icon: UserCheck },
     { id: 'hero-images', label: 'Hero Image Management', icon: Image },
     { id: 'total-orders', label: 'Total Orders', icon: ShoppingBag }

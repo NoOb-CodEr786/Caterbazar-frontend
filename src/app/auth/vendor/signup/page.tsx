@@ -118,9 +118,9 @@ export default function VendorSignup() {
       });
 
       if (response.success) {
-        setSuccess('Phone verified successfully! Redirecting...');
+        setSuccess('Phone verified successfully! Redirecting to business registration...');
         setTimeout(() => {
-          router.push('/dashboard');
+          router.push('/auth/vendor/businessRegistration');
         }, 1500);
       }
     } catch (err: any) {
@@ -349,7 +349,7 @@ export default function VendorSignup() {
 
               <p className="mt-6 text-center text-sm text-gray-600">
                 Already have an account?{' '}
-                <a href="/auth/vendor/signin" className="text-orange-500 hover:text-orange-600 font-semibold">
+                <a href="/auth" className="text-orange-500 hover:text-orange-600 font-semibold">
                   Sign In
                 </a>
               </p>

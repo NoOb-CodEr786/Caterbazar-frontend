@@ -3,9 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Search, Filter, MoreVertical, Eye, Edit, Ban, CheckCircle, 
-  X, Building2, Phone, Mail, MapPin, Calendar, Star, Loader2, AlertCircle, XCircle 
+  X, Building2, Phone, Mail, MapPin, Calendar, Star, Loader2, AlertCircle, XCircle
 } from 'lucide-react';
-import { getAllVendors, type Vendor, type PaginationData } from '@/api/superadmin/vendor.api';
+import { 
+  getAllVendors, 
+  type Vendor, 
+  type PaginationData 
+} from '@/api/superadmin/vendor.api';
 import VendorDetailSidebar from './VendorDetailSidebar';
 
 export default function VendorManagement() {
@@ -48,10 +52,26 @@ export default function VendorManagement() {
       
       if (response.success) {
         setVendors(response.data.vendors);
-        setPagination(response.data.pagination);
         
-        // Calculate stats (you might want to get these from a separate API)
-        calculateStats(response.data.vendors);
+        // Map API pagination to component pagination
+        setPagination({
+          currentPage: response.data.pagination.page,
+          totalPages: response.data.pagination.pages,
+          totalItems: response.data.pagination.total,
+          itemsPerPage: response.data.pagination.limit
+        });
+        
+        // Use stats from API response
+        if (response.data.stats) {
+          setStats({
+            total: response.data.stats.totalVendors,
+            active: response.data.stats.activeVendors,
+            pending: response.data.stats.totalVendors - response.data.stats.activeVendors,
+            suspended: 0 // Not provided by API
+          });
+        } else {
+          calculateStats(response.data.vendors);
+        }
       }
     } catch (err: any) {
       setError(err.message || 'Failed to fetch vendors');
@@ -61,8 +81,8 @@ export default function VendorManagement() {
   };
 
   const calculateStats = (vendorList: Vendor[]) => {
-    const active = vendorList.filter(v => v.accountStatus === 'active').length;
-    const pending = vendorList.filter(v => v.accountStatus === 'pending').length;
+    const active = vendorList.filter(v => (v.accountStatus === 'active' || v.isActive)).length;
+    const pending = vendorList.filter(v => v.accountStatus === 'pending' || (!v.isActive && !v.accountStatus)).length;
     const suspended = vendorList.filter(v => v.accountStatus === 'suspended').length;
     
     setStats({
@@ -202,7 +222,7 @@ export default function VendorManagement() {
           <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
             <div>
-              <h4 className="text-red-900 font-semibold">Error loading vendors</h4>
+              <h4 className="text-red-900 font-semibold">Error</h4>
               <p className="text-red-700 text-sm mt-1">{error}</p>
             </div>
           </div>
@@ -231,7 +251,7 @@ export default function VendorManagement() {
                   <tr className="border-b border-gray-200">
                     <th className="text-left py-4 px-6 font-semibold text-gray-900 min-w-[250px]">Vendor Details</th>
                     <th className="text-left py-4 px-6 font-semibold text-gray-900 min-w-[250px]">Contact</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-900 min-w-[150px]">Verification</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 min-w-[150px]">Profile Status</th>
                     <th className="text-left py-4 px-6 font-semibold text-gray-900 min-w-[150px]">Status</th>
                     <th className="text-left py-4 px-6 font-semibold text-gray-900 min-w-[150px]">Actions</th>
                   </tr>
@@ -241,8 +261,8 @@ export default function VendorManagement() {
                     <tr key={vendor._id} className="hover:bg-gray-50 transition-colors">
                       <td className="py-5 px-6">
                         <div className="space-y-2">
-                          <h3 className="font-semibold text-gray-900 text-sm">{vendor.fullName}</h3>
-                          <p className="text-xs text-gray-600">{vendor.role.toUpperCase()}</p>
+                          <h3 className="font-semibold text-gray-900 text-sm">{vendor.userId?.fullName || 'N/A'}</h3>
+                          <p className="text-xs text-gray-600">{vendor.role?.toUpperCase() || 'VENDOR'}</p>
                           <div className="flex items-center gap-2">
                             <Calendar className="w-3 h-3 text-gray-400" />
                             <span className="text-xs text-gray-500">Joined {formatDate(vendor.createdAt)}</span>
@@ -254,11 +274,11 @@ export default function VendorManagement() {
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
                             <Mail className="w-3 h-3 text-gray-400" />
-                            <span className="text-xs text-gray-600 truncate max-w-[200px]">{vendor.email}</span>
+                            <span className="text-xs text-gray-600 truncate max-w-[200px]">{vendor.userId?.email || 'N/A'}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Phone className="w-3 h-3 text-gray-400" />
-                            <span className="text-xs text-gray-600">{vendor.phoneNumber}</span>
+                            <span className="text-xs text-gray-600">{vendor.phoneNumber || 'N/A'}</span>
                           </div>
                         </div>
                       </td>
@@ -266,42 +286,39 @@ export default function VendorManagement() {
                       <td className="py-5 px-6">
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
-                            {vendor.isEmailVerified ? (
+                            {vendor.isProfileComplete ? (
                               <CheckCircle className="w-3 h-3 text-green-500" />
                             ) : (
                               <X className="w-3 h-3 text-red-500" />
                             )}
-                            <span className="text-xs text-gray-600">Email</span>
+                            <span className="text-xs text-gray-600">Profile Complete</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            {vendor.isPhoneVerified ? (
-                              <CheckCircle className="w-3 h-3 text-green-500" />
+                            {vendor.isCaterbazarChoice ? (
+                              <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
                             ) : (
-                              <X className="w-3 h-3 text-red-500" />
+                              <Star className="w-3 h-3 text-gray-400" />
                             )}
-                            <span className="text-xs text-gray-600">Phone</span>
+                            <span className="text-xs text-gray-600">Caterbazar Choice</span>
                           </div>
                         </div>
                       </td>
                       
                       <td className="py-5 px-6">
-                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(vendor.accountStatus)}`}>
-                          {getStatusIcon(vendor.accountStatus)}
-                          {vendor.accountStatus.charAt(0).toUpperCase() + vendor.accountStatus.slice(1)}
+                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(vendor.accountStatus || (vendor.isActive ? 'active' : 'pending'))}`}>
+                          {getStatusIcon(vendor.accountStatus || (vendor.isActive ? 'active' : 'pending'))}
+                          {(vendor.accountStatus || (vendor.isActive ? 'active' : 'pending')).charAt(0).toUpperCase() + (vendor.accountStatus || (vendor.isActive ? 'active' : 'pending')).slice(1)}
                         </span>
                       </td>
                       
                       <td className="py-5 px-6">
                         <div className="flex items-center gap-1">
                           <button 
-                            onClick={() => handleViewVendor(vendor._id)}
+                            onClick={() => handleViewVendor(vendor.userId?._id || vendor._id)}
                             className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
                             title="View Details"
                           >
                             <Eye className="w-4 h-4" />
-                          </button>
-                          <button className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Edit">
-                            <Edit className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
@@ -321,10 +338,10 @@ export default function VendorManagement() {
                   {/* Vendor Header */}
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 text-base mb-1">{vendor.fullName}</h3>
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(vendor.accountStatus)}`}>
-                        {getStatusIcon(vendor.accountStatus)}
-                        {vendor.accountStatus.charAt(0).toUpperCase() + vendor.accountStatus.slice(1)}
+                      <h3 className="font-semibold text-gray-900 text-base mb-1">{vendor.userId?.fullName || 'N/A'}</h3>
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(vendor.accountStatus || (vendor.isActive ? 'active' : 'pending'))}`}>
+                        {getStatusIcon(vendor.accountStatus || (vendor.isActive ? 'active' : 'pending'))}
+                        {(vendor.accountStatus || (vendor.isActive ? 'active' : 'pending')).charAt(0).toUpperCase() + (vendor.accountStatus || (vendor.isActive ? 'active' : 'pending')).slice(1)}
                       </span>
                     </div>
                   </div>
@@ -333,11 +350,11 @@ export default function VendorManagement() {
                   <div className="space-y-2 mb-3">
                     <div className="flex items-center gap-2 text-sm">
                       <Mail className="w-4 h-4 text-gray-400 shrink-0" />
-                      <span className="text-gray-700 truncate">{vendor.email}</span>
+                      <span className="text-gray-700 truncate">{vendor.userId?.email || 'N/A'}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Phone className="w-4 h-4 text-gray-400 shrink-0" />
-                      <span className="text-gray-700">{vendor.phoneNumber}</span>
+                      <span className="text-gray-700">{vendor.phoneNumber || 'N/A'}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
@@ -345,39 +362,35 @@ export default function VendorManagement() {
                     </div>
                   </div>
 
-                  {/* Verification Status */}
+                  {/* Profile Status */}
                   <div className="flex items-center gap-4 mb-3 pb-3 border-b border-gray-200">
                     <div className="flex items-center gap-1.5">
-                      {vendor.isEmailVerified ? (
+                      {vendor.isProfileComplete ? (
                         <CheckCircle className="w-4 h-4 text-green-500" />
                       ) : (
                         <XCircle className="w-4 h-4 text-red-500" />
                       )}
-                      <span className="text-xs text-gray-600">Email</span>
+                      <span className="text-xs text-gray-600">Profile Complete</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      {vendor.isPhoneVerified ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
+                      {vendor.isCaterbazarChoice ? (
+                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                       ) : (
-                        <XCircle className="w-4 h-4 text-red-500" />
+                        <Star className="w-4 h-4 text-gray-400" />
                       )}
-                      <span className="text-xs text-gray-600">Phone</span>
+                      <span className="text-xs text-gray-600">CB Choice</span>
                     </div>
                   </div>
 
                   {/* Actions */}
                   <div className="flex items-center gap-2">
                     <button 
-                      onClick={() => handleViewVendor(vendor._id)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-700 rounded-lg font-medium text-sm hover:bg-blue-100 transition-colors"
+                      onClick={() => handleViewVendor(vendor.userId?._id || vendor._id)}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-700 rounded-lg font-medium text-sm hover:bg-blue-100 transition-colors"
                     >
                       <Eye className="w-4 h-4" />
                       View Details
                     </button>
-                    {/* <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-green-50 text-green-700 rounded-lg font-medium text-sm hover:bg-green-100 transition-colors">
-                      <Edit className="w-4 h-4" />
-                      Edit
-                    </button> */}
                   </div>
                 </div>
               ))}

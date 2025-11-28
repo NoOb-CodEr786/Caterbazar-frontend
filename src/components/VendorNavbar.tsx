@@ -69,11 +69,11 @@ export default function VendorNavbar() {
       await vendorLogout();
       setVendor(null);
       setIsProfileOpen(false);
-      router.push("/auth/vendor/signin");
+      router.push("/auth");
     } catch (error) {
       console.error("Logout failed:", error);
       // Even if API call fails, redirect to login
-      router.push("/auth/vendor/signin");
+      router.push("/auth");
     } finally {
       setIsLoggingOut(false);
     }
@@ -262,13 +262,13 @@ export default function VendorNavbar() {
             {!vendor && !isLoadingVendor && (
               <div className="hidden md:flex items-center gap-4">
                 <Link
-                  href="/auth/vendor/signin"
+                  href="/auth"
                   className="text-white hover:text-orange-300 font-semibold transition-colors"
                 >
                   Login
                 </Link>
                 <Link
-                  href="/auth/vendor/signup"
+                  href="/auth"
                   className="bg-white text-orange-600 px-4 py-2 rounded-lg font-semibold hover:bg-orange-50 transition-colors"
                 >
                   Sign Up
@@ -362,14 +362,14 @@ export default function VendorNavbar() {
                 ) : (
                   <>
                     <Link
-                      href="/auth/vendor/signin"
+                      href="/auth"
                       className="block text-center text-white hover:text-orange-300 font-semibold transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Login
                     </Link>
                     <Link
-                      href="/auth/vendor/signup"
+                      href="/auth"
                       className="block text-center bg-white text-orange-600 px-4 py-2 rounded-lg font-semibold hover:bg-orange-50 transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >

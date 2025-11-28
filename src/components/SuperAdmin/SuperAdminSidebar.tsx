@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { 
-  Users, UserCheck, Image, ShoppingBag, Shield, HelpCircle 
+  Users, UserCheck, Image, ShoppingBag, Shield, HelpCircle, FileCheck 
 } from 'lucide-react';
 
 interface SuperAdminSidebarProps {
@@ -13,6 +13,7 @@ interface SuperAdminSidebarProps {
 export default function SuperAdminSidebar({ activeTab, onTabChange }: SuperAdminSidebarProps) {
   const menuItems = [
     { id: 'vendors', label: 'Vendor Management', icon: Users },
+    { id: 'business-registrations', label: 'Business Registrations', icon: FileCheck },
     { id: 'customers', label: 'Customer Management', icon: UserCheck },
     { id: 'hero-images', label: 'Hero Image Management', icon: Image },
     { id: 'total-orders', label: 'Total Orders', icon: ShoppingBag }
@@ -49,21 +50,7 @@ export default function SuperAdminSidebar({ activeTab, onTabChange }: SuperAdmin
               </button>
             );
           })}
-        </div>
-
-        {/* Admin Support */}
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <button className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-orange-500 text-orange-500 rounded-lg font-semibold hover:bg-orange-50 transition-colors">
-            <span className="text-sm lg:text-base">Admin Support</span>
-            <HelpCircle className="w-5 h-5" />
-          </button>
-          <p className="text-xs text-gray-600 text-center mt-3">
-            Technical Issues?{' '}
-            <a href="mailto:admin@caterbazar.com" className="text-orange-500 hover:underline">
-              admin@caterbazar.com
-            </a>
-          </p>
-        </div>
+        </div>       
       </div>
     </div>
   );

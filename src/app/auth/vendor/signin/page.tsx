@@ -126,7 +126,7 @@ export default function VendorSignin() {
               </div>
             </div>
 
-            <div className="flex justify-end">
+            {/* <div className="flex justify-end">
               <button 
                 type="button"
                 onClick={(e) => {e.preventDefault(); console.log('Forgot password clicked');}}
@@ -134,7 +134,7 @@ export default function VendorSignin() {
               >
                 Forgot Password?
               </button>
-            </div>
+            </div> */}
 
             <button
               type="submit"

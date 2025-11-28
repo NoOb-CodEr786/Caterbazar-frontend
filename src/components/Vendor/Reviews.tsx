@@ -1,115 +1,167 @@
 "use client";
-import React, { useState } from 'react';
-import { Star, ThumbsUp, ChevronDown, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Star, ThumbsUp, ChevronDown, ChevronRight, Loader2, X, ChevronLeft } from 'lucide-react';
+import { getVendorReviews, ReviewData, getVendorProfile, GalleryImage } from '@/api/user/public.api';
 
-export default function ReviewsSection() {
-  const [sortBy, setSortBy] = useState('Newest');
+interface ReviewsSectionProps {
+  vendorId: string;
+}
+
+export default function ReviewsSection({ vendorId }: ReviewsSectionProps) {
+  const [reviews, setReviews] = useState<ReviewData[]>([]);
+  const [highlightImages, setHighlightImages] = useState<GalleryImage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [sortBy, setSortBy] = useState('createdAt');
   const [filterStars, setFilterStars] = useState<number | null>(null);
-  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    pages: 0,
+  });
 
-  const reviews = [
-    {
-      id: 1,
-      name: 'Sarah M.',
-      avatar: 'https://i.pravatar.cc/150?img=1',
-      rating: 5,
-      date: '3 days ago',
-      verified: true,
-      title: 'Absolutely phenomenal catering service!',
-      content: 'The team exceeded all our expectations for our wedding reception. Every dish was perfectly prepared and beautifully presented. The staff was professional, courteous, and went above and beyond to ensure our special day was perfect. Our guests are still talking about how amazing the food was!',
-      images: [
-        'https://images.unsplash.com/photo-1555244162-803834f70033?w=300',
-        'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=300',
-        'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=300'
-      ],
-      helpful: 12,
-      notHelpful: 0,
-      eventType: 'Wedding Reception'
-    },
-    {
-      id: 2,
-      name: 'Michael R.',
-      avatar: 'https://i.pravatar.cc/150?img=2',
-      rating: 5,
-      date: '1 week ago',
-      verified: true,
-      title: 'Perfect for our corporate event',
-      content: 'Hired them for our company\'s annual dinner and they delivered excellence. The menu variety was impressive, dietary restrictions were handled seamlessly, and the presentation was top-notch. Highly recommend for any corporate gathering.',
-      images: [],
-      helpful: 8,
-      notHelpful: 1,
-      eventType: 'Corporate Event'
-    },
-    {
-      id: 3,
-      name: 'Emma L.',
-      avatar: 'https://i.pravatar.cc/150?img=3',
-      rating: 4,
-      date: '2 weeks ago',
-      verified: false,
-      title: 'Great food, minor timing issues',
-      content: 'The quality of food was excellent and our guests loved the variety. However, there were some minor delays in service timing during our birthday celebration. Overall satisfied and would consider booking again.',
-      images: [],
-      helpful: 4,
-      notHelpful: 2,
-      eventType: 'Birthday Party'
+  // Fetch reviews and gallery images
+  useEffect(() => {
+    fetchReviews(true);
+    fetchHighlightImages();
+  }, [vendorId, sortBy, filterStars]);
+
+  const fetchHighlightImages = async () => {
+    try {
+      const response = await getVendorProfile(vendorId);
+      if (response.success) {
+        const highlights = response.data.gallery.filter(img => img.category === 'highlights');
+        setHighlightImages(highlights);
+      }
+    } catch (error) {
+      console.error('Error fetching highlight images:', error);
     }
-  ];
+  };
 
-  const ratingBreakdown = [
-    { stars: 5, percentage: 78, count: 192 },
-    { stars: 4, percentage: 15, count: 37 },
-    { stars: 3, percentage: 4, count: 10 },
-    { stars: 2, percentage: 2, count: 5 },
-    { stars: 1, percentage: 1, count: 4 }
-  ];
+  const fetchReviews = async (resetPage = false) => {
+    const currentPage = resetPage ? 1 : pagination.page;
+    
+    if (resetPage) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
+
+    try {
+      const response = await getVendorReviews(vendorId, {
+        page: currentPage,
+        limit: pagination.limit,
+        rating: filterStars || undefined,
+        sortBy: sortBy,
+      });
+
+      if (response.success) {
+        if (resetPage) {
+          setReviews(response.data.reviews);
+        } else {
+          setReviews(prev => [...prev, ...response.data.reviews]);
+        }
+        setPagination(response.data.pagination);
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  const handleLoadMore = () => {
+    if (pagination.page < pagination.pages) {
+      setPagination(prev => ({ ...prev, page: prev.page + 1 }));
+      fetchReviews(false);
+    }
+  };
+
+  const handleSortChange = (value: string) => {
+    setSortBy(value);
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
+
+  const handleFilterStars = (stars: number) => {
+    setFilterStars(filterStars === stars ? null : stars);
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
+
+  // Calculate average rating and rating breakdown from current reviews
+  const averageRating = reviews.length > 0
+    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+    : 0;
+
+  const ratingBreakdown = [5, 4, 3, 2, 1].map(stars => {
+    const count = reviews.filter(r => Math.floor(r.rating) === stars).length;
+    const percentage = pagination.total > 0 ? (count / pagination.total) * 100 : 0;
+    return { stars, percentage, count };
+  });
+
+  // Format date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString();
+  };
 
   return (
     <div className="bg-white py-6 sm:py-8 lg:py-12">
       <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
-        {/* Albums Section */}
-        <div className="mb-8 sm:mb-10 lg:mb-12">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Albums</h2>
-            <button className="text-orange-500 hover:text-orange-600 font-semibold flex items-center gap-1 text-sm sm:text-base">
-              View all
-              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-          </div>
-          <div className="flex gap-3 sm:gap-4 overflow-x-auto hide-scrollbar pb-2">
-            <div className="relative w-28 h-36 sm:w-32 sm:h-40 shrink-0 rounded-lg sm:rounded-xl overflow-hidden cursor-pointer group">
-              <img
-                src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400"
-                alt="Menu"
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-              <span className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 text-white font-semibold text-sm sm:text-base">Menu</span>
+        {/* Gallery/Albums Section */}
+        {highlightImages.length > 0 && (
+          <div className="mb-8 sm:mb-10 lg:mb-12">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Gallery Highlights</h2>
+              <span className="text-sm text-gray-600">{highlightImages.length} Photos</span>
             </div>
-            <div className="relative w-28 h-36 sm:w-32 sm:h-40 shrink-0 rounded-lg sm:rounded-xl overflow-hidden cursor-pointer group">
-              <img
-                src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400"
-                alt="Moments"
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-              <span className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 text-white font-semibold text-sm sm:text-base">Moments</span>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+              {highlightImages.map((image, index) => (
+                <div 
+                  key={image._id}
+                  onClick={() => setSelectedImageIndex(index)}
+                  className="relative aspect-square rounded-lg sm:rounded-xl overflow-hidden cursor-pointer group shadow-md hover:shadow-xl transition-shadow"
+                >
+                  <img
+                    src={image.url}
+                    alt={image.caption}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        )}
 
         {/* Rating Overview */}
         <div className="mb-6 sm:mb-8">
           <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
             {/* Left: Overall Rating */}
             <div className="text-center md:text-left">
-              <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-2">4.8</div>
+              <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-2">{averageRating.toFixed(1)}</div>
               <div className="flex items-center gap-1 mb-2 justify-center md:justify-start">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} className="w-5 h-5 sm:w-6 sm:h-6 fill-yellow-400 text-yellow-400" />
+                  <Star 
+                    key={star} 
+                    className={`w-5 h-5 sm:w-6 sm:h-6 ${
+                      star <= Math.floor(averageRating)
+                        ? 'fill-yellow-400 text-yellow-400'
+                        : 'fill-gray-200 text-gray-200'
+                    }`} 
+                  />
                 ))}
               </div>
-              <p className="text-sm sm:text-base text-gray-600">248 Reviews</p>
+              <p className="text-sm sm:text-base text-gray-600">{pagination.total} Reviews</p>
             </div>
 
             {/* Right: Rating Breakdown */}
@@ -146,13 +198,13 @@ export default function ReviewsSection() {
               <div className="relative flex-1 lg:flex-initial">
                 <select
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
+                  onChange={(e) => handleSortChange(e.target.value)}
                   className="w-full lg:w-auto px-3 sm:px-4 py-2 pr-8 sm:pr-10 border border-gray-300 rounded-lg text-xs sm:text-sm font-medium appearance-none bg-white cursor-pointer hover:border-gray-400"
                 >
-                  <option>Newest</option>
-                  <option>Highest Rating</option>
-                  <option>Lowest Rating</option>
-                  <option>Most Helpful</option>
+                  <option value="createdAt">Newest</option>
+                  <option value="-rating">Highest Rating</option>
+                  <option value="rating">Lowest Rating</option>
+                  <option value="-helpfulCount">Most Helpful</option>
                 </select>
                 <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400 pointer-events-none" />
               </div>
@@ -165,7 +217,7 @@ export default function ReviewsSection() {
                 {[5, 4, 3, 2, 1].map((star) => (
                   <button
                     key={star}
-                    onClick={() => setFilterStars(filterStars === star ? null : star)}
+                    onClick={() => handleFilterStars(star)}
                     className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                       filterStars === star
                         ? 'bg-orange-500 text-white'
@@ -177,43 +229,36 @@ export default function ReviewsSection() {
                 ))}
               </div>
             </div>
-
-            {/* Verified Only Toggle */}
-            <div className="flex items-center gap-2 lg:ml-auto">
-              <span className="text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap">Verified Only</span>
-              <button
-                onClick={() => setVerifiedOnly(!verifiedOnly)}
-                className={`relative w-11 h-6 sm:w-12 sm:h-6 rounded-full transition-colors ${
-                  verifiedOnly ? 'bg-orange-500' : 'bg-gray-300'
-                }`}
-              >
-                <div
-                  className={`absolute w-5 h-5 bg-white rounded-full top-0.5 transition-transform shadow-sm ${
-                    verifiedOnly ? 'translate-x-5 sm:translate-x-6' : 'translate-x-0.5'
-                  }`}
-                />
-              </button>
-            </div>
           </div>
         </div>
 
         {/* Reviews List */}
-        <div className="space-y-4 sm:space-y-6">
-          {reviews.map((review) => (
-            <div key={review.id} className="border border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 bg-white hover:shadow-md transition-shadow">
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+          </div>
+        ) : (
+          <div className="space-y-4 sm:space-y-6">
+            {reviews.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500">No reviews yet. Be the first to review!</p>
+              </div>
+            ) : (
+              reviews.map((review) => (
+            <div key={review._id} className="border border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 bg-white hover:shadow-md transition-shadow">
               <div className="flex items-start gap-3 sm:gap-4">
                 {/* Avatar */}
                 <img
-                  src={review.avatar}
-                  alt={review.name}
+                  src={review.userId?.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.userId?.fullName || 'User')}&background=random`}
+                  alt={review.userId?.fullName || 'User'}
                   className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover shrink-0"
                 />
 
                 <div className="flex-1 min-w-0">
                   {/* Header */}
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
-                    <h3 className="font-bold text-gray-900 text-sm sm:text-base">{review.name}</h3>
-                    {review.verified && (
+                    <h3 className="font-bold text-gray-900 text-sm sm:text-base">{review.userId?.fullName || 'Anonymous User'}</h3>
+                    {review.isVerified && (
                       <span className="bg-green-100 text-green-700 text-[10px] sm:text-xs px-2 py-0.5 sm:py-1 rounded-full font-medium flex items-center gap-1 w-fit">
                         ✓ Verified Booking
                       </span>
@@ -234,31 +279,103 @@ export default function ReviewsSection() {
                         />
                       ))}
                     </div>
-                    <span className="text-xs sm:text-sm text-gray-500">{review.date}</span>
-                    {review.eventType && (
-                      <span className="text-xs text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full font-medium">
-                        {review.eventType}
-                      </span>
-                    )}
+                    <span className="text-xs sm:text-sm text-gray-500">{formatDate(review.createdAt)}</span>
                   </div>
 
                   {/* Review Title */}
                   <h4 className="font-bold text-gray-900 mb-2 text-sm sm:text-base leading-snug">{review.title}</h4>
 
                   {/* Review Content */}
-                  <p className="text-gray-700 mb-3 sm:mb-4 text-xs sm:text-sm leading-relaxed">{review.content}</p>
+                  <p className="text-gray-700 mb-3 sm:mb-4 text-xs sm:text-sm leading-relaxed">{review.comment}</p>
+
+                  {/* Detailed Ratings */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3 sm:mb-4">
+                    <div className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center">
+                      <div className="text-[10px] sm:text-xs text-gray-600 mb-1">Food Quality</div>
+                      <div className="flex items-center justify-center gap-0.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${
+                              star <= review.foodQuality
+                                ? 'fill-orange-400 text-orange-400'
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <div className="text-xs sm:text-sm font-bold text-orange-600 mt-1">{review.foodQuality}/5</div>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center">
+                      <div className="text-[10px] sm:text-xs text-gray-600 mb-1">Service</div>
+                      <div className="flex items-center justify-center gap-0.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${
+                              star <= review.serviceQuality
+                                ? 'fill-orange-400 text-orange-400'
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <div className="text-xs sm:text-sm font-bold text-orange-600 mt-1">{review.serviceQuality}/5</div>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center">
+                      <div className="text-[10px] sm:text-xs text-gray-600 mb-1">Value</div>
+                      <div className="flex items-center justify-center gap-0.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${
+                              star <= review.valueForMoney
+                                ? 'fill-orange-400 text-orange-400'
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <div className="text-xs sm:text-sm font-bold text-orange-600 mt-1">{review.valueForMoney}/5</div>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-2 sm:p-3 text-center">
+                      <div className="text-[10px] sm:text-xs text-gray-600 mb-1">Hygiene</div>
+                      <div className="flex items-center justify-center gap-0.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${
+                              star <= review.hygiene
+                                ? 'fill-orange-400 text-orange-400'
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <div className="text-xs sm:text-sm font-bold text-orange-600 mt-1">{review.hygiene}/5</div>
+                    </div>
+                  </div>
 
                   {/* Images */}
-                  {review.images.length > 0 && (
+                  {review.photos && review.photos.length > 0 && (
                     <div className="flex gap-2 mb-3 sm:mb-4 overflow-x-auto hide-scrollbar pb-2">
-                      {review.images.map((img, idx) => (
+                      {review.photos.map((photo, idx) => (
                         <img
                           key={idx}
-                          src={img}
+                          src={photo}
                           alt={`Review ${idx + 1}`}
                           className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity"
                         />
                       ))}
+                    </div>
+                  )}
+
+                  {/* Vendor Response */}
+                  {review.vendorResponse && (
+                    <div className="bg-orange-50 rounded-lg p-3 mb-3">
+                      <p className="text-xs font-semibold text-gray-900 mb-1">Vendor Response</p>
+                      <p className="text-xs text-gray-700 mb-1">{review.vendorResponse.message}</p>
+                      <p className="text-xs text-gray-500">{formatDate(review.vendorResponse.respondedAt)}</p>
                     </div>
                   )}
 
@@ -267,22 +384,125 @@ export default function ReviewsSection() {
                     <span className="text-xs sm:text-sm text-gray-600">Was this helpful?</span>
                     <button className="flex items-center gap-1 sm:gap-1.5 text-gray-600 hover:text-orange-500 transition-colors">
                       <ThumbsUp className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span className="text-xs sm:text-sm font-medium">{review.helpful}</span>
+                      <span className="text-xs sm:text-sm font-medium">{review.helpfulCount}</span>
                     </button>
                   </div>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+            ))
+            )}
+          </div>
+        )}
 
         {/* Load More Button */}
-        <div className="text-center mt-6 sm:mt-8">
-          <button className="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:border-orange-500 hover:text-orange-500 transition-colors text-sm sm:text-base">
-            Load More Reviews
-          </button>
-        </div>
+        {!loading && pagination.page < pagination.pages && (
+          <div className="text-center mt-6 sm:mt-8">
+            <button 
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+              className="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:border-orange-500 hover:text-orange-500 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mx-auto"
+            >
+              {loadingMore ? (
+                <>
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                'Load More Reviews'
+              )}
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Image Modal */}
+      {selectedImageIndex !== null && highlightImages.length > 0 && (
+        <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
+          {/* Close Button */}
+          <button
+            onClick={() => setSelectedImageIndex(null)}
+            className="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors z-10"
+            aria-label="Close"
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+
+          {/* Image Counter */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-4 py-2 rounded-full text-sm font-medium">
+            {selectedImageIndex + 1} / {highlightImages.length}
+          </div>
+
+          {/* Previous Button */}
+          {highlightImages.length > 1 && (
+            <button
+              onClick={() => setSelectedImageIndex(prev => 
+                prev === 0 ? highlightImages.length - 1 : prev! - 1
+              )}
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="w-6 h-6 text-white" />
+            </button>
+          )}
+
+          {/* Image */}
+          <div className="flex items-center justify-center max-w-full max-h-[90vh]">
+            <img
+              src={highlightImages[selectedImageIndex].url}
+              alt={highlightImages[selectedImageIndex].caption}
+              className="max-w-full max-h-[90vh] object-contain"
+            />
+          </div>
+          
+          {/* Caption */}
+          {highlightImages[selectedImageIndex].caption && (
+            <div className="absolute bottom-24 left-1/2 -translate-x-1/2 max-w-2xl px-4">
+              <p className="text-white text-center bg-black/60 px-4 py-2 rounded-lg text-sm sm:text-base">
+                {highlightImages[selectedImageIndex].caption}
+              </p>
+            </div>
+          )}
+
+          {/* Next Button */}
+          {highlightImages.length > 1 && (
+            <button
+              onClick={() => setSelectedImageIndex(prev => 
+                prev === highlightImages.length - 1 ? 0 : prev! + 1
+              )}
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
+              aria-label="Next image"
+            >
+              <ChevronRight className="w-6 h-6 text-white" />
+            </button>
+          )}
+
+          {/* Thumbnail Navigation */}
+          {highlightImages.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 max-w-full overflow-x-auto px-4">
+              <div className="flex gap-2 sm:gap-3">
+                {highlightImages.map((image, index) => (
+                  <button
+                    key={image._id}
+                    onClick={() => setSelectedImageIndex(index)}
+                    className={`shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                      selectedImageIndex === index
+                        ? 'border-orange-500 ring-2 ring-orange-300'
+                        : 'border-white/30 hover:border-white/60'
+                    }`}
+                  >
+                    <img
+                      src={image.url}
+                      alt={image.caption}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

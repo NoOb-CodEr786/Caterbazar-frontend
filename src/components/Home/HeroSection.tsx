@@ -2,44 +2,68 @@
 
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, MapPin, Utensils, ArrowRight, CheckCircle } from 'lucide-react';
+import { TypewriterEffect } from "../ui/typewriter-effect";
+import { getHeroImages, HeroImage } from '@/api/user/public.api';
 
 export default function HeroSection() {
   const [vendorType, setVendorType] = useState('');
   const [location, setLocation] = useState('');
   const [caterbazarChoice, setCaterbazarChoice] = useState(true);
-  const [typedText, setTypedText] = useState('');
-  const fullText = 'Redefining Dining Experiences for Your Events';
+  const [heroImages, setHeroImages] = useState<HeroImage[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const startTyping = () => {
-      let index = 0;
-      setTypedText('');
-      
-      const typingInterval = setInterval(() => {
-        if (index <= fullText.length) {
-          setTypedText(fullText.slice(0, index));
-          index++;
-        } else {
-          clearInterval(typingInterval);
-        }
-      }, 50); // Adjust speed here (lower = faster)
-    };
-
-    // Start typing immediately
-    startTyping();
-
-    // Repeat every 3 seconds
-    const repeatInterval = setInterval(() => {
-      startTyping();
-    }, 7000);
-
-    return () => {
-      clearInterval(repeatInterval);
-    };
+    fetchHeroImages();
   }, []);
 
+  useEffect(() => {
+    if (heroImages.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
+      }, 5000); // Change image every 5 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [heroImages.length]);
+
+  const fetchHeroImages = async () => {
+    try {
+      const response = await getHeroImages();
+      if (response.success && response.data.heroImages.length > 0) {
+        setHeroImages(response.data.heroImages);
+      }
+    } catch (error) {
+      console.error('Error fetching hero images:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const words = [
+    {
+      text: "for",
+    },
+    {
+      text: "Your",
+    },
+    {
+      text: "Events",
+      className: "text-orange-500",
+    },
+  ];
+
   const handleSearch = () => {
-    console.log('Search:', { vendorType, location, caterbazarChoice });
+    const params = new URLSearchParams();
+    
+    if (vendorType) params.append('vendorCategory', vendorType);
+    if (location) params.append('state', location);
+    if (caterbazarChoice) params.append('caterbazarChoice', 'true');
+    
+    const queryString = params.toString();
+    const url = queryString ? `/vendors?${queryString}` : '/vendors';
+    
+    window.location.href = url;
   };
 
   return (
@@ -50,42 +74,31 @@ export default function HeroSection() {
           <div className="space-y-6 sm:space-y-8">
             {/* Heading */}
             <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-3 sm:mb-4 min-h-20 sm:min-h-[120px]">
-                {typedText}
-                <span className="animate-pulse">|</span>
-              </h1>
+              <div className="mb-3 sm:mb-4">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
+                  Redefining Dining Experiences {" "}
+                  <TypewriterEffect words={words} className="inline text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold" />
+                </h1>
+              </div>
               <p className="text-sm sm:text-base text-gray-600">
                 Curated menus, elegant setups, and flawless service perfection on every plate.
               </p>
             </div>
-
-            {/* Trusted By Section */}
-            {/* <div>
-              <p className="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3 lg:mb-4">Trusted by :</p>
-              <div className="overflow-hidden">
-                <div className="flex items-center gap-3 sm:gap-4 md:gap-6 lg:gap-8 opacity-40 animate-scroll">
-                  <div className="text-gray-400 text-xs sm:text-sm lg:text-base font-semibold whitespace-nowrap">LaunchSimple</div>
-                  <div className="text-gray-400 text-xs sm:text-sm lg:text-base font-semibold whitespace-nowrap">Lightbox</div>
-                  <div className="text-gray-400 text-xs sm:text-sm lg:text-base font-semibold whitespace-nowrap">Lightspeed</div>
-                  <div className="text-gray-400 text-xs sm:text-sm lg:text-base font-semibold whitespace-nowrap">Company</div>
-                  <div className="text-gray-400 text-xs sm:text-sm lg:text-base font-semibold whitespace-nowrap">LaunchSimple</div>
-                  <div className="text-gray-400 text-xs sm:text-sm lg:text-base font-semibold whitespace-nowrap">Lightbox</div>
-                  <div className="text-gray-400 text-xs sm:text-sm lg:text-base font-semibold whitespace-nowrap">Lightspeed</div>
-                  <div className="text-gray-400 text-xs sm:text-sm lg:text-base font-semibold whitespace-nowrap">Company</div>
-                </div>
-              </div>
-            </div> */}
           </div>
 
           {/* Right Side - Image with Search Card */}
           <div className="relative">
             {/* Background Image */}
             <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl">
-              <img
-                src="https://images.unsplash.com/photo-1555244162-803834f70033?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
-                alt="Chefs preparing food"
-                className="w-full h-[300px] sm:h-[400px] lg:h-[500px] object-cover"
-              />
+              {loading ? (
+                <div className="w-full h-[400px] sm:h-[450px] lg:h-[550px] bg-gray-200 animate-pulse"></div>
+              ) : (
+                <img
+                  src={heroImages[currentImageIndex]?.imageUrl || 'https://images.unsplash.com/photo-1555244162-803834f70033?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'}
+                  alt={heroImages[currentImageIndex]?.title || 'Chefs preparing food'}
+                  className="w-full h-[400px] sm:h-[450px] lg:h-[550px] object-cover transition-opacity duration-500"
+                />
+              )}
               <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent"></div>
 
               {/* Search Card Overlay */}
@@ -104,10 +117,16 @@ export default function HeroSection() {
                         className="w-full pl-8 sm:pl-10 pr-8 sm:pr-10 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-xs sm:text-sm bg-white appearance-none text-gray-600"
                       >
                         <option value="">Select Vendor</option>
-                        <option value="wedding">Wedding Catering</option>
-                        <option value="corporate">Corporate Catering</option>
-                        <option value="party">Party Catering</option>
-                        <option value="event">Event Catering</option>
+                        <option value="food_catering">Food Catering</option>
+                        <option value="decoration">Decoration</option>
+                        <option value="photography">Photography</option>
+                        <option value="dj_music">DJ & Music</option>
+                        <option value="venue">Venue</option>
+                        <option value="makeup_artist">Makeup Artist</option>
+                        <option value="event_planner">Event Planner</option>
+                        <option value="invitation_cards">Invitation Cards</option>
+                        <option value="transportation">Transportation</option>
+                        <option value="other">Other</option>
                       </select>
                       <ChevronDown className="absolute right-2.5 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5 pointer-events-none" />
                     </div>
@@ -126,10 +145,11 @@ export default function HeroSection() {
                         className="w-full pl-8 sm:pl-10 pr-8 sm:pr-10 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-xs sm:text-sm bg-white appearance-none text-gray-600"
                       >
                         <option value="">Find Location</option>
-                        <option value="mumbai">Mumbai</option>
-                        <option value="delhi">Delhi</option>
-                        <option value="bangalore">Bangalore</option>
-                        <option value="pune">Pune</option>
+                        <option value="Odisha">Odisha</option>
+                        <option value="Maharashtra">Maharashtra</option>
+                        <option value="Karnataka">Karnataka</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="West Bengal">West Bengal</option>
                       </select>
                       <ChevronDown className="absolute right-2.5 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5 pointer-events-none" />
                     </div>

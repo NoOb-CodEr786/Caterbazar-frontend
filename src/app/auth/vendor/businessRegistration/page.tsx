@@ -1,8 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { submitBusinessRegistration } from "@/api/vendor/business.api";
+import { useRouter } from "next/navigation";
 
 export default function BusinessRegistration() {
+  const router = useRouter();
   const [brandName, setBrandName] = useState("");
   const [businessEmail, setBusinessEmail] = useState("");
   const [businessMobile, setBusinessMobile] = useState("");
@@ -10,16 +13,61 @@ export default function BusinessRegistration() {
   const [vendorType, setVendorType] = useState("");
   const [referId, setReferId] = useState("");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const handleRegistration = () => {
-    console.log("Business Registration:", {
-      brandName,
-      businessEmail,
-      businessMobile,
-      location,
-      vendorType,
-      referId,
-    });
+  const handleRegistration = async () => {
+    setError("");
+    setSuccess("");
+
+    // Validation
+    if (!brandName || !businessEmail || !businessMobile || !location || !vendorType) {
+      setError("Please fill in all required fields");
+      return;
+    }
+
+    if (!agreeToTerms) {
+      setError("Please agree to the terms and privacy policy");
+      return;
+    }
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(businessEmail)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
+    // Validate mobile number (10 digits)
+    if (businessMobile.length !== 10 || !/^\d+$/.test(businessMobile)) {
+      setError("Please enter a valid 10-digit mobile number");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await submitBusinessRegistration({
+        brandName,
+        businessEmail,
+        businessMobile,
+        location,
+        vendorType,
+        referId: referId || undefined,
+      });
+
+      if (response.success) {
+        setSuccess(response.message);
+        setTimeout(() => {
+          router.push("/auth");
+        }, 2500);
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to submit business registration. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -75,6 +123,23 @@ export default function BusinessRegistration() {
             </p>
           </div>
 
+          {/* Error/Success Messages */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2 mb-5">
+              <AlertCircle className="h-5 w-5 shrink-0" />
+              <span className="text-sm">{error}</span>
+            </div>
+          )}
+          {success && (
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-start gap-2 mb-5">
+              <CheckCircle className="h-5 w-5 shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <span className="text-sm font-medium block">{success}</span>
+                <span className="text-xs text-green-600 mt-1 block">Redirecting to sign in...</span>
+              </div>
+            </div>
+          )}
+
           {/* Business Registration Form */}
           <div className="space-y-5">
             <div>
@@ -86,7 +151,8 @@ export default function BusinessRegistration() {
                 value={brandName}
                 onChange={(e) => setBrandName(e.target.value)}
                 placeholder="Enter your brand name e.g., Spice Haven"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm placeholder:text-gray-400"
+                disabled={loading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm placeholder:text-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -99,7 +165,8 @@ export default function BusinessRegistration() {
                 value={businessEmail}
                 onChange={(e) => setBusinessEmail(e.target.value)}
                 placeholder="Enter business email"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm placeholder:text-gray-400"
+                disabled={loading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm placeholder:text-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -119,7 +186,9 @@ export default function BusinessRegistration() {
                   value={businessMobile}
                   onChange={(e) => setBusinessMobile(e.target.value)}
                   placeholder="Enter mobile number"
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm placeholder:text-gray-400"
+                  maxLength={10}
+                  disabled={loading}
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm placeholder:text-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -133,7 +202,8 @@ export default function BusinessRegistration() {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="City, State e.g., Mumbai, Maharashtra"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm placeholder:text-gray-400"
+                disabled={loading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm placeholder:text-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -145,14 +215,20 @@ export default function BusinessRegistration() {
                 <select
                   value={vendorType}
                   onChange={(e) => setVendorType(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm bg-white appearance-none text-gray-600"
+                  disabled={loading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm bg-white appearance-none text-gray-600 disabled:bg-gray-100 disabled:cursor-not-allowed"
                 >
                   <option value="">Select Type</option>
-                  <option value="wedding-catering">Wedding Catering</option>
-                  <option value="corporate-catering">Corporate Catering</option>
-                  <option value="party-catering">Party Catering</option>
-                  <option value="event-catering">Event Catering</option>
-                  <option value="full-service">Full Service Catering</option>
+                  <option value="food_catering">Food Catering</option>
+                  <option value="decoration">Decoration</option>
+                  <option value="photography">Photography</option>
+                  <option value="dj_music">DJ & Music</option>
+                  <option value="venue">Venue</option>
+                  <option value="makeup_artist">Makeup Artist</option>
+                  <option value="event_planner">Event Planner</option>
+                  <option value="invitation_cards">Invitation Cards</option>
+                  <option value="transportation">Transportation</option>
+                  <option value="other">Other</option>
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
               </div>
@@ -167,7 +243,8 @@ export default function BusinessRegistration() {
                 value={referId}
                 onChange={(e) => setReferId(e.target.value)}
                 placeholder="CB1234"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm placeholder:text-gray-400"
+                disabled={loading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-sm placeholder:text-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -176,7 +253,8 @@ export default function BusinessRegistration() {
                 type="checkbox"
                 checked={agreeToTerms}
                 onChange={(e) => setAgreeToTerms(e.target.checked)}
-                className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                disabled={loading}
+                className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500 disabled:cursor-not-allowed"
               />
               <label className="ml-3 text-sm text-gray-600">
                 I agree to the{" "}
@@ -192,14 +270,26 @@ export default function BusinessRegistration() {
 
             <button
               onClick={handleRegistration}
-              className="w-full bg-orange-400 hover:bg-orange-500 text-white py-3.5 rounded-lg font-semibold transition-colors text-sm mt-2"
+              disabled={loading}
+              className="w-full bg-orange-400 hover:bg-orange-500 text-white py-3.5 rounded-lg font-semibold transition-colors text-sm mt-2 disabled:bg-orange-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              Complete Registration
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                'Complete Registration'
+              )}
             </button>
           </div>
 
           <p className="mt-6 text-center text-sm">
-            <button className="text-orange-500 hover:text-orange-600 font-semibold">
+            <button
+              onClick={() => router.push('/auth')}
+              disabled={loading}
+              className="text-orange-500 hover:text-orange-600 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               Back to Login
             </button>
           </p>
