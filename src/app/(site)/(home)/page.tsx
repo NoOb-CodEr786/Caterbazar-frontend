@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import HeroSection from "@/components/Home/HeroSection";
 import CaterersSection from "@/components/Home/CaterersSection";
@@ -9,11 +9,11 @@ import WhyChooseCaterbazar from "@/components/Home/WhyChooseCaterbazar";
 import TrustSection from "@/components/Home/TrustSection";
 import CateringProfessionalCTA from "@/components/Home/CateringProfessionalCTA";
 
-const page = () => {
+function OAuthCallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  useEffect(() => {
+  React.useEffect(() => {
     const accessToken = searchParams.get("accessToken");
     const refreshToken = searchParams.get("refreshToken");
     const user = searchParams.get("user");
@@ -43,15 +43,22 @@ const page = () => {
     }
   }, [searchParams, router]);
 
+  return null; // This component doesn't render anything
+}
+
+const page = () => {
   return (
-    <div>
+    <>
+      <Suspense fallback={null}>
+        <OAuthCallbackHandler />
+      </Suspense>
       <HeroSection />
       <CaterersSection />
       <TopRatedCaterers />
       <WhyChooseCaterbazar />
       <TrustSection />
       <CateringProfessionalCTA />
-    </div>
+    </>
   );
 };
 
