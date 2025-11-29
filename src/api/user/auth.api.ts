@@ -57,6 +57,29 @@ interface ResendOTPResponse {
   success: boolean;
 }
 
+interface ForgotPasswordResponse {
+  statusCode: number;
+  data: null;
+  message: string;
+  success: boolean;
+}
+
+interface VerifyResetOTPResponse {
+  statusCode: number;
+  data: {
+    resetToken: string;
+  };
+  message: string;
+  success: boolean;
+}
+
+interface ResetPasswordResponse {
+  statusCode: number;
+  data: null;
+  message: string;
+  success: boolean;
+}
+
 // Axios instance for user auth
 const userAuthAPI = axios.create({
   baseURL: API_BASE_URL,
@@ -211,4 +234,52 @@ export const getGoogleAuthURL = async (): Promise<{ url: string }> => {
   }
 };
 
-export type { User, SignupResponse, LoginResponse, VerifyOTPResponse, ResendOTPResponse };
+// Forgot Password - Request OTP
+export const forgotPassword = async (phoneNumber: string): Promise<ForgotPasswordResponse> => {
+  try {
+    const response = await userAuthAPI.post<ForgotPasswordResponse>("/auth/forgot-password", {
+      phoneNumber,
+    });
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || {
+      message: "Failed to send OTP. Please try again.",
+      success: false,
+    };
+  }
+};
+
+// Verify Reset OTP
+export const verifyResetOTP = async (otpData: {
+  phoneNumber: string;
+  otp: string;
+}): Promise<VerifyResetOTPResponse> => {
+  try {
+    const response = await userAuthAPI.post<VerifyResetOTPResponse>("/auth/verify-reset-otp", otpData);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || {
+      message: "OTP verification failed. Please try again.",
+      success: false,
+    };
+  }
+};
+
+// Reset Password
+export const resetPassword = async (resetData: {
+  resetToken: string;
+  newPassword: string;
+  confirmPassword: string;
+}): Promise<ResetPasswordResponse> => {
+  try {
+    const response = await userAuthAPI.post<ResetPasswordResponse>("/auth/reset-password", resetData);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || {
+      message: "Password reset failed. Please try again.",
+      success: false,
+    };
+  }
+};
+
+export type { User, SignupResponse, LoginResponse, VerifyOTPResponse, ResendOTPResponse, ForgotPasswordResponse, VerifyResetOTPResponse, ResetPasswordResponse };

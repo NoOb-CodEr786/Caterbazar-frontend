@@ -151,19 +151,19 @@ export default function CaterBazarLogin() {
               </div>
             </div>
 
-            {/* <div className="flex justify-end">
+            <div className="flex justify-end">
               <button
                 type="button"
                 onClick={(e) => {
                   e.preventDefault();
-                  console.log("Forgot password clicked");
+                  router.push("/auth/customer/forgot-password");
                 }}
                 disabled={loading}
                 className="text-sm text-orange-500 hover:text-orange-600 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Forgot Password?
               </button>
-            </div> */}
+            </div>
 
             <button
               type="submit"

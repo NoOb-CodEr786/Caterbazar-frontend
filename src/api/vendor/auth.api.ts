@@ -57,6 +57,29 @@ interface ResendOTPResponse {
   success: boolean;
 }
 
+interface ForgotPasswordResponse {
+  statusCode: number;
+  data: null;
+  message: string;
+  success: boolean;
+}
+
+interface VerifyResetOTPResponse {
+  statusCode: number;
+  data: {
+    resetToken: string;
+  };
+  message: string;
+  success: boolean;
+}
+
+interface ResetPasswordResponse {
+  statusCode: number;
+  data: null;
+  message: string;
+  success: boolean;
+}
+
 // Axios instance for vendor auth
 const vendorAuthAPI = axios.create({
   baseURL: API_BASE_URL,
@@ -101,6 +124,8 @@ export const vendorLogin = async (loginData: {
       localStorage.setItem("refreshToken", response.data.data.refreshToken);
       localStorage.setItem("role", response.data.data.user.role);
       localStorage.setItem("vendorData", JSON.stringify(response.data.data.user));
+      // Trigger auth state update
+      window.dispatchEvent(new CustomEvent('authStateChanged'));
     }
     
     return response.data;
@@ -126,6 +151,8 @@ export const vendorVerifyOTP = async (otpData: {
       localStorage.setItem("refreshToken", response.data.data.refreshToken);
       localStorage.setItem("role", response.data.data.user.role);
       localStorage.setItem("vendorData", JSON.stringify(response.data.data.user));
+      // Trigger auth state update
+      window.dispatchEvent(new CustomEvent('authStateChanged'));
     }
     
     return response.data;
@@ -186,7 +213,57 @@ export const vendorLogout = async (): Promise<void> => {
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("role");
     localStorage.removeItem("vendorData");
+    // Trigger auth state update
+    window.dispatchEvent(new CustomEvent('authStateChanged'));
   }
 };
 
-export type { Vendor, SignupResponse, LoginResponse, VerifyOTPResponse, ResendOTPResponse };
+// Forgot Password - Request OTP
+export const vendorForgotPassword = async (phoneNumber: string): Promise<ForgotPasswordResponse> => {
+  try {
+    const response = await vendorAuthAPI.post<ForgotPasswordResponse>("/auth/forgot-password", {
+      phoneNumber,
+    });
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || {
+      message: "Failed to send OTP. Please try again.",
+      success: false,
+    };
+  }
+};
+
+// Verify Reset OTP
+export const vendorVerifyResetOTP = async (otpData: {
+  phoneNumber: string;
+  otp: string;
+}): Promise<VerifyResetOTPResponse> => {
+  try {
+    const response = await vendorAuthAPI.post<VerifyResetOTPResponse>("/auth/verify-reset-otp", otpData);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || {
+      message: "OTP verification failed. Please try again.",
+      success: false,
+    };
+  }
+};
+
+// Reset Password
+export const vendorResetPassword = async (resetData: {
+  resetToken: string;
+  newPassword: string;
+  confirmPassword: string;
+}): Promise<ResetPasswordResponse> => {
+  try {
+    const response = await vendorAuthAPI.post<ResetPasswordResponse>("/auth/reset-password", resetData);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || {
+      message: "Password reset failed. Please try again.",
+      success: false,
+    };
+  }
+};
+
+export type { Vendor, SignupResponse, LoginResponse, VerifyOTPResponse, ResendOTPResponse, ForgotPasswordResponse, VerifyResetOTPResponse, ResetPasswordResponse };
