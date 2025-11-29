@@ -19,13 +19,11 @@ function OAuthCallbackHandler() {
     const user = searchParams.get("user");
 
     if (accessToken && refreshToken) {
-      // Set cookies
-      document.cookie = `accessToken=${accessToken}; path=/; max-age=900; secure; samesite=strict`; // 15 minutes
-      document.cookie = `refreshToken=${refreshToken}; path=/; max-age=604800; secure; samesite=strict`; // 7 days
-
       // Store tokens in localStorage (matching regular login behavior)
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
+
+      let userRole = "user"; // Default role for Google OAuth users
 
       // Store user data
       if (user) {
@@ -33,10 +31,16 @@ function OAuthCallbackHandler() {
           const userData = JSON.parse(decodeURIComponent(user));
           localStorage.setItem("user", JSON.stringify(userData));
           localStorage.setItem("userRole", userData.role);
+          userRole = userData.role;
         } catch (error) {
           console.error("Failed to parse user data:", error);
         }
       }
+
+      // Set cookies for middleware
+      document.cookie = `accessToken=${accessToken}; path=/; max-age=86400; secure; samesite=strict`; // 1 day
+      document.cookie = `refreshToken=${refreshToken}; path=/; max-age=604800; secure; samesite=strict`; // 7 days
+      document.cookie = `userRole=${userRole}; path=/; max-age=86400; secure; samesite=strict`; // 1 day
 
       // Clear the URL params
       router.replace("/", { scroll: false });

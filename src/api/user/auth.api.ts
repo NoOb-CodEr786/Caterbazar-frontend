@@ -88,6 +88,21 @@ const userAuthAPI = axios.create({
   },
 });
 
+// Helper function to set auth cookies
+const setAuthCookies = (accessToken: string, refreshToken: string, role: string) => {
+  // Set cookies for middleware access
+  document.cookie = `accessToken=${accessToken}; path=/; max-age=86400; secure; samesite=strict`; // 1 day
+  document.cookie = `refreshToken=${refreshToken}; path=/; max-age=604800; secure; samesite=strict`; // 7 days
+  document.cookie = `userRole=${role}; path=/; max-age=86400; secure; samesite=strict`; // 1 day
+};
+
+// Helper function to clear auth cookies
+const clearAuthCookies = () => {
+  document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  document.cookie = 'refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  document.cookie = 'userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+};
+
 // User Signup
 export const userSignup = async (signupData: {
   fullName: string;
@@ -118,11 +133,15 @@ export const userLogin = async (loginData: {
   try {
     const response = await userAuthAPI.post<LoginResponse>("/auth/login", loginData);
     
-    // Store tokens in localStorage
+    // Store tokens in localStorage and cookies
     if (response.data.success && response.data.data.accessToken) {
       localStorage.setItem("accessToken", response.data.data.accessToken);
       localStorage.setItem("refreshToken", response.data.data.refreshToken);
       localStorage.setItem("userRole", response.data.data.user.role);
+      
+      // Set cookies for middleware
+      setAuthCookies(response.data.data.accessToken, response.data.data.refreshToken, response.data.data.user.role);
+      
       // Trigger auth state update
       window.dispatchEvent(new CustomEvent('authStateChanged'));
     }
@@ -144,11 +163,15 @@ export const verifyOTP = async (otpData: {
   try {
     const response = await userAuthAPI.post<VerifyOTPResponse>("/auth/verify-otp", otpData);
     
-    // Store tokens in localStorage after successful verification
+    // Store tokens in localStorage and cookies after successful verification
     if (response.data.success && response.data.data.accessToken) {
       localStorage.setItem("accessToken", response.data.data.accessToken);
       localStorage.setItem("refreshToken", response.data.data.refreshToken);
       localStorage.setItem("userRole", response.data.data.user.role);
+      
+      // Set cookies for middleware
+      setAuthCookies(response.data.data.accessToken, response.data.data.refreshToken, response.data.data.user.role);
+      
       // Trigger auth state update
       window.dispatchEvent(new CustomEvent('authStateChanged'));
     }
@@ -206,10 +229,14 @@ export const userLogout = async (): Promise<void> => {
   } catch (error) {
     console.error("Logout error:", error);
   } finally {
-    // Clear localStorage regardless of API call success
+    // Clear localStorage and cookies regardless of API call success
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("userRole");
+    
+    // Clear cookies
+    clearAuthCookies();
+    
     // Trigger auth state update
     window.dispatchEvent(new CustomEvent('authStateChanged'));
   }

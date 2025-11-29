@@ -110,6 +110,21 @@ export const vendorSignup = async (signupData: {
   }
 };
 
+// Helper function to set auth cookies
+const setAuthCookies = (accessToken: string, refreshToken: string, role: string) => {
+  // Set cookies for middleware access
+  document.cookie = `accessToken=${accessToken}; path=/; max-age=86400; secure; samesite=strict`; // 1 day
+  document.cookie = `refreshToken=${refreshToken}; path=/; max-age=604800; secure; samesite=strict`; // 7 days
+  document.cookie = `userRole=${role}; path=/; max-age=86400; secure; samesite=strict`; // 1 day
+};
+
+// Helper function to clear auth cookies
+const clearAuthCookies = () => {
+  document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  document.cookie = 'refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  document.cookie = 'userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+};
+
 // Vendor Login
 export const vendorLogin = async (loginData: {
   email: string;
@@ -118,12 +133,16 @@ export const vendorLogin = async (loginData: {
   try {
     const response = await vendorAuthAPI.post<LoginResponse>("/auth/login", loginData);
     
-    // Store tokens and user data in localStorage
+    // Store tokens and user data in localStorage and cookies
     if (response.data.success && response.data.data.accessToken) {
       localStorage.setItem("accessToken", response.data.data.accessToken);
       localStorage.setItem("refreshToken", response.data.data.refreshToken);
       localStorage.setItem("role", response.data.data.user.role);
       localStorage.setItem("vendorData", JSON.stringify(response.data.data.user));
+      
+      // Set cookies for middleware
+      setAuthCookies(response.data.data.accessToken, response.data.data.refreshToken, response.data.data.user.role);
+      
       // Trigger auth state update
       window.dispatchEvent(new CustomEvent('authStateChanged'));
     }
@@ -145,12 +164,16 @@ export const vendorVerifyOTP = async (otpData: {
   try {
     const response = await vendorAuthAPI.post<VerifyOTPResponse>("/auth/verify-otp", otpData);
     
-    // Store tokens and user data in localStorage after successful verification
+    // Store tokens and user data in localStorage and cookies after successful verification
     if (response.data.success && response.data.data.accessToken) {
       localStorage.setItem("accessToken", response.data.data.accessToken);
       localStorage.setItem("refreshToken", response.data.data.refreshToken);
       localStorage.setItem("role", response.data.data.user.role);
       localStorage.setItem("vendorData", JSON.stringify(response.data.data.user));
+      
+      // Set cookies for middleware
+      setAuthCookies(response.data.data.accessToken, response.data.data.refreshToken, response.data.data.user.role);
+      
       // Trigger auth state update
       window.dispatchEvent(new CustomEvent('authStateChanged'));
     }
@@ -208,11 +231,15 @@ export const vendorLogout = async (): Promise<void> => {
   } catch (error) {
     console.error("Logout error:", error);
   } finally {
-    // Clear localStorage regardless of API call success
+    // Clear localStorage and cookies regardless of API call success
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("role");
     localStorage.removeItem("vendorData");
+    
+    // Clear cookies
+    clearAuthCookies();
+    
     // Trigger auth state update
     window.dispatchEvent(new CustomEvent('authStateChanged'));
   }
