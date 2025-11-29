@@ -113,6 +113,7 @@ export const getUserProfile = async (): Promise<UserProfileResponse> => {
 // Update User Profile
 export const updateUserProfile = async (profileData: {
   fullName?: string;
+  phoneNumber?: string;
   profilePicture?: string | null;
 }): Promise<UpdateProfileResponse> => {
   try {

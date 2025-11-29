@@ -42,6 +42,7 @@ export default function UserProfile() {
   // Edit Profile States
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [fullName, setFullName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [updatingProfile, setUpdatingProfile] = useState(false);
 
   // Change Password States
@@ -71,6 +72,7 @@ export default function UserProfile() {
       if (response.success) {
         setUser(response.data.user);
         setFullName(response.data.user.fullName);
+        setPhoneNumber(response.data.user.phoneNumber || "");
       }
     } catch (err: any) {
       setError(err.message || "Failed to load profile");
@@ -91,10 +93,19 @@ export default function UserProfile() {
       return;
     }
 
+    // Validate phone number if provided
+    if (phoneNumber.trim() && !/^[0-9]{10}$/.test(phoneNumber.trim())) {
+      setError("Please enter a valid 10-digit phone number");
+      return;
+    }
+
     setUpdatingProfile(true);
 
     try {
-      const response = await updateUserProfile({ fullName });
+      const response = await updateUserProfile({ 
+        fullName,
+        phoneNumber: phoneNumber.trim() || undefined 
+      });
       if (response.success) {
         setUser(response.data.user);
         setSuccess("Profile updated successfully!");
@@ -371,6 +382,23 @@ export default function UserProfile() {
                     disabled={updatingProfile}
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm disabled:bg-gray-100"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    disabled={updatingProfile}
+                    placeholder="Enter your phone number"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm disabled:bg-gray-100"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Enter 10-digit phone number (e.g., 9876543210)
+                  </p>
                 </div>
 
                 <button
