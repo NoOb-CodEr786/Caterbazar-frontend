@@ -40,6 +40,9 @@ function OAuthCallbackHandler() {
 
       // Clear the URL params
       router.replace("/", { scroll: false });
+
+      // Trigger auth state update
+      window.dispatchEvent(new CustomEvent('authStateChanged'));
     }
   }, [searchParams, router]);
 

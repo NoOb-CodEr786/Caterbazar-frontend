@@ -15,8 +15,30 @@ export default function Navbar() {
 
   useEffect(() => {
     // Check if user is authenticated
-    const token = localStorage.getItem("accessToken");
-    setIsAuthenticated(!!token);
+    const checkAuth = () => {
+      const token = localStorage.getItem("accessToken");
+      setIsAuthenticated(!!token);
+    };
+
+    // Check immediately
+    checkAuth();
+
+    // Listen for auth state changes
+    const handleAuthChange = () => checkAuth();
+    window.addEventListener('authStateChanged', handleAuthChange);
+
+    // Check when window gains focus (user comes back to tab)
+    const handleFocus = () => checkAuth();
+    window.addEventListener('focus', handleFocus);
+
+    // Check periodically (every 1 second) as fallback
+    const interval = setInterval(checkAuth, 1000);
+
+    return () => {
+      window.removeEventListener('authStateChanged', handleAuthChange);
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(interval);
+    };
   }, []);
 
   const handleLogout = async () => {

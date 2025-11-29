@@ -100,6 +100,8 @@ export const userLogin = async (loginData: {
       localStorage.setItem("accessToken", response.data.data.accessToken);
       localStorage.setItem("refreshToken", response.data.data.refreshToken);
       localStorage.setItem("userRole", response.data.data.user.role);
+      // Trigger auth state update
+      window.dispatchEvent(new CustomEvent('authStateChanged'));
     }
     
     return response.data;
@@ -124,6 +126,8 @@ export const verifyOTP = async (otpData: {
       localStorage.setItem("accessToken", response.data.data.accessToken);
       localStorage.setItem("refreshToken", response.data.data.refreshToken);
       localStorage.setItem("userRole", response.data.data.user.role);
+      // Trigger auth state update
+      window.dispatchEvent(new CustomEvent('authStateChanged'));
     }
     
     return response.data;
@@ -183,6 +187,8 @@ export const userLogout = async (): Promise<void> => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("userRole");
+    // Trigger auth state update
+    window.dispatchEvent(new CustomEvent('authStateChanged'));
   }
 };
 
