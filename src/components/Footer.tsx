@@ -6,162 +6,18 @@ export default function Footer() {
   return (
     <footer className="bg-red-950 rounded-t-4xl text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* About Section */}
-          <div>
-            <div className="mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Left Section - Logo and Contact Info */}
+          <div className="text-center md:text-left">
+            <div className="mb-6">
               <img
                 src="/images/logo.png"
                 alt="Caterbazar Logo"
-                className="h-10 w-auto mb-2"
+                className="h-12 w-auto mx-auto md:mx-0"
               />
             </div>
-            <p className="text-sm text-gray-400 mb-4">
-              Your trusted platform for finding the perfect caterer for any event. 
-              Making event planning easier, one meal at a time.
-            </p>
-            <div className="flex gap-4">
-              <a
-                href="#"
-                className="text-gray-400 hover:text-orange-500 transition-colors"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="text-gray-400 hover:text-orange-500 transition-colors"
-              >
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="text-gray-400 hover:text-orange-500 transition-colors"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="text-gray-400 hover:text-orange-500 transition-colors"
-              >
-                <Linkedin className="w-5 h-5" />
-              </a>
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-white font-semibold text-lg mb-4">Quick Links</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/"
-                  className="text-sm text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/about"
-                  className="text-sm text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/services"
-                  className="text-sm text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  Services
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/vendors"
-                  className="text-sm text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  For Vendors
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="text-sm text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Services */}
-          <div>
-            <h3 className="text-white font-semibold text-lg mb-4">Services</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/services/wedding"
-                  className="text-sm text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  Wedding Catering
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/services/corporate"
-                  className="text-sm text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  Corporate Events
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/services/party"
-                  className="text-sm text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  Party Catering
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/services/event-planning"
-                  className="text-sm text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  Event Planning
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/services/custom"
-                  className="text-sm text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  Custom Packages
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Contact Info */}
-          <div>
-            <h3 className="text-white font-semibold text-lg mb-4">Contact Us</h3>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
-                <span className="text-sm text-gray-400">
-                  123 Business Street, Mumbai, Maharashtra 400001
-                </span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-orange-500 shrink-0" />
-                <a
-                  href="tel:+911234567890"
-                  className="text-sm text-gray-400 hover:text-orange-500 transition-colors"
-                >
-                  +91 123 456 7890
-                </a>
-              </li>
-              <li className="flex items-center gap-3">
+            <div className="space-y-3">
+              <div className="flex items-center justify-center md:justify-start gap-3">
                 <Mail className="w-5 h-5 text-orange-500 shrink-0" />
                 <a
                   href="mailto:info@caterbazar.com"
@@ -169,17 +25,105 @@ export default function Footer() {
                 >
                   info@caterbazar.com
                 </a>
-              </li>
-            </ul>
+              </div>
+              <div className="flex items-center justify-center md:justify-start gap-3">
+                <Phone className="w-5 h-5 text-orange-500 shrink-0" />
+                <a
+                  href="tel:+911234567890"
+                  className="text-sm text-gray-400 hover:text-orange-500 transition-colors"
+                >
+                  +91 123 456 7890
+                </a>
+              </div>
+              <div className="flex items-start justify-center md:justify-start gap-3">
+                <MapPin className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+                <span className="text-sm text-gray-400">
+                  123 Business Street, Mumbai, Maharashtra 400001
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Center Section - Navigation Links */}
+          <div className="text-center">
+            {/* <h3 className="text-white font-semibold text-lg mb-6">Quick Links</h3>
+            <div className="space-y-3">
+              <Link
+                href="/"
+                className="block text-sm text-gray-400 hover:text-orange-500 transition-colors"
+              >
+                About Us
+              </Link>
+              <Link
+                href="/"
+                className="block text-sm text-gray-400 hover:text-orange-500 transition-colors"
+              >
+                Blog
+              </Link>
+              <Link
+                href="/"
+                className="block text-sm text-gray-400 hover:text-orange-500 transition-colors"
+              >
+                Contact
+              </Link>
+            </div> */}
+          </div>
+
+          {/* Right Section - Social Media */}
+          <div className="text-center md:text-right">
+            <h3 className="text-white font-semibold text-lg mb-6">Follow Us</h3>
+            <div className="flex justify-center md:justify-end gap-6">
+              <a
+                href="#"
+                className="text-gray-400 hover:text-orange-500 transition-colors"
+                aria-label="Facebook"
+              >
+                <Facebook className="w-6 h-6" />
+              </a>
+              <a
+                href="#"
+                className="text-gray-400 hover:text-orange-500 transition-colors"
+                aria-label="Twitter"
+              >
+                <Twitter className="w-6 h-6" />
+              </a>
+              <a
+                href="#"
+                className="text-gray-400 hover:text-orange-500 transition-colors"
+                aria-label="Instagram"
+              >
+                <Instagram className="w-6 h-6" />
+              </a>
+              <a
+                href="#"
+                className="text-gray-400 hover:text-orange-500 transition-colors"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="w-6 h-6" />
+              </a>
+            </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-800 mt-8 pt-8">
+        <div className="border-t border-zinc-400 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-gray-400">
-              © {new Date().getFullYear()} CaterBazar. All rights reserved.
-            </p>
+            <div className="flex flex-col items-center md:items-start gap-2">
+              <p className="text-sm text-gray-400">
+                © {new Date().getFullYear()} CaterBazar. All rights reserved.
+              </p>
+              <p className="text-xs text-gray-500">
+                Design by{" "}
+                <a
+                  href="https://zaiyoai.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-orange-500 hover:text-orange-400 transition-colors"
+                >
+                  Zaiyo AI
+                </a>
+              </p>
+            </div>
             <div className="flex gap-6">
               <Link
                 href="/privacy"
