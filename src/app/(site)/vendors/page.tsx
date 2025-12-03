@@ -824,7 +824,7 @@ function SearchResultsContent() {
                   const vendorImage = setupImage?.url || vendor.profilePhoto || 'https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png';
                   
                   // Skip vendor if address is not available
-                  if (!vendor.address || !vendor.address.locality || !vendor.address.state) {
+                  if (!vendor.address || !vendor.address.locality) {
                     return null;
                   }
                   

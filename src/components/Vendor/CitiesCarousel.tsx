@@ -10,7 +10,19 @@ export default function CitiesCarousel({
   selectedState,
   onStateChange,
 }: CitiesCarouselProps) {
-  const scrollRef = useRef(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollLeft = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: -200, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+    }
+  };
 
   const cities = [
     {
@@ -192,10 +204,28 @@ export default function CitiesCarousel({
         </div>
 
         <div className="relative">
+          {/* Left Arrow Button */}
+          <button
+            onClick={scrollLeft}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+          </button>
+
+          {/* Right Arrow Button */}
+          <button
+            onClick={scrollRight}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200"
+            aria-label="Scroll right"
+          >
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+          </button>
+
           {/* Scroll Container */}
           <div
             ref={scrollRef}
-            className="flex gap-4 sm:gap-6 overflow-x-auto hide-scrollbar scroll-smooth pb-4"
+            className="flex gap-4 sm:gap-6 overflow-x-auto hide-scrollbar scroll-smooth px-12"
           >
             {cities.map((city, index) => (
               <div
