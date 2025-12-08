@@ -162,7 +162,7 @@ export default function CaterersSection() {
               {vendors.slice(0, 4).map((vendor, index) => (
                 <div
                   key={vendor?.userId?._id}
-                  onClick={() => router.push(`/vendors/${vendor?.userId?._id}`)}
+                  // onClick={() => router.push(`/vendors/${vendor?.userId?._id}`)}
                   className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer rounded-xl"
                 >
                   <div className="relative h-36 sm:h-40 md:h-48 overflow-hidden">
