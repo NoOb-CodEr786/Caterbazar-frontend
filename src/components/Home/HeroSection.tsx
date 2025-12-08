@@ -8,7 +8,7 @@ import { getHeroImages, HeroImage } from '@/api/user/public.api';
 export default function HeroSection() {
   const [vendorType, setVendorType] = useState('');
   const [location, setLocation] = useState('');
-  const [caterbazarChoice, setCaterbazarChoice] = useState(true);
+  const [caterbazarChoice, setCaterbazarChoice] = useState(false);
   const [heroImages, setHeroImages] = useState<HeroImage[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
