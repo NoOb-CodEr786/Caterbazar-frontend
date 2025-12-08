@@ -185,34 +185,6 @@ export default function VendorNavbar() {
                         <span className="text-gray-700">{vendor.phoneNumber}</span>
                       </div>
 
-                      {(vendor.isEmailVerified !== undefined || vendor.isPhoneVerified !== undefined) && (
-                        <div className="flex items-center justify-between pt-2 border-t border-gray-200">
-                          {vendor.isEmailVerified !== undefined && (
-                            <div className="flex items-center space-x-2">
-                              {vendor.isEmailVerified ? (
-                                <CheckCircle className="w-4 h-4 text-green-500" />
-                              ) : (
-                                <XCircle className="w-4 h-4 text-red-500" />
-                              )}
-                              <span className="text-xs text-gray-600">
-                                Email Verified
-                              </span>
-                            </div>
-                          )}
-                          {vendor.isPhoneVerified !== undefined && (
-                            <div className="flex items-center space-x-2">
-                              {vendor.isPhoneVerified ? (
-                                <CheckCircle className="w-4 h-4 text-green-500" />
-                              ) : (
-                                <XCircle className="w-4 h-4 text-red-500" />
-                              )}
-                              <span className="text-xs text-gray-600">
-                                Phone Verified
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      )}
 
                       {vendor.lastLogin && (
                         <div className="flex items-center space-x-3 text-xs text-gray-500 pt-2">

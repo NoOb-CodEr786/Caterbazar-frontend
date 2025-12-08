@@ -28,6 +28,10 @@ export interface VendorData {
     fullName: string;
     email: string;
   };
+  businessRegistrationId: {
+    _id: string;
+    brandName: string;
+  };
   profilePhoto: string | null;
   businessInfo: {
     yearOfEstablishment: number;
@@ -126,7 +130,6 @@ export interface RatingBreakdown {
 }
 
 export interface VendorProfileData extends VendorData {
-  businessRegistrationId: string;
   socialMedia: {
     facebookHandle: string;
     instagramHandle: string;

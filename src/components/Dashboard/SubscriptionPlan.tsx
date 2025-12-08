@@ -48,23 +48,7 @@ export default function SubscriptionPlan() {
             </span>
           </div>
 
-          {/* Scale Slider - Right Side */}
-          <div className="flex-1 lg:max-w-md">
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Based on Your Scale
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="400"
-              value={scale}
-              onChange={(e) => setScale(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
-            />
-            <p className="text-sm text-gray-600 mt-2 text-right">
-              {getScaleLabel(scale)}
-            </p>
-          </div>
+         
         </div>
       </div>
 
@@ -74,15 +58,22 @@ export default function SubscriptionPlan() {
       </h2>
 
       <div className="grid lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
-        {/* Basic Plan */}
-        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border-2 border-gray-200">
-          <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Basic</h3>
+        {/* Free Plan */}
+        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border-2 border-green-500 relative">
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+            <span className="flex items-center gap-1.5 px-4 py-1.5 bg-green-500 text-white text-sm font-semibold rounded-full">
+              <Star className="w-4 h-4 fill-white" />
+              Your Current Plan
+            </span>
+          </div>
+
+          <h3 className="text-2xl sm:text-3xl font-bold text-green-600 mb-4">Free Plan</h3>
           <div className="mb-6">
             <p className="text-4xl sm:text-5xl font-bold text-gray-900">
               ₹0
               <span className="text-lg text-gray-600 font-normal">/year</span>
             </p>
-            <p className="text-sm text-gray-600 mt-1">Billed Annually</p>
+            <p className="text-sm text-gray-600 mt-1">Forever Free</p>
           </div>
 
           <ul className="space-y-3 mb-8">
@@ -125,7 +116,7 @@ export default function SubscriptionPlan() {
           </ul>
 
           <button className="w-full py-3 sm:py-4 bg-green-100 text-green-700 rounded-lg font-semibold text-base sm:text-lg">
-            Current Plan
+            Active Plan
           </button>
         </div>
 

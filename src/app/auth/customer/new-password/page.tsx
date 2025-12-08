@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Loader2, AlertCircle, CheckCircle, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Loader2, AlertCircle, CheckCircle, Eye, EyeOff, Home } from "lucide-react";
 import { resetPassword } from "@/api/user/auth.api";
 
 function UserNewPasswordContent() {
@@ -97,14 +97,25 @@ function UserNewPasswordContent() {
       {/* Right Side - New Password Form */}
       <div className="w-full lg:w-1/2 flex md:items-center justify-center px-8 lg:px-20 overflow-y-auto">
         <div className="w-full max-w-lg">
-          {/* Back Button */}
-          <button
-            onClick={() => router.back()}
-            className="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm">Back</span>
-          </button>
+          {/* Navigation Buttons */}
+          <div className="mb-6 flex items-center gap-2">
+            <button
+              onClick={() => router.back()}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm">Back</span>
+            </button>
+            <span className="text-gray-300">|</span>
+            <button
+              onClick={() => router.push("/")}
+              className="flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors"
+              aria-label="Go to home"
+            >
+              <Home className="w-4 h-4" />
+              <span className="text-sm">Home</span>
+            </button>
+          </div>
 
           {/* Logo */}
           <div className="mb-2">

@@ -3,6 +3,40 @@ import { Upload, Clock, Loader2, AlertCircle, CheckCircle, X, Image as ImageIcon
 
 import { getVendorProfile, deleteFSSAICertificate } from '@/api/vendor/business.api';
 
+// All available localities across India
+const LOCALITIES = [
+   // Odisha Cities
+  'Bhubaneswar',
+  'Cuttack',
+  'Puri',
+  'Sambalpur',
+  'Rourkela',
+  'Berhampur',
+  'Balasore',
+  'Bhadrak',
+  // Major Cities
+  'Delhi NCR',
+  'Mumbai',
+  'Chennai',
+  'Pune',
+  'Lucknow',
+  'Jaipur',
+  'Kolkata',
+  'Hyderabad',
+  'Bangalore',
+  'Gurgaon',
+  'Goa',
+  'Udaipur',
+  'Jim Corbett',
+  'Chandigarh',
+  'Indore',
+  'Agra',
+  'Kanpur',
+  'Ahmedabad',
+  'Kochi',
+ 
+];
+
 export default function BusinessDetails() {
   const [formData, setFormData] = useState({
     yearOfEstablishment: '',
@@ -12,7 +46,7 @@ export default function BusinessDetails() {
     maxGuests: '',
     idealBookingTime: '',
     vendorCategory: 'food_catering',
-    country: 'INDIA',
+    country: 'India',
     state: '',
     locality: '',
     pin: '',
@@ -63,18 +97,25 @@ export default function BusinessDetails() {
   const [languages, setLanguages] = useState({
     hindi: false,
     english: false,
-    marathi: false,
-    tamil: false,
+    odia: false,
     telugu: false,
+    marathi: false,
     kannada: false,
     bengali: false,
-    gujarati: false
+    gujarati: false,
+    tamil: false,
+    malayalam: false,
+    punjabi: false,
+    urdu: false
   });
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  
+  // Validation state for required fields
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   // FSSAI certificate state
   const [fssaiCertificate, setFssaiCertificate] = useState<{
@@ -108,7 +149,7 @@ export default function BusinessDetails() {
           maxGuests: profile.capacity.maxGuests?.toString() || '',
           idealBookingTime: profile.capacity.advanceBookingTime?.toString() || '',
           vendorCategory: profile.capacity.vendorCategory || 'food_catering',
-          country: profile.address.country || 'INDIA',
+          country: profile.address.country || 'India',
           state: profile.address.state || '',
           locality: profile.address.locality || '',
           pin: profile.address.pincode || '',
@@ -178,22 +219,30 @@ export default function BusinessDetails() {
         const languageMap: Record<string, string> = {
           hindi: 'hindi',
           english: 'english',
-          marathi: 'marathi',
-          tamil: 'tamil',
+          odia: 'odia',
           telugu: 'telugu',
+          marathi: 'marathi',
           kannada: 'kannada',
           bengali: 'bengali',
-          gujarati: 'gujarati'
+          gujarati: 'gujarati',
+          tamil: 'tamil',
+          malayalam: 'malayalam',
+          punjabi: 'punjabi',
+          urdu: 'urdu'
         };
         const newLanguages: any = {
           hindi: false,
           english: false,
-          marathi: false,
-          tamil: false,
+          odia: false,
           telugu: false,
+          marathi: false,
           kannada: false,
           bengali: false,
-          gujarati: false
+          gujarati: false,
+          tamil: false,
+          malayalam: false,
+          punjabi: false,
+          urdu: false
         };
         profile.operations.languagesSpoken?.forEach((lang: string) => {
           const key = languageMap[lang];
@@ -226,12 +275,127 @@ export default function BusinessDetails() {
     fetchProfile();
   }, []);
 
+  // Validation helper function
+  const validateRequiredFields = (): boolean => {
+    const errors: Record<string, string> = {};
+    const requiredFields = [
+      'yearOfEstablishment',
+      'yearsInBusiness',
+      'teamSize',
+      'minGuests',
+      'maxGuests',
+      'vendorCategory',
+      'country',
+      'state',
+      'locality',
+      'pin',
+      'vegPrice'
+    ];
+
+    // Only require nonVegPrice for full_catering and other categories
+    if (formData.vendorCategory === 'full_catering' || formData.vendorCategory === 'other') {
+      requiredFields.push('nonVegPrice');
+    }
+
+    requiredFields.forEach(field => {
+      const value = formData[field as keyof typeof formData]?.toString().trim();
+      if (!value) {
+        errors[field] = 'This field is required';
+      } else {
+        // Validate field-specific formats
+        if (field === 'yearOfEstablishment' || field === 'yearsInBusiness') {
+          if (!/^\d+$/.test(value)) {
+            errors[field] = 'Please enter a valid number';
+          }
+        } else if (field === 'minGuests' || field === 'maxGuests') {
+          if (!/^\d+$/.test(value)) {
+            errors[field] = 'Please enter a valid number';
+          } else if (field === 'minGuests' && parseInt(value) < 0) {
+            errors[field] = 'Minimum guests cannot be negative';
+          } else if (field === 'maxGuests' && parseInt(value) < 0) {
+            errors[field] = 'Maximum guests cannot be negative';
+          }
+        } else if (field === 'pin') {
+          if (!/^\d{5,6}$/.test(value)) {
+            errors[field] = 'Pin code must be 5-6 digits';
+          }
+        } else if (field === 'vegPrice' || field === 'nonVegPrice') {
+          if (!/^\d+(\.\d{1,2})?$/.test(value)) {
+            errors[field] = 'Please enter a valid price';
+          } else if (parseFloat(value) < 0) {
+            errors[field] = 'Price cannot be negative';
+          }
+        }
+      }
+    });
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Field validation helper
+  const validateField = (name: string, value: string): string => {
+    if (!value.trim()) {
+      return 'This field is required';
+    }
+
+    switch (name) {
+      case 'yearOfEstablishment':
+      case 'yearsInBusiness':
+        if (!/^\d+$/.test(value)) return 'Please enter a valid number';
+        if (parseInt(value) < 0) return 'Value cannot be negative';
+        if (name === 'yearOfEstablishment' && parseInt(value) > new Date().getFullYear()) {
+          return 'Year cannot be in the future';
+        }
+        break;
+      case 'minGuests':
+      case 'maxGuests':
+        if (!/^\d+$/.test(value)) return 'Please enter a valid number';
+        if (parseInt(value) < 0) return 'Value cannot be negative';
+        break;
+      case 'pin':
+        if (!/^\d{5,6}$/.test(value)) return 'Pin code must be 5-6 digits';
+        break;
+      case 'vegPrice':
+      case 'nonVegPrice':
+        if (!/^\d+(\.\d{1,2})?$/.test(value)) return 'Please enter a valid price';
+        if (parseFloat(value) < 0) return 'Price cannot be negative';
+        break;
+      case 'locality':
+        if (!value.trim()) return 'Please select a locality';
+        if (!LOCALITIES.includes(value)) return 'Please select a valid locality from the list';
+        break;
+    }
+
+    return '';
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+    // Validate field and update errors
+    if (value.trim()) {
+      const fieldError = validateField(name, value);
+      setValidationErrors(prev => {
+        const newErrors = { ...prev };
+        if (fieldError) {
+          newErrors[name] = fieldError;
+        } else {
+          delete newErrors[name];
+        }
+        return newErrors;
+      });
+    } else if (validationErrors[name]) {
+      // Clear error when field is empty
+      setValidationErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
   };
 
   const handleCheckboxChange = (category: string, field: string) => {
@@ -271,14 +435,14 @@ export default function BusinessDetails() {
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
     if (!validTypes.includes(file.type)) {
       setError('Please upload a valid file (JPG, PNG, PDF)');
-      setTimeout(() => setError(''), 3000);
+      setTimeout(() => setError(''), 15000);
       return;
     }
 
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
       setError('File size must be less than 10MB');
-      setTimeout(() => setError(''), 3000);
+      setTimeout(() => setError(''), 15000);
       return;
     }
 
@@ -288,7 +452,7 @@ export default function BusinessDetails() {
     // Store file for later upload
     setPendingFSSAI({ file, preview });
     setSuccess('FSSAI certificate added. Click Save to upload.');
-    setTimeout(() => setSuccess(''), 3000);
+    setTimeout(() => setSuccess(''), 15000);
 
     // Reset file input
     e.target.value = '';
@@ -308,11 +472,11 @@ export default function BusinessDetails() {
       setFssaiCertificate({ url: null, uploadedAt: null, isVerified: false });
       setOthers(prev => ({ ...prev, fssaiCertified: false }));
       setSuccess('FSSAI certificate deleted successfully!');
-      setTimeout(() => setSuccess(''), 3000);
+      setTimeout(() => setSuccess(''), 15000);
     } catch (err: any) {
       console.error('Error deleting FSSAI certificate:', err);
       setError(err.message || 'Failed to delete FSSAI certificate');
-      setTimeout(() => setError(''), 5000);
+      setTimeout(() => setError(''), 15000);
     } finally {
       setUploadingFSSAI(false);
     }
@@ -328,6 +492,15 @@ export default function BusinessDetails() {
   const handleSave = async () => {
     setError('');
     setSuccess('');
+    
+    // Validate required fields before saving
+    if (!validateRequiredFields()) {
+      setError('Please fill in all required fields (marked with *) with valid values');
+      setTimeout(() => setError(''), 15000);
+      setSaving(false);
+      return;
+    }
+    
     setSaving(true);
 
     try {
@@ -485,12 +658,12 @@ export default function BusinessDetails() {
       }
 
       setSuccess('Business details updated successfully!');
-      setTimeout(() => setSuccess(''), 3000);
+      setTimeout(() => setSuccess(''), 15000);
 
     } catch (err: any) {
       console.error('Error saving business details:', err);
       setError(err.message || 'Failed to save business details');
-      setTimeout(() => setError(''), 5000);
+      setTimeout(() => setError(''), 15000);
     } finally {
       setSaving(false);
     }
@@ -530,46 +703,64 @@ export default function BusinessDetails() {
           <div className="grid sm:grid-cols-3 gap-4 sm:gap-6">
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Year of Establishment
+                Year of Establishment <span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
+                type="number"
                 name="yearOfEstablishment"
                 value={formData.yearOfEstablishment}
                 onChange={handleInputChange}
                 placeholder="2019"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base"
+                min="1900"
+                max={new Date().getFullYear()}
+                className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base ${
+                  validationErrors.yearOfEstablishment ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {validationErrors.yearOfEstablishment && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.yearOfEstablishment}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Years in Business
+                Years in Business <span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
+                type="number"
                 name="yearsInBusiness"
                 value={formData.yearsInBusiness}
                 onChange={handleInputChange}
                 placeholder="6"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base"
+                min="0"
+                className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base ${
+                  validationErrors.yearsInBusiness ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {validationErrors.yearsInBusiness && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.yearsInBusiness}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Team Size
+                Team Size <span className="text-red-500">*</span>
               </label>
               <select
                 name="teamSize"
                 value={formData.teamSize}
                 onChange={handleInputChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base bg-white"
+                className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base bg-white ${
+                  validationErrors.teamSize ? 'border-red-500' : 'border-gray-300'
+                }`}
               >
                 <option value="">Select team size</option>
                 <option value="1-10">1-10</option>
                 <option value="11-50">11-50</option>
-                <option value="51-100">51-100</option>
-                <option value="100+">100+</option>
+                <option value="51-200">51-200</option>
+                <option value="200+">200+</option>
               </select>
+              {validationErrors.teamSize && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.teamSize}</p>
+              )}
             </div>
           </div>
         </div>
@@ -580,91 +771,100 @@ export default function BusinessDetails() {
           <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 mb-4">
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Minimum Guests You Cater To
+                Minimum Guests You Cater To <span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
+                type="number"
                 name="minGuests"
                 value={formData.minGuests}
                 onChange={handleInputChange}
                 placeholder="e.g., 50"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base"
+                min="1"
+                className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base ${
+                  validationErrors.minGuests ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {validationErrors.minGuests && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.minGuests}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Maximum Guests You Can Cater To
+                Maximum Guests You Can Cater To <span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
+                type="number"
                 name="maxGuests"
                 value={formData.maxGuests}
                 onChange={handleInputChange}
                 placeholder="e.g., 500"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base"
+                min="1"
+                className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base ${
+                  validationErrors.maxGuests ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {validationErrors.maxGuests && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.maxGuests}</p>
+              )}
             </div>
           </div>
 
           <div className="mb-4">
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Ideal Advance Booking Time
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                name="idealBookingTime"
-                value={formData.idealBookingTime}
-                onChange={handleInputChange}
-                placeholder="e.g., 7 days, 2 weeks, 1 month"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base"
-              />
-              <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Vendor Category
+              Vendor Category <span className="text-red-500">*</span>
             </label>
             <select
               name="vendorCategory"
               value={formData.vendorCategory}
               onChange={handleInputChange}
-              className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base bg-white"
+              className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base bg-white ${
+                validationErrors.vendorCategory ? 'border-red-500' : 'border-gray-300'
+              }`}
             >
-              <option value="food_catering">Food Catering</option>
-              <option value="beverage_catering">Beverage Catering</option>
-              <option value="full_service">Full Service</option>
-              <option value="drop_off_catering">Drop Off Catering</option>
-              <option value="buffet_style">Buffet Style</option>
-              <option value="live_counters">Live Counters</option>
+              <option value="">Select Vendor Category</option>
+              <option value="full_catering">Full Catering</option>
+              <option value="snacks_and_starter">Snacks & Starter</option>
+              <option value="dessert_and_sweet">Dessert & Sweet</option>
+              <option value="beverage">Beverage</option>
+              <option value="paan">Paan</option>
+              <option value="water">Water</option>
+              <option value="other">Other</option>
             </select>
+            {validationErrors.vendorCategory && (
+              <p className="text-red-500 text-xs mt-1">{validationErrors.vendorCategory}</p>
+            )}
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Country
+                Country <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 name="country"
                 value={formData.country}
                 onChange={handleInputChange}
-                placeholder="INDIA"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base"
+                placeholder="India"
+                className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base ${
+                  validationErrors.country ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {validationErrors.country && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.country}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                State
+                State <span className="text-red-500">*</span>
               </label>
               <select
                 name="state"
                 value={formData.state}
                 onChange={handleInputChange}
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base bg-white"
+                className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base bg-white ${
+                  validationErrors.state ? 'border-red-500' : 'border-gray-300'
+                }`}
               >
                 <option value="">Select State</option>
                 <option value="Andhra Pradesh">Andhra Pradesh</option>
@@ -704,23 +904,36 @@ export default function BusinessDetails() {
                 <option value="Lakshadweep">Lakshadweep</option>
                 <option value="Puducherry">Puducherry</option>
               </select>
+              {validationErrors.state && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.state}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Locality
+                Locality <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
+              <select
                 name="locality"
                 value={formData.locality}
                 onChange={handleInputChange}
-                placeholder="e.g., Patia"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base"
-              />
+                className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base bg-white ${
+                  validationErrors.locality ? 'border-red-500' : 'border-gray-300'
+                }`}
+              >
+                <option value="">Select Locality</option>
+                {LOCALITIES.map(locality => (
+                  <option key={locality} value={locality}>
+                    {locality}
+                  </option>
+                ))}
+              </select>
+              {validationErrors.locality && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.locality}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Pin
+                Pin <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -728,8 +941,15 @@ export default function BusinessDetails() {
                 value={formData.pin}
                 onChange={handleInputChange}
                 placeholder="751024"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base"
+                pattern="\d{5,6}"
+                maxLength={6}
+                className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base ${
+                  validationErrors.pin ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {validationErrors.pin && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.pin}</p>
+              )}
             </div>
           </div>
         </div>
@@ -737,36 +957,81 @@ export default function BusinessDetails() {
         {/* Pricing Details */}
         <div className="mb-8">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">Pricing Details</h2>
+          
+          {/* Veg/Non-Veg Pricing - Only for Full Catering and Other */}
+          {(formData.vendorCategory === 'full_catering' || formData.vendorCategory === 'other') && (
           <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Starting Per Plate Price (Vegetarian)
+                Starting Per Plate Price (Vegetarian) <span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
+                type="number"
                 name="vegPrice"
                 value={formData.vegPrice}
                 onChange={handleInputChange}
                 placeholder="200"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base"
+                min="0"
+                step="0.01"
+                className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base ${
+                  validationErrors.vegPrice ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {validationErrors.vegPrice && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.vegPrice}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Starting Per Plate Price (Non-Vegetarian)
+                Starting Per Plate Price (Non-Vegetarian) <span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
+                type="number"
                 name="nonVegPrice"
                 value={formData.nonVegPrice}
                 onChange={handleInputChange}
                 placeholder="300"
-                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base"
+                min="0"
+                step="0.01"
+                className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base ${
+                  validationErrors.nonVegPrice ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {validationErrors.nonVegPrice && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.nonVegPrice}</p>
+              )}
             </div>
           </div>
+          )}
 
-          {/* Service Specialization */}
+          {/* Unified Pricing - For other vendor categories */}
+          {(formData.vendorCategory !== 'full_catering' && formData.vendorCategory !== 'other' && formData.vendorCategory) && (
+          <div className="mb-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Starting Price <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                name="vegPrice"
+                value={formData.vegPrice}
+                onChange={handleInputChange}
+                placeholder="200"
+                min="0"
+                step="0.01"
+                className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base ${
+                  validationErrors.vegPrice ? 'border-red-500' : 'border-gray-300'
+                }`}
+              />
+              {validationErrors.vegPrice && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.vegPrice}</p>
+              )}
+            </div>
+          </div>
+          )}
+
+          {/* Service Specialization - Only for Full Catering */}
+          {(formData.vendorCategory === 'full_catering' || formData.vendorCategory === 'other') && (
           <div className="mb-6">
             <label className="block text-sm font-semibold text-gray-900 mb-3">
               Service Specialization (What Type of Caterer Are You)
@@ -819,8 +1084,10 @@ export default function BusinessDetails() {
               </label>
             </div>
           </div>
+          )}
 
-          {/* Cuisine Options */}
+          {/* Cuisine Options - Only for Full Catering */}
+          {(formData.vendorCategory === 'full_catering' || formData.vendorCategory === 'other') && (
           <div className="mb-6">
             <label className="block text-sm font-semibold text-gray-900 mb-3">
               Cuisine Options (Which of the following cuisines do you offer)
@@ -936,12 +1203,40 @@ export default function BusinessDetails() {
               </label>
             </div>
           </div>
+          )}
+
+          {/* Other Catering Services - Show for Snacks & Starter, Dessert & Sweet, Paan, Beverage, Water, and Other */}
+          {(formData.vendorCategory === 'snacks_and_starter' || formData.vendorCategory === 'dessert_and_sweet' || formData.vendorCategory === 'paan' || formData.vendorCategory === 'water' || formData.vendorCategory === 'beverage') && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h3 className="text-sm font-semibold text-gray-900 mb-3">
+              {formData.vendorCategory === 'snacks_and_starter' ? 'Snacks & Starter Service Details' : 
+               formData.vendorCategory === 'dessert_and_sweet' ? 'Dessert & Sweet Service Details' : 
+               formData.vendorCategory === 'paan' ? 'Paan Service Details' :
+               formData.vendorCategory === 'beverage' ? 'Beverage Service Details' :
+               formData.vendorCategory === 'water' ? 'Water Service Details' : 'Other Service Details'}
+            </h3>
+            <p className="text-xs text-gray-600 mb-4">
+              You have selected {formData.vendorCategory === 'snacks_and_starter' ? 'Snacks & Starter' : 
+               formData.vendorCategory === 'dessert_and_sweet' ? 'Dessert & Sweet' : 
+               formData.vendorCategory === 'paan' ? 'Paan' :
+               formData.vendorCategory === 'beverage' ? 'Beverage' :
+               formData.vendorCategory === 'water' ? 'Water' : 'Other'} service. This category does not require service specialization or specific cuisine options selection.
+            </p>
+            <div className="p-3 bg-white border border-blue-200 rounded text-xs text-gray-700">
+              <strong>Note:</strong> For {formData.vendorCategory === 'snacks_and_starter' ? 'Snacks & Starter' : 
+               formData.vendorCategory === 'dessert_and_sweet' ? 'Dessert & Sweet' : 
+               formData.vendorCategory === 'paan' ? 'Paan' :
+               formData.vendorCategory === 'beverage' ? 'Beverage' :
+               formData.vendorCategory === 'water' ? 'Water' : 'Other'} services, customers will see your overall pricing and availability. Please ensure your pricing reflects the appropriate rate for your service model.
+            </div>
+          </div>
+          )}
         </div>
 
         {/* FSSAI Certificate */}
         <div className="mb-8">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">FSSAI Certificate</h2>
-          <p className="text-sm text-gray-600 mb-4">Upload your FSSAI certificate (max 10MB, JPG/PNG/PDF)</p>
+          <p className="text-sm text-gray-600 mb-4">Upload your FSSAI certificate (max 10MB, JPG/PNG)</p>
           
           {fssaiCertificate.url ? (
             <div className="border border-gray-200 rounded-lg p-4">
@@ -1081,7 +1376,7 @@ export default function BusinessDetails() {
         {/* Languages Spoken */}
         <div className="mb-8">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">Languages Spoken</h2>
-          <div className="grid sm:grid-cols-4 gap-3">
+          <div className="grid sm:grid-cols-3 lg:grid-cols-6 gap-3">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -1103,20 +1398,11 @@ export default function BusinessDetails() {
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
-                checked={languages.marathi}
-                onChange={() => handleCheckboxChange('language', 'marathi')}
+                checked={languages.odia}
+                onChange={() => handleCheckboxChange('language', 'odia')}
                 className="w-4 h-4 text-orange-500 rounded"
               />
-              <span className="text-sm text-gray-700">Marathi</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={languages.tamil}
-                onChange={() => handleCheckboxChange('language', 'tamil')}
-                className="w-4 h-4 text-orange-500 rounded"
-              />
-              <span className="text-sm text-gray-700">Tamil</span>
+              <span className="text-sm text-gray-700">Odia</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -1126,6 +1412,15 @@ export default function BusinessDetails() {
                 className="w-4 h-4 text-orange-500 rounded"
               />
               <span className="text-sm text-gray-700">Telugu</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={languages.marathi}
+                onChange={() => handleCheckboxChange('language', 'marathi')}
+                className="w-4 h-4 text-orange-500 rounded"
+              />
+              <span className="text-sm text-gray-700">Marathi</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -1154,6 +1449,42 @@ export default function BusinessDetails() {
               />
               <span className="text-sm text-gray-700">Gujarati</span>
             </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={languages.tamil}
+                onChange={() => handleCheckboxChange('language', 'tamil')}
+                className="w-4 h-4 text-orange-500 rounded"
+              />
+              <span className="text-sm text-gray-700">Tamil</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={languages.malayalam}
+                onChange={() => handleCheckboxChange('language', 'malayalam')}
+                className="w-4 h-4 text-orange-500 rounded"
+              />
+              <span className="text-sm text-gray-700">Malayalam</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={languages.punjabi}
+                onChange={() => handleCheckboxChange('language', 'punjabi')}
+                className="w-4 h-4 text-orange-500 rounded"
+              />
+              <span className="text-sm text-gray-700">Punjabi</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={languages.urdu}
+                onChange={() => handleCheckboxChange('language', 'urdu')}
+                className="w-4 h-4 text-orange-500 rounded"
+              />
+              <span className="text-sm text-gray-700">Urdu</span>
+            </label>
           </div>
         </div>
 
@@ -1164,11 +1495,12 @@ export default function BusinessDetails() {
               Weeks in advance for booking?
             </label>
             <input
-              type="text"
+              type="number"
               name="weeksInAdvance"
               value={formData.weeksInAdvance}
               onChange={handleInputChange}
               placeholder="5"
+              min="0"
               className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base"
             />
           </div>
@@ -1178,11 +1510,13 @@ export default function BusinessDetails() {
               Operational Radius (km)
             </label>
             <input
-              type="text"
+              type="number"
               name="operationalRadius"
               value={formData.operationalRadius}
               onChange={handleInputChange}
               placeholder="30"
+              min="0"
+              step="0.5"
               className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm sm:text-base"
             />
             <p className="text-xs text-gray-500 mt-1">Service coverage area from your base location</p>

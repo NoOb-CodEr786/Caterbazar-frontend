@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, ArrowLeft, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft, Loader2, AlertCircle, CheckCircle, Home } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { vendorSignup, vendorVerifyOTP, vendorResendOTP } from '@/api/vendor/auth.api';
 
@@ -175,6 +175,16 @@ export default function VendorSignup() {
       {/* Right Side - Signup Form */}
       <div className="w-full lg:w-1/2 flex justify-center px-8 lg:px-20 overflow-y-auto">
         <div className="w-full max-w-lg py-8">
+          {/* Home Button */}
+          <button
+            onClick={() => router.push("/")}
+            className="mb-6 flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors"
+            aria-label="Go to home"
+          >
+            <Home className="w-4 h-4" />
+            <span className="text-sm">Back to Home</span>
+          </button>
+
           {/* Logo */}
           <div className="mb-2">
             <img

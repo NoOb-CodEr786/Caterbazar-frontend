@@ -110,7 +110,7 @@ function SearchResultsContent() {
     setSortBy('popularity');
   };
 
-  const localities = ['Bhubaneswar', 'Cuttack', 'Puri', 'Rourkela', 'Sambalpur'];
+  const localities = ['Delhi NCR', 'Mumbai', 'Chennai', 'Pune', 'Lucknow', 'Jaipur', 'Kolkata', 'Hyderabad', 'Bangalore', 'Gurgaon', 'Goa', 'Udaipur', 'Jim Corbett', 'Chandigarh', 'Indore', 'Agra', 'Kanpur', 'Ahmedabad', 'Kochi', 'Bhubaneswar', 'Cuttack', 'Puri', 'Rourkela', 'Sambalpur', 'Berhampur', 'Balasore', 'Bhadrak'];
   const states = [
     'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
     'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand',
@@ -139,8 +139,8 @@ function SearchResultsContent() {
     <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-4 sm:py-8">
         <CitiesCarousel 
-          selectedState={selectedState}
-          onStateChange={setSelectedState}
+          selectedLocality={selectedLocality}
+          onLocalityChange={setSelectedLocality}
         />
         
         {/* Mobile Filter Button */}
@@ -191,15 +191,12 @@ function SearchResultsContent() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm appearance-none bg-white"
                   >
                     <option value="">All Types</option>
-                    <option value="food_catering">Food Catering</option>
-                    <option value="decoration">Decoration</option>
-                    <option value="photography">Photography</option>
-                    <option value="dj_music">DJ & Music</option>
-                    <option value="venue">Venue</option>
-                    <option value="makeup_artist">Makeup Artist</option>
-                    <option value="event_planner">Event Planner</option>
-                    <option value="invitation_cards">Invitation Cards</option>
-                    <option value="transportation">Transportation</option>
+                    <option value="full_catering">Full Catering</option>
+                    <option value="snacks_and_starter">Snacks & Starter</option>
+                    <option value="dessert_and_sweet">Dessert & Sweets</option>
+                    <option value="beverage">Beverage</option>
+                    <option value="paan">Paan</option>
+                    <option value="water">Water</option>
                     <option value="other">Other</option>
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
@@ -224,7 +221,7 @@ function SearchResultsContent() {
               </div>
 
               {/* Locality */}
-              <div>
+              {/* <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-3">
                   State
                 </label>
@@ -241,7 +238,7 @@ function SearchResultsContent() {
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
                 </div>
-              </div>
+              </div> */}
 
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-3">
@@ -860,7 +857,7 @@ function SearchResultsContent() {
                     </div>
 
                     <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-1 line-clamp-1">
-                      {vendor.userId.fullName}
+                      {vendor.businessRegistrationId?.brandName}
                     </h3>
 
                     <div className="flex items-start gap-1 mb-3 sm:mb-4">
@@ -870,7 +867,7 @@ function SearchResultsContent() {
 
                     <div className="flex items-center justify-between pt-3 gap-2">
                       <div>
-                        <p className="text-[10px] sm:text-xs text-gray-500 mb-1">Starting Price ( Veg )</p>
+                        <p className="text-[10px] sm:text-xs text-gray-500 mb-1">Starting Price</p>
                         <p className="text-xl sm:text-2xl font-bold text-orange-500">₹{vendor.pricing.vegPricePerPlate}</p>
                         <p className="text-[10px] sm:text-xs text-gray-500">Onwards</p>
                       </div>

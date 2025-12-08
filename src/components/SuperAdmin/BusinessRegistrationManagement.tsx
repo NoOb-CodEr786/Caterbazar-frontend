@@ -128,7 +128,6 @@ export default function BusinessRegistrationManagement() {
         setShowReviewModal(false);
         fetchRegistrations();
         fetchStats();
-        alert(`Registration ${reviewAction} successfully!`);
       }
     } catch (error: any) {
       alert(error.message || 'Failed to review registration');

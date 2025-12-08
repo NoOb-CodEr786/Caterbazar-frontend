@@ -308,10 +308,7 @@ export default function VendorDetailSidebar({ vendorId, isOpen, onClose }: Vendo
                   </div>
                 )}
 
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-2 border-b border-gray-200 gap-1">
-                  <span className="text-xs sm:text-sm text-gray-600">Vendor ID</span>
-                  <span className="text-xs sm:text-sm text-gray-900 font-mono break-all">{vendor._id}</span>
-                </div>
+               
 
                 {vendor.bio && (
                   <div className="pt-2">
@@ -464,7 +461,7 @@ export default function VendorDetailSidebar({ vendorId, isOpen, onClose }: Vendo
                     </span>
                   </div>
                   {vendor.cancellationPolicy.policyDetails && (
-                    <p className="text-xs sm:text-sm text-gray-700 mt-2">{vendor.cancellationPolicy.policyDetails}</p>
+                    <p className="text-xs sm:text-sm text-gray-700 mt-5"> <span className='text-black font-medium'> Policy Details : </span>{vendor.cancellationPolicy.policyDetails}</p>
                   )}
                 </div>
               </div>

@@ -193,7 +193,7 @@ export default function PersonalInfo() {
 
       {/* Profile Photo Section */}
       <div className="rounded-xl p-4 sm:p-6 border border-gray-200 mb-6">
-        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Profile Photo</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Business Profile Photo</h2>
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
           {profilePicture ? (
             <img

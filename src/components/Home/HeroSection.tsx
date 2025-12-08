@@ -42,13 +42,12 @@ export default function HeroSection() {
 
   const words = [
     {
-      text: "for",
+      text: "One",
+            className: "text-orange-500",
+
     },
     {
-      text: "Your",
-    },
-    {
-      text: "Events",
+      text: "Bazar",
       className: "text-orange-500",
     },
   ];
@@ -76,7 +75,7 @@ export default function HeroSection() {
             <div>
               <div className="mb-3 sm:mb-4">
                 <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
-                  Redefining Dining Experiences {" "}
+                  India’s 1st Cater Bazar - Top Caters {" "}
                   <TypewriterEffect words={words} className="inline text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold" />
                 </h1>
               </div>
@@ -117,15 +116,12 @@ export default function HeroSection() {
                         className="w-full pl-8 sm:pl-10 pr-8 sm:pr-10 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-xs sm:text-sm bg-white appearance-none text-gray-600"
                       >
                         <option value="">Select Vendor</option>
-                        <option value="food_catering">Food Catering</option>
-                        <option value="decoration">Decoration</option>
-                        <option value="photography">Photography</option>
-                        <option value="dj_music">DJ & Music</option>
-                        <option value="venue">Venue</option>
-                        <option value="makeup_artist">Makeup Artist</option>
-                        <option value="event_planner">Event Planner</option>
-                        <option value="invitation_cards">Invitation Cards</option>
-                        <option value="transportation">Transportation</option>
+                        <option value="full_catering">Full Catering</option>
+                        <option value="snacks_and_starter">Snacks & Starter</option>
+                        <option value="dessert_and_sweet">Dessert & Sweets</option>
+                        <option value="beverage">Beverage</option>
+                        <option value="paan">Paan</option>
+                        <option value="water">Water</option>
                         <option value="other">Other</option>
                       </select>
                       <ChevronDown className="absolute right-2.5 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5 pointer-events-none" />
@@ -145,11 +141,33 @@ export default function HeroSection() {
                         className="w-full pl-8 sm:pl-10 pr-8 sm:pr-10 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition text-xs sm:text-sm bg-white appearance-none text-gray-600"
                       >
                         <option value="">Find Location</option>
-                        <option value="Odisha">Odisha</option>
-                        <option value="Maharashtra">Maharashtra</option>
-                        <option value="Karnataka">Karnataka</option>
-                        <option value="Delhi">Delhi</option>
-                        <option value="West Bengal">West Bengal</option>
+                        <option value="Delhi NCR">Delhi NCR</option>
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="Chennai">Chennai</option>
+                        <option value="Pune">Pune</option>
+                        <option value="Lucknow">Lucknow</option>
+                        <option value="Jaipur">Jaipur</option>
+                        <option value="Kolkata">Kolkata</option>
+                        <option value="Hyderabad">Hyderabad</option>
+                        <option value="Bangalore">Bangalore</option>
+                        <option value="Gurgaon">Gurgaon</option>
+                        <option value="Goa">Goa</option>
+                        <option value="Udaipur">Udaipur</option>
+                        <option value="Jim Corbett">Jim Corbett</option>
+                        <option value="Chandigarh">Chandigarh</option>
+                        <option value="Indore">Indore</option>
+                        <option value="Agra">Agra</option>
+                        <option value="Kanpur">Kanpur</option>
+                        <option value="Ahmedabad">Ahmedabad</option>
+                        <option value="Kochi">Kochi</option>
+                        <option value="Bhubaneswar">Bhubaneswar</option>
+                        <option value="Cuttack">Cuttack</option>
+                        <option value="Puri">Puri</option>
+                        <option value="Sambalpur">Sambalpur</option>
+                        <option value="Rourkela">Rourkela</option>
+                        <option value="Berhampur">Berhampur</option>
+                        <option value="Balasore">Balasore</option>
+                        <option value="Bhadrak">Bhadrak</option>
                       </select>
                       <ChevronDown className="absolute right-2.5 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5 pointer-events-none" />
                     </div>

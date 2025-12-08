@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { ChevronDown, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { ChevronDown, AlertCircle, CheckCircle, Loader2, Home } from "lucide-react";
 import { submitBusinessRegistration } from "@/api/vendor/business.api";
 import { useRouter } from "next/navigation";
 
@@ -99,6 +99,16 @@ export default function BusinessRegistration() {
       {/* Right Side - Business Registration Form */}
       <div className="w-full lg:w-1/2 flex  justify-center px-8 lg:px-20 overflow-y-auto">
         <div className="w-full max-w-lg py-8">
+          {/* Home Button */}
+          <button
+            onClick={() => router.push("/")}
+            className="mb-6 flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors"
+            aria-label="Go to home"
+          >
+            <Home className="w-4 h-4" />
+            <span className="text-sm">Back to Home</span>
+          </button>
+
           {/* Logo */}
           <div className="mb-2">
             <img

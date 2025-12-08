@@ -175,7 +175,7 @@ export default function VendorManagement() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 mb-6">
           <div className="bg-blue-50 rounded-lg p-3 sm:p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -206,7 +206,7 @@ export default function VendorManagement() {
             </div>
           </div>
           
-          <div className="bg-red-50 rounded-lg p-3 sm:p-4">
+          {/* <div className="bg-red-50 rounded-lg p-3 sm:p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-red-600 text-xs sm:text-sm font-medium">Suspended</p>
@@ -214,7 +214,7 @@ export default function VendorManagement() {
               </div>
               <Ban className="w-6 h-6 sm:w-8 sm:h-8 text-red-500" />
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Error Message */}

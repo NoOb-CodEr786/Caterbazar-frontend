@@ -5,9 +5,81 @@ import { ArrowRight, Users, Star, MapPin, Loader2 } from 'lucide-react';
 import { searchVendors, VendorData } from '@/api/user/public.api';
 import { useRouter } from 'next/navigation';
 
+// Demo data for initial display
+const DEMO_VENDORS = [
+  {
+    userId: {
+      _id: 'demo1',
+      fullName: 'Maharaja Catering Co.',
+    },
+    address: {
+      locality: 'Bhubaneswar',
+      state: 'Odisha',
+    },
+    stats: {
+      averageRating: 4.8,
+      totalReviews: 156,
+    },
+    isCaterbazarChoice: true,
+    profilePhoto: 'https://images.unsplash.com/photo-1585433389778-2649c0d3c1da?q=80&w=1630&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    gallery: [],
+  },
+  {
+    userId: {
+      _id: 'demo2',
+      fullName: 'Royal Feast Kitchen',
+    },
+    address: {
+      locality: 'Bhubaneswar',
+      state: 'Odisha',
+    },
+    stats: {
+      averageRating: 4.7,
+      totalReviews: 128,
+    },
+    isCaterbazarChoice: false,
+    profilePhoto: 'https://images.unsplash.com/photo-1745176593939-261033cced25?q=80&w=1394&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    gallery: [],
+  },
+  {
+    userId: {
+      _id: 'demo3',
+      fullName: 'Golden Spoon Events',
+    },
+    address: {
+      locality: 'Bhubaneswar',
+      state: 'Odisha',
+    },
+    stats: {
+      averageRating: 4.6,
+      totalReviews: 98,
+    },
+    isCaterbazarChoice: true,
+    profilePhoto: 'https://plus.unsplash.com/premium_photo-1695799627985-45c843f956ba?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    gallery: [],
+  },
+  {
+    userId: {
+      _id: 'demo4',
+      fullName: 'Flavour Paradise',
+    },
+    address: {
+      locality: 'Bhubaneswar',
+      state: 'Odisha',
+    },
+    stats: {
+      averageRating: 4.5,
+      totalReviews: 87,
+    },
+    isCaterbazarChoice: false,
+    profilePhoto: 'https://images.unsplash.com/photo-1537047902294-62a40c20a6ae?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+    gallery: [],
+  },
+];
+
 export default function CaterersSection() {
   const router = useRouter();
-  const [vendors, setVendors] = useState<VendorData[]>([]);
+  const [vendors, setVendors] = useState<any[]>(DEMO_VENDORS);
   const [loading, setLoading] = useState(true);
   const [locality, setLocality] = useState('Bhubaneswar');
 
@@ -21,13 +93,18 @@ export default function CaterersSection() {
       const response = await searchVendors({
         locality: locality,
         page: 1,
-        limit: 4, // Only get top 4
+        limit: 4,
       });
-      if (response.success) {
+      if (response.success && response.data.vendors.length > 0) {
         setVendors(response.data.vendors);
+      } else {
+        // Keep demo data if no API data is available
+        setVendors(DEMO_VENDORS);
       }
     } catch (error) {
       console.error('Error fetching vendors:', error);
+      // Keep demo data on error
+      setVendors(DEMO_VENDORS);
     } finally {
       setLoading(false);
     }
@@ -43,9 +120,9 @@ export default function CaterersSection() {
     return labels[category] || category;
   };
 
-  const getVendorImage = (vendor: VendorData) => {
+  const getVendorImage = (vendor: any) => {
     // First, try to get setup category image from gallery
-    const setupImage = vendor.gallery?.find(img => img.category === 'setup');
+    const setupImage = vendor.gallery?.find((img: any) => img.category === 'setup');
     if (setupImage) {
       return setupImage.url;
     }

@@ -322,6 +322,7 @@ export default function VendorDetailsPage({ vendor, setupImages }: VendorDetails
               </div> */}
 
               {/* Pricing */}
+              {(vendor.capacity.vendorCategory === 'full_catering' || vendor.capacity.vendorCategory === 'other') ? (
                 <div className="grid grid-cols-2 gap-4 mb-4 sm:mb-6">
                 <div className="border-r-2 border-gray-200">
                   <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600 mb-0.5 sm:mb-1">Veg</h3>
@@ -339,6 +340,15 @@ export default function VendorDetailsPage({ vendor, setupImages }: VendorDetails
                   </div>
                 </div>
                 </div>
+              ) : (
+                <div className="mb-4 sm:mb-6">
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-0.5 sm:mb-1">Starting Price</h3>
+                  <div className="flex items-baseline gap-1 sm:gap-2">
+                  <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">₹{vendor.pricing.vegPricePerPlate}</span>
+                  <span className="text-[10px] sm:text-xs text-gray-600">/ Plate</span>
+                  </div>
+                </div>
+              )}
 
               {/* Profile Stats */}
               {/* <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-lg p-4 mb-4 sm:mb-6">
@@ -393,7 +403,10 @@ export default function VendorDetailsPage({ vendor, setupImages }: VendorDetails
               {/* Action Buttons */}
               <div className="space-y-2 sm:space-y-3">
                   <a 
-                    href={`https://wa.me/8260061212?text=Hi, I'm interested in ${vendor.userId.fullName}'s catering services.%0A%0A📍 Location: ${vendor.address.locality}, ${vendor.address.state}%0A🍽️ Category: ${formatText(vendor.capacity.vendorCategory)}%0A🥘 Cuisines: ${vendor.pricing.cuisineOptions.map(formatText).join(', ')}%0A👥 Capacity: ${vendor.capacity.minGuests}-${vendor.capacity.maxGuests} guests%0A💰 Veg Price: ₹${vendor.pricing.vegPricePerPlate}/plate%0A💰 Non-Veg Price: ₹${vendor.pricing.nonVegPricePerPlate}/plate%0A⭐ Rating: ${vendor.stats.averageRating.toFixed(1)}/5 (${vendor.stats.totalReviews} reviews)%0A%0ACould you please provide more details about availability and services?`}
+                    href={(vendor.capacity.vendorCategory === 'full_catering' || vendor.capacity.vendorCategory === 'other') 
+                      ? `https://wa.me/8260061212?text=Hi, I'm interested in ${vendor.userId.fullName}'s catering services.%0A%0A📍 Location: ${vendor.address.locality}, ${vendor.address.state}%0A🍽️ Category: ${formatText(vendor.capacity.vendorCategory)}%0A🥘 Cuisines: ${vendor.pricing.cuisineOptions.map(formatText).join(', ')}%0A👥 Capacity: ${vendor.capacity.minGuests}-${vendor.capacity.maxGuests} guests%0A💰 Veg Price: ₹${vendor.pricing.vegPricePerPlate}/plate%0A💰 Non-Veg Price: ₹${vendor.pricing.nonVegPricePerPlate}/plate%0A⭐ Rating: ${vendor.stats.averageRating.toFixed(1)}/5 (${vendor.stats.totalReviews} reviews)%0A%0ACould you please provide more details about availability and services?`
+                      : `https://wa.me/8260061212?text=Hi, I'm interested in ${vendor.userId.fullName}'s catering services.%0A%0A📍 Location: ${vendor.address.locality}, ${vendor.address.state}%0A🍽️ Category: ${formatText(vendor.capacity.vendorCategory)}%0A🥘 Cuisines: ${vendor.pricing.cuisineOptions.map(formatText).join(', ')}%0A👥 Capacity: ${vendor.capacity.minGuests}-${vendor.capacity.maxGuests} guests%0A💰 Starting Price: ₹${vendor.pricing.vegPricePerPlate}/unit%0A⭐ Rating: ${vendor.stats.averageRating.toFixed(1)}/5 (${vendor.stats.totalReviews} reviews)%0A%0ACould you please provide more details about availability and services?`
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold flex items-center justify-center gap-2 transition-colors"
