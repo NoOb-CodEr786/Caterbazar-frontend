@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import VendorDetailsPage from '@/components/Vendor/VendorProduct';
 import ReviewsSection from '@/components/Vendor/Reviews';
 import CateringProfessionalCTA from '@/components/Home/CateringProfessionalCTA';
+import UserInfoSection from '@/components/Vendor/UserInfoSection';
 import { getVendorProfile, VendorProfileData, GalleryImage } from '@/api/user/public.api';
 
 const Page = () => {
@@ -26,7 +27,8 @@ const Page = () => {
         const response = await getVendorProfile(vendorId);
         
         if (response.success) {
-          setVendorData(response.data.vendor);
+          const vendor = response.data.vendor;
+          setVendorData(vendor);
           
           // Filter and set all setup category images
           const setupGalleryImages = response.data.gallery.filter(img => img.category === 'setup');
@@ -64,6 +66,7 @@ const Page = () => {
   return (
     <div>
       <VendorDetailsPage vendor={vendorData} setupImages={setupImages} />
+      <UserInfoSection vendor={vendorData} />
       <ReviewsSection vendorId={vendorId} />
       <CateringProfessionalCTA />
     </div>

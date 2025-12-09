@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Search, Eye, Package, 
   Calendar, MapPin, User, Building2, 
-  Clock, CheckCircle, X, AlertCircle, Phone 
+  Clock, CheckCircle, X, AlertCircle, Phone, MessageCircle, Info
 } from 'lucide-react';
 import { getAllOrders, Order, OrderSummary, Pagination } from '@/api/superadmin/orders.api';
 
@@ -20,6 +20,8 @@ export default function TotalOrdersManagement() {
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   // Fetch orders data
   useEffect(() => {
@@ -83,7 +85,19 @@ export default function TotalOrdersManagement() {
     });
   };
 
-  const formatTime = (timeString: string) => {
+  const formatTime = (timeString: string | null | undefined) => {
+    // Handle null or undefined
+    if (!timeString) return 'N/A';
+    
+    // Handle ISO date strings
+    if (timeString.includes('T')) {
+      return new Date(timeString).toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    }
+    // Handle HH:mm format
     return new Date(`2000-01-01T${timeString}`).toLocaleTimeString('en-IN', {
       hour: '2-digit',
       minute: '2-digit',
@@ -149,8 +163,265 @@ export default function TotalOrdersManagement() {
     );
   }
 
+  // Order Details Modal Component
+  const OrderDetailsModal = () => {
+    if (!selectedOrder) return null;
+
+    return (
+      <div className={`fixed inset-0 z-50 transition-all duration-300 ${detailsModalOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setDetailsModalOpen(false)} />
+        
+        <div className="absolute inset-0 flex items-center justify-center p-4">
+          <div className={`bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto transition-all duration-300 ${
+            detailsModalOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+          }`}>
+            {/* Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold">{selectedOrder.orderId}</h2>
+                <p className="text-orange-100 text-sm mt-1">Order Details</p>
+              </div>
+              <button
+                onClick={() => setDetailsModalOpen(false)}
+                className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-6">
+              {/* Customer Information */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <User className="w-5 h-5 text-orange-500" />
+                  Customer Information
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</label>
+                    <p className="text-gray-900 font-medium mt-1">{selectedOrder.customer.name}</p>
+                  </div>
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</label>
+                    <p className="text-gray-900 font-medium mt-1">{selectedOrder.customer.email}</p>
+                  </div>
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Phone</label>
+                    <p className="text-gray-900 font-medium mt-1">{selectedOrder.customer.phone}</p>
+                  </div>
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</label>
+                    <p className="text-gray-900 font-medium mt-1 capitalize">{selectedOrder.status}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Vendor Information */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <Building2 className="w-5 h-5 text-orange-500" />
+                  Vendor Information
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</label>
+                    <p className="text-gray-900 font-medium mt-1">{selectedOrder.vendor.name}</p>
+                  </div>
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Business Type</label>
+                    <p className="text-gray-900 font-medium mt-1">{selectedOrder.vendor.businessName || 'N/A'}</p>
+                  </div>
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Business Name</label>
+                    <p className="text-gray-900 font-medium mt-1">{selectedOrder.vendor.businessName || 'N/A'}</p>
+                  </div>
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</label>
+                    <p className="text-gray-900 font-medium mt-1 text-sm">{selectedOrder.vendor.email}</p>
+                  </div>
+                  <div className="bg-red-50 p-4 rounded-lg md:col-span-2">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider flex items-center gap-2">
+                      <Eye className="w-4 h-4" />
+                      Viewed Status
+                    </label>
+                    <p className="text-gray-900 font-medium mt-1">
+                      {selectedOrder.viewedByVendor ? (
+                        <span className="text-green-600 flex items-center gap-1"><CheckCircle className="w-4 h-4" /> Viewed</span>
+                      ) : (
+                        <span className="text-gray-500 flex items-center gap-1"><AlertCircle className="w-4 h-4" /> Not Viewed</span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Details */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <Package className="w-5 h-5 text-orange-500" />
+                  Order Details
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Order Date</label>
+                    <p className="text-gray-900 font-medium mt-1">{formatDate(selectedOrder.createdAt)}</p>
+                  </div>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Order Time</label>
+                    <p className="text-gray-900 font-medium mt-1">{formatTime(selectedOrder.createdAt)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Event Information */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-orange-500" />
+                  Event Information
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Event Type</label>
+                    <p className="text-gray-900 font-medium mt-1 capitalize">{selectedOrder.eventType}</p>
+                  </div>
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Event Date</label>
+                    <p className="text-gray-900 font-medium mt-1">{selectedOrder.eventDate}</p>
+                  </div>
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Event Time</label>
+                    <p className="text-gray-900 font-medium mt-1">{selectedOrder.eventTime}</p>
+                  </div>
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Number of Guests</label>
+                    <p className="text-gray-900 font-medium mt-1">{selectedOrder.guests} Guests</p>
+                  </div>
+                  <div className="bg-orange-50 p-4 rounded-lg md:col-span-2">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Food Preference</label>
+                    <p className="text-gray-900 font-medium mt-1 capitalize">
+                      <span className={`inline-block px-3 py-1 rounded text-sm ${
+                        selectedOrder.foodPreference === 'veg' 
+                          ? 'bg-green-100 text-green-700' 
+                          : selectedOrder.foodPreference === 'non-veg'
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-orange-100 text-orange-700'
+                      }`}>
+                        {selectedOrder.foodPreference === 'veg' ? '🌱 Veg' : selectedOrder.foodPreference === 'non-veg' ? '🍖 Non-Veg' : '🍽️ Both'}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Event Location */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-red-500" />
+                  Event Location
+                </h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Address</label>
+                    <p className="text-gray-900 font-medium mt-1">{selectedOrder.eventLocation.address}</p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-red-50 p-4 rounded-lg">
+                      <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">City</label>
+                      <p className="text-gray-900 font-medium mt-1">{selectedOrder.eventLocation.city}</p>
+                    </div>
+                    <div className="bg-red-50 p-4 rounded-lg">
+                      <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">State</label>
+                      <p className="text-gray-900 font-medium mt-1">{selectedOrder.eventLocation.state}</p>
+                    </div>
+                    <div className="bg-red-50 p-4 rounded-lg">
+                      <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Pincode</label>
+                      <p className="text-gray-900 font-medium mt-1">{selectedOrder.eventLocation.pincode}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Amount Details */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <Package className="w-5 h-5 text-orange-500" />
+                  Amount Details
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Amount</label>
+                    <p className="text-gray-900 font-bold text-lg mt-1">{formatAmount(selectedOrder.amount.total)}</p>
+                  </div>
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Per Plate</label>
+                    <p className="text-gray-900 font-bold text-lg mt-1">{formatAmount(selectedOrder.amount.perPlate)}</p>
+                  </div>
+                  {selectedOrder.amount.breakdown && (
+                    <>
+                      <div className="bg-green-50 p-4 rounded-lg">
+                        <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Veg</label>
+                        <p className="text-gray-900 font-bold text-lg mt-1">{formatAmount(selectedOrder.amount.breakdown.veg)}</p>
+                      </div>
+                      <div className="bg-red-50 p-4 rounded-lg">
+                        <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Non-Veg</label>
+                        <p className="text-gray-900 font-bold text-lg mt-1">{formatAmount(selectedOrder.amount.breakdown.nonVeg)}</p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Customer Message */}
+              {selectedOrder.message && (
+                <div className="border-b pb-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <MessageCircle className="w-5 h-5 text-orange-500" />
+                    Customer Message
+                  </h3>
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <p className="text-gray-900">{selectedOrder.message}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Vendor Response */}
+              {selectedOrder.vendorResponse && (
+                <div className="pb-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <MessageCircle className="w-5 h-5 text-red-500" />
+                    Vendor Response
+                  </h3>
+                  <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                    <p className="text-gray-900">{selectedOrder.vendorResponse.message}</p>
+                    <p className="text-xs text-gray-600 mt-2">
+                      Responded on: {formatDate(selectedOrder.vendorResponse.respondedAt)} at {formatTime(selectedOrder.vendorResponse.respondedAt)}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Close Button */}
+            <div className="sticky bottom-0 bg-gray-50 border-t p-6 flex justify-end">
+              <button
+                onClick={() => setDetailsModalOpen(false)}
+                className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="bg-white rounded-2xl border border-gray-200 p-6">
+      {/* Order Details Modal */}
+      <OrderDetailsModal />
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
@@ -317,17 +588,20 @@ export default function TotalOrdersManagement() {
               </tr>
             ) : (
               orders.map((order) => (
-                <tr key={order._id} className="hover:bg-gray-50 transition-colors">
+                <tr key={order._id} className="hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => {
+                  setSelectedOrder(order);
+                  setDetailsModalOpen(true);
+                }}>
                   <td className="py-5 px-6">
                     <div className="space-y-2">
-                      <h3 className="font-semibold text-gray-900 text-sm">{order.orderId}</h3>
+                      <h3 className="font-semibold text-orange-600 text-sm hover:underline">{order.orderId}</h3>
                       <div className="flex items-center gap-2">
                         <Calendar className="w-3 h-3 text-gray-400" />
                         <span className="text-xs text-gray-600">Ordered: {formatDate(order.createdAt)}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="w-3 h-3 text-gray-400" />
-                        <span className="text-xs text-gray-600">Event: {formatDate(order.eventDate)} at {formatTime(order.eventTime)}</span>
+                        <span className="text-xs text-gray-600">Event: {order.eventDate} at {order.eventTime}</span>
                       </div>
                     </div>
                   </td>
@@ -344,7 +618,7 @@ export default function TotalOrdersManagement() {
                       </div>
                       <div className="flex items-center gap-2">
                         <Building2 className="w-3 h-3 text-gray-400" />
-                        <span className="text-xs text-gray-600 truncate">{order.vendor.businessName || order.vendor.name}</span>
+                        <span className="text-xs text-gray-600 truncate font-medium">{order.vendor.businessName || order.vendor.name}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <MapPin className="w-3 h-3 text-gray-400" />
@@ -357,19 +631,19 @@ export default function TotalOrdersManagement() {
                   
                   <td className="py-5 px-6">
                     <div className="space-y-2">
-                      <p className="text-xs font-medium text-gray-900">{order.eventType}</p>
+                      <p className="text-xs font-medium text-gray-900 capitalize">{order.eventType}</p>
                       <p className="text-xs text-gray-600">{order.guests} Guests</p>
                       <span className={`inline-block text-xs px-2 py-1 rounded ${
                         order.foodPreference === 'veg' 
                           ? 'bg-green-100 text-green-700' 
                           : order.foodPreference === 'non-veg'
                           ? 'bg-red-100 text-red-700'
-                          : 'bg-blue-100 text-blue-700'
+                          : 'bg-orange-100 text-orange-700'
                       }`}>
                         {order.foodPreference === 'veg' ? '🌱 Veg' : order.foodPreference === 'non-veg' ? '🍖 Non-Veg' : '🍽️ Both'}
                       </span>
                       {order.viewedByVendor && (
-                        <div className="flex items-center gap-1 text-xs text-blue-600">
+                        <div className="flex items-center gap-1 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded w-fit">
                           <Eye className="w-3 h-3" />
                           <span>Viewed</span>
                         </div>
@@ -384,9 +658,8 @@ export default function TotalOrdersManagement() {
                         <p className="text-xs text-gray-500">{formatAmount(order.amount.perPlate)}/plate</p>
                         {order.amount.breakdown && (
                           <div className="text-xs text-gray-500 mt-1">
-                            <span>Veg: {formatAmount(order.amount.breakdown.veg)}</span>
-                            <br />
-                            <span>Non-Veg: {formatAmount(order.amount.breakdown.nonVeg)}</span>
+                            {order.amount.breakdown.veg > 0 && <span>Veg: {formatAmount(order.amount.breakdown.veg)}<br /></span>}
+                            {order.amount.breakdown.nonVeg > 0 && <span>Non-Veg: {formatAmount(order.amount.breakdown.nonVeg)}</span>}
                           </div>
                         )}
                       </div>
@@ -396,8 +669,6 @@ export default function TotalOrdersManagement() {
                       </span>
                     </div>
                   </td>
-                  
-                  {/* Actions column removed */}
                 </tr>
               ))
             )}

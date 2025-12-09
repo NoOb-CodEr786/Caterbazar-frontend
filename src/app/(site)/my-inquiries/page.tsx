@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getMyInquiries, cancelInquiry, Inquiry } from '@/api/user/inquiry.api';
 import { getMyReviews, Review } from '@/api/user/review.api';
-import { Calendar, MessageSquare, Star, Trash2, Eye, Phone, User as UserIcon, CheckCircle, Clock, Package, Edit } from 'lucide-react';
+import { Calendar, MessageSquare, Star, Trash2, Eye, Phone, User as UserIcon, CheckCircle, Clock, Package, Edit, MapPin, X } from 'lucide-react';
 import ReviewModal from '@/components/Modals/ReviewModal';
 
 export default function MyInquiriesPage() {
@@ -20,6 +20,8 @@ export default function MyInquiriesPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedInquiryForDetails, setSelectedInquiryForDetails] = useState<Inquiry | null>(null);
 
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
@@ -231,90 +233,87 @@ export default function MyInquiriesPage() {
                   </button>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {inquiries.map((inquiry) => (
                     <div
                       key={inquiry._id}
-                      className="border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow"
+                      className="border border-gray-200 rounded-lg p-4 sm:p-5 hover:shadow-md transition-shadow bg-white"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        {/* Left - Summary Info */}
                         <div className="flex-1">
-                          <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-start justify-between gap-3 mb-2">
                             <div>
-                              <h3 className="text-lg font-bold text-gray-900">
+                              <h3 className="text-base sm:text-lg font-bold text-gray-900">
                                 {typeof inquiry.vendorId === 'object' && inquiry.vendorId.fullName}
                               </h3>
-                              <div className="flex items-center gap-2 mt-1">
-                                {getStatusBadge(inquiry.status)}
-                                {inquiry.viewedByVendor && (
-                                  <span className="flex items-center gap-1 text-xs text-blue-600">
-                                    <Eye className="w-3 h-3" />
-                                    Viewed
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4 text-gray-400" />
-                              <span>Event: {formatDate(inquiry.eventDate)}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <MessageSquare className="w-4 h-4 text-gray-400" />
-                              <span>{inquiry.eventType.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <UserIcon className="w-4 h-4 text-gray-400" />
-                              <span>{inquiry.guestCount} Guests</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Clock className="w-4 h-4 text-gray-400" />
-                              <span>Sent: {formatDate(inquiry.createdAt)}</span>
-                            </div>
-                          </div>
-
-                          {inquiry.message && (
-                            <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                              <p className="text-sm text-gray-700">{inquiry.message}</p>
-                            </div>
-                          )}
-
-                          {inquiry.vendorResponse?.message && (
-                            <div className="mt-3 p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
-                              <p className="text-sm font-semibold text-blue-900 mb-1">Vendor Response:</p>
-                              <p className="text-sm text-blue-800">{inquiry.vendorResponse.message}</p>
-                              <p className="text-xs text-blue-600 mt-1">
-                                {formatDate(inquiry.vendorResponse.respondedAt!)}
+                              <p className="text-xs text-gray-600 mt-1">
+                                {inquiry.eventType.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} • {formatDate(inquiry.eventDate)}
                               </p>
                             </div>
-                          )}
+                          </div>
+
+                          {/* Quick Info */}
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm">
+                            <div className="flex items-center gap-1 text-gray-600">
+                              <UserIcon className="w-3.5 h-3.5" />
+                              <span>{inquiry.guestCount} guests</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-gray-600">
+                              <MessageSquare className="w-3.5 h-3.5" />
+                              <span className="capitalize">{inquiry.foodPreference}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-gray-600">
+                              <Clock className="w-3.5 h-3.5" />
+                              <span>{formatDate(inquiry.createdAt)}</span>
+                            </div>
+                          </div>
                         </div>
 
-                        {/* Actions */}
-                        <div className="flex flex-col gap-2">
-                          {inquiry.status === 'pending' && (
-                            <button
-                              onClick={() => handleCancelInquiry(inquiry._id)}
-                              className="flex items-center gap-2 px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors whitespace-nowrap"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                              Cancel
-                            </button>
-                          )}
-                          {(inquiry.status === 'converted' || inquiry.status === 'contacted') && (
-                            <>
+                        {/* Right - Status & Actions */}
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div className="flex flex-col items-end gap-2">
+                            <div className="flex items-center gap-2">
                               {getStatusBadge(inquiry.status)}
+                              {inquiry.viewedByVendor && (
+                                <span className="flex items-center gap-1 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                                  <Eye className="w-3 h-3" />
+                                  Viewed
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex gap-2">
                               <button
-                                onClick={() => handleWriteReview(inquiry)}
-                                className="flex items-center gap-2 px-4 py-2 text-orange-600 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors whitespace-nowrap"
+                                onClick={() => {
+                                  setSelectedInquiryForDetails(inquiry);
+                                  setDetailsModalOpen(true);
+                                }}
+                                className="px-3 py-1.5 text-xs sm:text-sm bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors whitespace-nowrap"
                               >
-                                <Edit className="w-4 h-4" />
-                                Write Review
+                                View Details
                               </button>
-                            </>
-                          )}
+
+                              {inquiry.status === 'pending' && (
+                                <button
+                                  onClick={() => handleCancelInquiry(inquiry._id)}
+                                  className="px-3 py-1.5 text-xs sm:text-sm text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+                                >
+                                  Cancel
+                                </button>
+                              )}
+
+                              {(inquiry.status === 'converted' || inquiry.status === 'contacted') && (
+                                <button
+                                  onClick={() => handleWriteReview(inquiry)}
+                                  className="px-3 py-1.5 text-xs sm:text-sm text-orange-600 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors"
+                                >
+                                  Review
+                                </button>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -458,6 +457,183 @@ export default function MyInquiriesPage() {
           )}
         </div>
       </div>
+
+      {/* Details Modal */}
+      {detailsModalOpen && selectedInquiryForDetails && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold">Inquiry Details</h2>
+                  <p className="text-orange-100 text-sm mt-1">
+                    {typeof selectedInquiryForDetails.vendorId === 'object' && selectedInquiryForDetails.vendorId.fullName}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setDetailsModalOpen(false)}
+                  className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-6">
+              {/* Vendor Info */}
+              <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                <h3 className="text-sm font-bold text-gray-900 mb-3">Vendor Information</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Name:</span>
+                    <span className="font-medium text-gray-900">
+                      {typeof selectedInquiryForDetails.vendorId === 'object' && selectedInquiryForDetails.vendorId.fullName}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Email:</span>
+                    <span className="font-medium text-gray-900 break-all">
+                      {typeof selectedInquiryForDetails.vendorId === 'object' && selectedInquiryForDetails.vendorId.email}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Event Details */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-4 bg-orange-50 rounded-lg">
+                  <p className="text-xs text-gray-600 font-bold uppercase tracking-wide mb-1">Event Date</p>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-orange-600" />
+                    <span className="text-sm font-medium text-gray-900">{formatDate(selectedInquiryForDetails.eventDate)}</span>
+                  </div>
+                </div>
+                <div className="p-4 bg-orange-50 rounded-lg">
+                  <p className="text-xs text-gray-600 font-bold uppercase tracking-wide mb-1">Event Type</p>
+                  <span className="text-sm font-medium text-gray-900">
+                    {selectedInquiryForDetails.eventType.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                  </span>
+                </div>
+                <div className="p-4 bg-red-50 rounded-lg">
+                  <p className="text-xs text-gray-600 font-bold uppercase tracking-wide mb-1">Guest Count</p>
+                  <div className="flex items-center gap-2">
+                    <UserIcon className="w-4 h-4 text-red-600" />
+                    <span className="text-sm font-medium text-gray-900">{selectedInquiryForDetails.guestCount} Guests</span>
+                  </div>
+                </div>
+                <div className="p-4 bg-red-50 rounded-lg">
+                  <p className="text-xs text-gray-600 font-bold uppercase tracking-wide mb-1">Food Preference</p>
+                  <span className="text-sm font-medium text-gray-900 capitalize">{selectedInquiryForDetails.foodPreference}</span>
+                </div>
+              </div>
+
+              {/* Your Information */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h3 className="text-sm font-bold text-gray-900 mb-3">Your Information</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Name:</span>
+                    <span className="font-medium text-gray-900">{selectedInquiryForDetails.userName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Email:</span>
+                    <span className="font-medium text-gray-900 break-all">{selectedInquiryForDetails.userEmail}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Phone:</span>
+                    <span className="font-medium text-gray-900">{selectedInquiryForDetails.userPhone}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Event Location */}
+              {selectedInquiryForDetails.eventLocation && (
+                <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                  <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-orange-600" />
+                    Event Location
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    {selectedInquiryForDetails.eventLocation.address && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Address:</span>
+                        <span className="font-medium text-gray-900">{selectedInquiryForDetails.eventLocation.address}</span>
+                      </div>
+                    )}
+                    {selectedInquiryForDetails.eventLocation.city && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">City:</span>
+                        <span className="font-medium text-gray-900">{selectedInquiryForDetails.eventLocation.city}</span>
+                      </div>
+                    )}
+                    {selectedInquiryForDetails.eventLocation.state && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">State:</span>
+                        <span className="font-medium text-gray-900">{selectedInquiryForDetails.eventLocation.state}</span>
+                      </div>
+                    )}
+                    {selectedInquiryForDetails.eventLocation.pincode && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Pincode:</span>
+                        <span className="font-medium text-gray-900">{selectedInquiryForDetails.eventLocation.pincode}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Message */}
+              {selectedInquiryForDetails.message && (
+                <div>
+                  <p className="text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Your Message</p>
+                  <p className="p-3 bg-gray-50 rounded-lg text-sm text-gray-700 border-l-4 border-orange-500">
+                    {selectedInquiryForDetails.message}
+                  </p>
+                </div>
+              )}
+
+              {/* Vendor Response */}
+              {selectedInquiryForDetails.vendorResponse?.message && (
+                <div className="p-4 bg-orange-50 border-l-4 border-orange-500 rounded-lg">
+                  <p className="text-sm font-semibold text-orange-900 mb-2">Vendor Response:</p>
+                  <p className="text-sm text-orange-800 mb-2">{selectedInquiryForDetails.vendorResponse.message}</p>
+                  <p className="text-xs text-orange-600">
+                    {formatDate(selectedInquiryForDetails.vendorResponse.respondedAt!)}
+                  </p>
+                </div>
+              )}
+
+              {/* Metadata */}
+              <div className="pt-4 border-t border-gray-200">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-gray-600">Status:</p>
+                    <p className="font-medium text-gray-900 capitalize">{selectedInquiryForDetails.status}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Sent On:</p>
+                    <p className="font-medium text-gray-900">{formatDate(selectedInquiryForDetails.createdAt)}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Viewed by Vendor:</p>
+                    <p className="font-medium text-gray-900">{selectedInquiryForDetails.viewedByVendor ? 'Yes' : 'No'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Close Button */}
+              <button
+                onClick={() => setDetailsModalOpen(false)}
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white py-2.5 rounded-lg font-semibold transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Review Modal */}
       {selectedInquiry && (

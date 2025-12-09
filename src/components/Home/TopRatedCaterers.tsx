@@ -7,20 +7,13 @@ import { useRouter } from 'next/navigation';
 
 const vendorTypes = [
   { label: "All", value: "" },
-  { label: "Food Catering", value: "food_catering" },
-  { label: "Beverage Catering", value: "beverage_catering" },
-  { label: "Full Service", value: "full_service" },
-  { label: "Drop-Off Catering", value: "drop_off_catering" },
-  { label: "Buffet Style", value: "buffet_style" },
-  { label: "Live Counters", value: "live_counters" },
-  { label: "Decoration", value: "decoration" },
-  { label: "Photography", value: "photography" },
-  { label: "DJ & Music", value: "dj_music" },
-  { label: "Venue", value: "venue" },
-  { label: "Makeup Artist", value: "makeup_artist" },
-  { label: "Event Planner", value: "event_planner" },
-  { label: "Invitation Cards", value: "invitation_cards" },
-  { label: "Transportation", value: "transportation" },
+  { label: "Full Catering", value: "full_catering" },
+  { label: "Snacks & Starter", value: "snacks_and_starter" },
+  { label: "Dessert & Sweet", value: "dessert_and_sweet" },
+  { label: "Beverage", value: "beverage" },
+  { label: "Paan", value: "paan" },
+  { label: "Water", value: "water" },
+  { label: "Other", value: "other" },
 ];
 
 export default function TopRatedCaterers() {
@@ -160,7 +153,7 @@ export default function TopRatedCaterers() {
 
                     {/* Name & Location */}
                     <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1 line-clamp-1 group-hover:text-orange-600 transition-colors">
-                      {vendor.userId.fullName}
+                        {vendor.businessRegistrationId?.brandName || vendor.userId.fullName}
                     </h3>
                     <p className="text-gray-500 text-xs sm:text-sm mb-3 line-clamp-1 flex items-center gap-1">
                       <span className="text-gray-400">📍</span>

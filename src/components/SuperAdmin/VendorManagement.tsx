@@ -139,6 +139,22 @@ export default function VendorManagement() {
     });
   };
 
+  const getVendorStatus = (vendor: Vendor) => {
+    return vendor.accountStatus || (vendor.isActive ? 'active' : 'pending');
+  };
+
+  const getVendorBrandName = (vendor: Vendor) => {
+    return (vendor.businessRegistrationId as any)?.brandName || vendor.userId?.fullName || 'N/A';
+  };
+
+  const getVendorRole = (vendor: Vendor) => {
+    return vendor.role?.toUpperCase() || 'VENDOR';
+  };
+
+  const getVendorPhone = (vendor: Vendor) => {
+    return vendor.phoneNumber || vendor.userId?.phoneNumber || 'N/A';
+  };
+
   return (
     <>
       <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
@@ -149,7 +165,7 @@ export default function VendorManagement() {
             <p className="text-sm sm:text-base text-gray-600 mt-1">Manage and monitor all registered vendors</p>
           </div>
           
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          {/* <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
               <input
@@ -171,7 +187,7 @@ export default function VendorManagement() {
               <option value="pending">Pending</option>
               <option value="suspended">Suspended</option>
             </select>
-          </div>
+          </div> */}
         </div>
 
         {/* Stats Cards */}
@@ -257,12 +273,17 @@ export default function VendorManagement() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {vendors.map((vendor) => (
+                  {vendors.map((vendor) => {
+                    const status = getVendorStatus(vendor);
+                    const brandName = getVendorBrandName(vendor);
+                    const phone = getVendorPhone(vendor);
+                    
+                    return (
                     <tr key={vendor._id} className="hover:bg-gray-50 transition-colors">
                       <td className="py-5 px-6">
                         <div className="space-y-2">
-                          <h3 className="font-semibold text-gray-900 text-sm">{vendor.userId?.fullName || 'N/A'}</h3>
-                          <p className="text-xs text-gray-600">{vendor.role?.toUpperCase() || 'VENDOR'}</p>
+                          <h3 className="font-semibold text-gray-900 text-sm">{brandName}</h3>
+                          <p className="text-xs text-gray-600">{getVendorRole(vendor)}</p>
                           <div className="flex items-center gap-2">
                             <Calendar className="w-3 h-3 text-gray-400" />
                             <span className="text-xs text-gray-500">Joined {formatDate(vendor.createdAt)}</span>
@@ -278,7 +299,7 @@ export default function VendorManagement() {
                           </div>
                           <div className="flex items-center gap-2">
                             <Phone className="w-3 h-3 text-gray-400" />
-                            <span className="text-xs text-gray-600">{vendor.phoneNumber || 'N/A'}</span>
+                            <span className="text-xs text-gray-600">{phone}</span>
                           </div>
                         </div>
                       </td>
@@ -289,9 +310,11 @@ export default function VendorManagement() {
                             {vendor.isProfileComplete ? (
                               <CheckCircle className="w-3 h-3 text-green-500" />
                             ) : (
-                              <X className="w-3 h-3 text-red-500" />
+                              <XCircle className="w-3 h-3 text-red-500" />
                             )}
-                            <span className="text-xs text-gray-600">Profile Complete</span>
+                            <span className="text-xs text-gray-600">
+                              {vendor.profileCompletionPercentage ? `${vendor.profileCompletionPercentage}%` : '0%'} Complete
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
                             {vendor.isCaterbazarChoice ? (
@@ -305,9 +328,9 @@ export default function VendorManagement() {
                       </td>
                       
                       <td className="py-5 px-6">
-                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(vendor.accountStatus || (vendor.isActive ? 'active' : 'pending'))}`}>
-                          {getStatusIcon(vendor.accountStatus || (vendor.isActive ? 'active' : 'pending'))}
-                          {(vendor.accountStatus || (vendor.isActive ? 'active' : 'pending')).charAt(0).toUpperCase() + (vendor.accountStatus || (vendor.isActive ? 'active' : 'pending')).slice(1)}
+                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(status)}`}>
+                          {getStatusIcon(status)}
+                          {status.charAt(0).toUpperCase() + status.slice(1)}
                         </span>
                       </td>
                       
@@ -323,14 +346,20 @@ export default function VendorManagement() {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
 
             {/* Mobile Card View - Visible only on Mobile */}
             <div className="lg:hidden space-y-4">
-              {vendors.map((vendor) => (
+              {vendors.map((vendor) => {
+                const status = getVendorStatus(vendor);
+                const brandName = getVendorBrandName(vendor);
+                const phone = getVendorPhone(vendor);
+                
+                return (
                 <div 
                   key={vendor._id} 
                   className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
@@ -338,10 +367,10 @@ export default function VendorManagement() {
                   {/* Vendor Header */}
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 text-base mb-1">{vendor.userId?.fullName || 'N/A'}</h3>
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(vendor.accountStatus || (vendor.isActive ? 'active' : 'pending'))}`}>
-                        {getStatusIcon(vendor.accountStatus || (vendor.isActive ? 'active' : 'pending'))}
-                        {(vendor.accountStatus || (vendor.isActive ? 'active' : 'pending')).charAt(0).toUpperCase() + (vendor.accountStatus || (vendor.isActive ? 'active' : 'pending')).slice(1)}
+                      <h3 className="font-semibold text-gray-900 text-base mb-1">{brandName}</h3>
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(status)}`}>
+                        {getStatusIcon(status)}
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
                       </span>
                     </div>
                   </div>
@@ -354,7 +383,7 @@ export default function VendorManagement() {
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Phone className="w-4 h-4 text-gray-400 shrink-0" />
-                      <span className="text-gray-700">{vendor.phoneNumber || 'N/A'}</span>
+                      <span className="text-gray-700">{phone}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
@@ -370,7 +399,9 @@ export default function VendorManagement() {
                       ) : (
                         <XCircle className="w-4 h-4 text-red-500" />
                       )}
-                      <span className="text-xs text-gray-600">Profile Complete</span>
+                      <span className="text-xs text-gray-600">
+                        {vendor.profileCompletionPercentage ? `${vendor.profileCompletionPercentage}%` : '0%'} Complete
+                      </span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       {vendor.isCaterbazarChoice ? (
@@ -393,7 +424,8 @@ export default function VendorManagement() {
                     </button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Pagination */}

@@ -7,6 +7,7 @@ export interface Vendor {
     _id: string;
     fullName: string;
     email: string;
+    phoneNumber: string;
     createdAt: string;
   };
   businessRegistrationId: string;

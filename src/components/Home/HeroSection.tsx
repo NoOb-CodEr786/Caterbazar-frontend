@@ -66,8 +66,8 @@ export default function HeroSection() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-orange-50 via-white to-orange-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <div className="min-h-auto bg-linear-to-br from-orange-50 via-white to-orange-50">
+      <div className="container pb-20 mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left Side - Content */}
           <div className="space-y-6 sm:space-y-8">

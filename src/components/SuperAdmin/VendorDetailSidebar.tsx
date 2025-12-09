@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { 
   X, Mail, Phone, MapPin, Calendar, CheckCircle, XCircle, 
-  Clock, User, Shield, Activity, AlertCircle, Loader2
+  Clock, User, Shield, Activity, AlertCircle, Loader2, Building2
 } from 'lucide-react';
 import { 
   getVendorById, 
@@ -81,6 +81,42 @@ export default function VendorDetailSidebar({ vendorId, isOpen, onClose }: Vendo
     return str.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
 
+  // Helper functions for safe data access
+  const getBrandName = () => {
+    if (typeof vendor?.businessRegistrationId === 'object' && vendor?.businessRegistrationId && 'brandName' in vendor.businessRegistrationId) {
+      return (vendor.businessRegistrationId as any).brandName;
+    }
+    return vendor?.userId?.fullName || 'N/A';
+  };
+
+  const getVendorStatus = () => {
+    return vendor?.accountStatus || (vendor?.isActive ? 'active' : 'pending');
+  };
+
+  const hasBusinessInfo = () => {
+    return vendor?.businessInfo && (vendor.businessInfo.yearOfEstablishment || vendor.businessInfo.teamSize);
+  };
+
+  const hasCapacityInfo = () => {
+    return vendor?.capacity && (vendor.capacity.minGuests || vendor.capacity.maxGuests || vendor.capacity.vendorCategory);
+  };
+
+  const hasAddressInfo = () => {
+    return vendor?.address && (vendor.address.locality || vendor.address.state || vendor.address.country);
+  };
+
+  const hasPricingInfo = () => {
+    return vendor?.pricing && (vendor.pricing.vegPricePerPlate || vendor.pricing.nonVegPricePerPlate);
+  };
+
+  const hasServicesInfo = () => {
+    return vendor?.pricing && (vendor.pricing.servicesSpecialization?.length > 0 || vendor.pricing.cuisineOptions?.length > 0);
+  };
+
+  const hasOperationsInfo = () => {
+    return vendor?.operations && (vendor.operations.languagesSpoken?.length > 0 || vendor.operations.operationalRadius || vendor.operations.weeksAdvanceBooking);
+  };
+
   const handleToggleCaterbazarChoice = async () => {
     if (!vendor) return;
     setActionLoading('choice');
@@ -138,7 +174,7 @@ export default function VendorDetailSidebar({ vendorId, isOpen, onClose }: Vendo
         {/* Header */}
         <div className="sticky top-0 bg-linear-to-r from-orange-500 to-red-500 text-white p-4 sm:p-6 z-10">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <h2 className="text-xl sm:text-2xl font-bold">Vendor Details</h2>
+            <h2 className="text-xl sm:text-2xl font-bold">Vendsor Details</h2>
             <button
               onClick={onClose}
               className="p-2 hover:bg-white/20 rounded-lg transition-colors"
@@ -173,20 +209,20 @@ export default function VendorDetailSidebar({ vendorId, isOpen, onClose }: Vendo
                 <img
                   src={vendor.profilePhoto}
                   alt={vendor.userId?.fullName || 'Vendor'}
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-3 sm:border-4 border-white shadow-lg"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-white shadow-lg"
                 />
               ) : (
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/20 flex items-center justify-center border-3 sm:border-4 border-white shadow-lg">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/20 flex items-center justify-center border-4 border-white shadow-lg">
                   <span className="text-white text-lg sm:text-2xl font-bold">
                     {getInitials(vendor.userId?.fullName || 'V')}
                   </span>
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <h3 className="text-lg sm:text-xl font-bold text-white truncate">{vendor.userId?.fullName || 'N/A'}</h3>
-                <p className="text-white/90 text-xs sm:text-sm">{vendor.role?.toUpperCase() || 'VENDOR'}</p>
-                <span className={`inline-block mt-1.5 sm:mt-2 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold border ${getStatusColor(vendor.accountStatus || (vendor.isActive ? 'active' : 'pending'))}`}>
-                  {(vendor.accountStatus || (vendor.isActive ? 'active' : 'pending')).toUpperCase()}
+                <h3 className="text-lg sm:text-xl font-bold text-white truncate">{getBrandName()}</h3>
+                <p className="text-white/90 text-xs sm:text-sm mt-0.5">{vendor.role?.toUpperCase() || 'VENDOR'}</p>
+                <span className={`inline-block mt-1.5 sm:mt-2 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold border ${getStatusColor(getVendorStatus())}`}>
+                  {getVendorStatus().toUpperCase()}
                 </span>
               </div>
             </div>
@@ -232,6 +268,116 @@ export default function VendorDetailSidebar({ vendorId, isOpen, onClose }: Vendo
                 )}
               </div>
             </div>
+
+            {/* User Information */}
+            {vendor.userId && (
+              <div className="bg-linear-to-br from-indigo-50 to-indigo-50/50 rounded-xl p-4 sm:p-5 border border-indigo-200 shadow-sm">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                  <User className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
+                  User Information
+                </h3>
+                <div className="space-y-3">
+                  {/* <div className="bg-white rounded-lg p-3 border border-indigo-100">
+                    <p className="text-xs text-gray-500 font-medium mb-1">User ID</p>
+                    <p className="text-xs sm:text-sm text-gray-900 font-mono break-all">{vendor.userId._id}</p>
+                  </div> */}
+
+                  <div className="bg-white rounded-lg p-3 border border-indigo-100">
+                    <p className="text-xs text-gray-500 font-medium mb-1">Full Name</p>
+                    <p className="text-xs sm:text-sm text-gray-900 font-semibold">{vendor.userId.fullName}</p>
+                  </div>
+
+                  <div className="bg-white rounded-lg p-3 border border-indigo-100">
+                    <p className="text-xs text-gray-500 font-medium mb-1">Email</p>
+                    <p className="text-xs sm:text-sm text-gray-900 font-semibold break-all">{vendor.userId.email}</p>
+                  </div>
+
+                  <div className="bg-white rounded-lg p-3 border border-indigo-100">
+                    <p className="text-xs text-gray-500 font-medium mb-1">Phone Number</p>
+                    <p className="text-xs sm:text-sm text-gray-900 font-semibold">{vendor.userId.phoneNumber || 'N/A'}</p>
+                  </div>
+
+                  <div className="bg-white rounded-lg p-3 border border-indigo-100">
+                    <p className="text-xs text-gray-500 font-medium mb-1">Account Created</p>
+                    <p className="text-xs sm:text-sm text-gray-900 font-semibold">{formatDate(vendor.userId.createdAt)}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Business Registration Information */}
+            {vendor.businessRegistrationId && (
+              <div className="bg-linear-to-br from-amber-50 to-amber-50/50 rounded-xl p-4 sm:p-5 border border-amber-200 shadow-sm">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                  <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
+                  Business Registration
+                </h3>
+                <div className="space-y-3">
+                  {typeof vendor.businessRegistrationId === 'object' ? (
+                    <>
+                      {/* <div className="bg-white rounded-lg p-3 border border-amber-100">
+                        <p className="text-xs text-gray-500 font-medium mb-1">Registration ID</p>
+                        <p className="text-xs sm:text-sm text-gray-900 font-mono break-all">{(vendor.businessRegistrationId as any)._id || 'N/A'}</p>
+                      </div> */}
+
+                      {(vendor.businessRegistrationId as any).brandName && (
+                        <div className="bg-white rounded-lg p-3 border border-amber-100">
+                          <p className="text-xs text-gray-500 font-medium mb-1">Brand Name</p>
+                          <p className="text-xs sm:text-sm text-gray-900 font-semibold">{(vendor.businessRegistrationId as any).brandName}</p>
+                        </div>
+                      )}
+
+                      {(vendor.businessRegistrationId as any).businessType && (
+                        <div className="bg-white rounded-lg p-3 border border-amber-100">
+                          <p className="text-xs text-gray-500 font-medium mb-1">Business Type</p>
+                          <p className="text-xs sm:text-sm text-gray-900 font-semibold capitalize">{(vendor.businessRegistrationId as any).businessType}</p>
+                        </div>
+                      )}
+
+                      {(vendor.businessRegistrationId as any).registrationNumber && (
+                        <div className="bg-white rounded-lg p-3 border border-amber-100">
+                          <p className="text-xs text-gray-500 font-medium mb-1">Registration Number</p>
+                          <p className="text-xs sm:text-sm text-gray-900 font-semibold">{(vendor.businessRegistrationId as any).registrationNumber}</p>
+                        </div>
+                      )}
+
+                      {(vendor.businessRegistrationId as any).panNumber && (
+                        <div className="bg-white rounded-lg p-3 border border-amber-100">
+                          <p className="text-xs text-gray-500 font-medium mb-1">PAN Number</p>
+                          <p className="text-xs sm:text-sm text-gray-900 font-semibold">{(vendor.businessRegistrationId as any).panNumber}</p>
+                        </div>
+                      )}
+
+                      {(vendor.businessRegistrationId as any).gstNumber && (
+                        <div className="bg-white rounded-lg p-3 border border-amber-100">
+                          <p className="text-xs text-gray-500 font-medium mb-1">GST Number</p>
+                          <p className="text-xs sm:text-sm text-gray-900 font-semibold">{(vendor.businessRegistrationId as any).gstNumber}</p>
+                        </div>
+                      )}
+
+                      {(vendor.businessRegistrationId as any).businessAddress && (
+                        <div className="bg-white rounded-lg p-3 border border-amber-100">
+                          <p className="text-xs text-gray-500 font-medium mb-1">Business Address</p>
+                          <p className="text-xs sm:text-sm text-gray-900 font-semibold">{(vendor.businessRegistrationId as any).businessAddress}</p>
+                        </div>
+                      )}
+
+                      {(vendor.businessRegistrationId as any).ownerName && (
+                        <div className="bg-white rounded-lg p-3 border border-amber-100">
+                          <p className="text-xs text-gray-500 font-medium mb-1">Owner Name</p>
+                          <p className="text-xs sm:text-sm text-gray-900 font-semibold">{(vendor.businessRegistrationId as any).ownerName}</p>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="bg-white rounded-lg p-3 border border-amber-100">
+                      <p className="text-xs text-gray-500 font-medium mb-1">Registration ID</p>
+                      <p className="text-xs sm:text-sm text-gray-900 font-mono break-all">{vendor.businessRegistrationId}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Social Media */}
             {(vendor.socialMedia?.facebookHandle || vendor.socialMedia?.instagramHandle || vendor.socialMedia?.personalWebsite) && (
@@ -397,23 +543,60 @@ export default function VendorDetailSidebar({ vendorId, isOpen, onClose }: Vendo
             )}
 
             {/* Pricing Information */}
-            {vendor.pricing && (vendor.pricing.vegPricePerPlate || vendor.pricing.nonVegPricePerPlate) && (
+            {vendor.pricing && (
               <div className="bg-gray-50 rounded-xl p-4 sm:p-5 border border-gray-200">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Pricing</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  {vendor.pricing.vegPricePerPlate && (
-                    <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-                      <p className="text-xs text-green-600 mb-1">Veg Per Plate</p>
-                      <p className="text-lg font-bold text-green-900">₹{vendor.pricing.vegPricePerPlate}</p>
+                
+                {/* Veg & Non-Veg Pricing - For Full Catering and Other */}
+                {(vendor.capacity?.vendorCategory === 'full_catering' || vendor.capacity?.vendorCategory === 'other') ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    {vendor.pricing.vegPricePerPlate && (
+                      <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                        <p className="text-xs text-green-600 mb-1">Veg Per Plate</p>
+                        <p className="text-lg font-bold text-green-900">₹{vendor.pricing.vegPricePerPlate}</p>
+                      </div>
+                    )}
+                    {vendor.pricing.nonVegPricePerPlate && (
+                      <div className="bg-red-50 p-3 rounded-lg border border-red-200">
+                        <p className="text-xs text-red-600 mb-1">Non-Veg Per Plate</p>
+                        <p className="text-lg font-bold text-red-900">₹{vendor.pricing.nonVegPricePerPlate}</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="bg-white p-3 rounded-lg border border-gray-300">
+                    <p className="text-xs text-gray-600 mb-1">Starting Price</p>
+                    <p className="text-lg font-bold text-gray-900">₹{vendor.pricing.vegPricePerPlate || 'N/A'}</p>
+                  </div>
+                )}
+
+                {/* Service Specialization - Only for Full Catering and Other */}
+                {(vendor.capacity?.vendorCategory === 'full_catering' || vendor.capacity?.vendorCategory === 'other') && vendor.pricing.servicesSpecialization?.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-gray-300">
+                    <p className="text-xs text-gray-600 mb-2 font-semibold">Services Offered</p>
+                    <div className="flex flex-wrap gap-2">
+                      {vendor.pricing.servicesSpecialization.map((service, index) => (
+                        <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium capitalize">
+                          {service.replace(/_/g, ' ')}
+                        </span>
+                      ))}
                     </div>
-                  )}
-                  {vendor.pricing.nonVegPricePerPlate && (
-                    <div className="bg-red-50 p-3 rounded-lg border border-red-200">
-                      <p className="text-xs text-red-600 mb-1">Non-Veg Per Plate</p>
-                      <p className="text-lg font-bold text-red-900">₹{vendor.pricing.nonVegPricePerPlate}</p>
+                  </div>
+                )}
+
+                {/* Cuisine Options - Only for Full Catering and Other */}
+                {(vendor.capacity?.vendorCategory === 'full_catering' || vendor.capacity?.vendorCategory === 'other') && vendor.pricing.cuisineOptions?.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-gray-300">
+                    <p className="text-xs text-gray-600 mb-2 font-semibold">Cuisine Options</p>
+                    <div className="flex flex-wrap gap-2">
+                      {vendor.pricing.cuisineOptions.map((cuisine, index) => (
+                        <span key={index} className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-medium capitalize">
+                          {cuisine.replace(/_/g, ' ')}
+                        </span>
+                      ))}
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             )}
 

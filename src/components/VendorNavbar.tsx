@@ -28,6 +28,11 @@ interface VendorData {
   isPhoneVerified?: boolean;
   accountStatus?: string;
   lastLogin?: string;
+  vendorProfile?: {
+    businessRegistrationId?: {
+      brandName?: string;
+    };
+  };
 }
 
 export default function VendorNavbar() {
@@ -165,9 +170,15 @@ export default function VendorNavbar() {
                           </div>
                         )}
                         <div className="flex-1">
-                          <h3 className="font-bold text-lg">{vendor.fullName}</h3>
+                          <h3 className="font-bold text-lg">
+                            {vendor.fullName}
+                          </h3>
                           <p className="text-white/90 text-sm">
-                            {vendor.role.toUpperCase()}
+                            {vendor.vendorProfile?.businessRegistrationId
+                              ?.brandName
+                              ? vendor.vendorProfile.businessRegistrationId
+                                  .brandName
+                              : vendor.role.toUpperCase()}
                           </p>
                         </div>
                       </div>
@@ -175,6 +186,24 @@ export default function VendorNavbar() {
 
                     {/* Profile Details */}
                     <div className="p-4 space-y-3 bg-gray-50">
+                      {vendor.vendorProfile?.businessRegistrationId
+                        ?.brandName && (
+                        <div className="text-sm">
+                          <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">
+                            Business Name :{" "}
+                            <span className="text-gray-800 font-semibold mt-1">
+                              {
+                                vendor.vendorProfile.businessRegistrationId
+                                  .brandName
+                              }
+                            </span>
+                          </p>
+                          {/* <p className="text-gray-800 font-semibold mt-1">
+                            {vendor.vendorProfile.businessRegistrationId.brandName}
+                          </p> */}
+                        </div>
+                      )}
+
                       <div className="flex items-center space-x-3 text-sm">
                         <Mail className="w-4 h-4 text-gray-400" />
                         <span className="text-gray-700">{vendor.email}</span>
@@ -182,14 +211,17 @@ export default function VendorNavbar() {
 
                       <div className="flex items-center space-x-3 text-sm">
                         <Phone className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-700">{vendor.phoneNumber}</span>
+                        <span className="text-gray-700">
+                          {vendor.phoneNumber}
+                        </span>
                       </div>
-
 
                       {vendor.lastLogin && (
                         <div className="flex items-center space-x-3 text-xs text-gray-500 pt-2">
                           <Calendar className="w-3 h-3" />
-                          <span>Last login: {formatDate(vendor.lastLogin)}</span>
+                          <span>
+                            Last login: {formatDate(vendor.lastLogin)}
+                          </span>
                         </div>
                       )}
                     </div>

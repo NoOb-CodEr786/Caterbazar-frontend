@@ -1,85 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, Users, Star, MapPin, Loader2 } from 'lucide-react';
+import { ArrowRight, Star, MapPin, Loader2, AlertCircle } from 'lucide-react';
 import { searchVendors, VendorData } from '@/api/user/public.api';
 import { useRouter } from 'next/navigation';
 
-// Demo data for initial display
-const DEMO_VENDORS = [
-  {
-    userId: {
-      _id: 'demo1',
-      fullName: 'Maharaja Catering Co.',
-    },
-    address: {
-      locality: 'Bhubaneswar',
-      state: 'Odisha',
-    },
-    stats: {
-      averageRating: 4.8,
-      totalReviews: 156,
-    },
-    isCaterbazarChoice: true,
-    profilePhoto: 'https://images.unsplash.com/photo-1585433389778-2649c0d3c1da?q=80&w=1630&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    gallery: [],
-  },
-  {
-    userId: {
-      _id: 'demo2',
-      fullName: 'Royal Feast Kitchen',
-    },
-    address: {
-      locality: 'Bhubaneswar',
-      state: 'Odisha',
-    },
-    stats: {
-      averageRating: 4.7,
-      totalReviews: 128,
-    },
-    isCaterbazarChoice: false,
-    profilePhoto: 'https://images.unsplash.com/photo-1745176593939-261033cced25?q=80&w=1394&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    gallery: [],
-  },
-  {
-    userId: {
-      _id: 'demo3',
-      fullName: 'Golden Spoon Events',
-    },
-    address: {
-      locality: 'Bhubaneswar',
-      state: 'Odisha',
-    },
-    stats: {
-      averageRating: 4.6,
-      totalReviews: 98,
-    },
-    isCaterbazarChoice: true,
-    profilePhoto: 'https://plus.unsplash.com/premium_photo-1695799627985-45c843f956ba?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    gallery: [],
-  },
-  {
-    userId: {
-      _id: 'demo4',
-      fullName: 'Flavour Paradise',
-    },
-    address: {
-      locality: 'Bhubaneswar',
-      state: 'Odisha',
-    },
-    stats: {
-      averageRating: 4.5,
-      totalReviews: 87,
-    },
-    isCaterbazarChoice: false,
-    profilePhoto: 'https://images.unsplash.com/photo-1537047902294-62a40c20a6ae?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-    gallery: [],
-  },
-];
-
 export default function CaterersSection() {
   const router = useRouter();
-  const [vendors, setVendors] = useState<any[]>(DEMO_VENDORS);
+  const [vendors, setVendors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [locality, setLocality] = useState('Bhubaneswar');
 
@@ -98,27 +26,16 @@ export default function CaterersSection() {
       if (response.success && response.data.vendors.length > 0) {
         setVendors(response.data.vendors);
       } else {
-        // Keep demo data if no API data is available
-        setVendors(DEMO_VENDORS);
+        setVendors([]);
       }
     } catch (error) {
       console.error('Error fetching vendors:', error);
-      // Keep demo data on error
-      setVendors(DEMO_VENDORS);
+      setVendors([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const getCategoryLabel = (category: string) => {
-    const labels: Record<string, string> = {
-      food_catering: 'Food Catering',
-      decoration: 'Decoration',
-      photography: 'Photography',
-      venue: 'Venue',
-    };
-    return labels[category] || category;
-  };
 
   const getVendorImage = (vendor: any) => {
     // First, try to get setup category image from gallery
@@ -155,14 +72,14 @@ export default function CaterersSection() {
           <div className="flex items-center justify-center h-64">
             <Loader2 className="w-12 h-12 animate-spin text-orange-500" />
           </div>
-        ) : (
+        ) : vendors.length > 0 ? (
           <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Left Column - 4 Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 sm:gap-6 items-start">
               {vendors.slice(0, 4).map((vendor, index) => (
                 <div
                   key={vendor?.userId?._id}
-                  // onClick={() => router.push(`/vendors/${vendor?.userId?._id}`)}
+                  onClick={() => router.push(`/vendors/${vendor?.userId?._id}`)}
                   className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer rounded-xl"
                 >
                   <div className="relative h-36 sm:h-40 md:h-48 overflow-hidden">
@@ -182,7 +99,7 @@ export default function CaterersSection() {
                   <div className="p-3 sm:p-4 lg:p-5 bg-white">
                     <div className="flex items-center justify-between mb-1.5 sm:mb-2">
                       <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 truncate">
-                        {vendor.userId.fullName}
+                        {vendor.businessRegistrationId?.brandName || vendor.userId.fullName}
                       </h3>
                       <button className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full border-2 border-gray-300 flex items-center justify-center group-hover:border-orange-500 group-hover:bg-orange-500 transition-all shrink-0">
                         <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 group-hover:text-white transition-colors" />
@@ -213,6 +130,18 @@ export default function CaterersSection() {
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12 sm:py-16 lg:py-20">
+            <div className="text-center">
+              <AlertCircle className="w-16 h-16 sm:w-20 sm:h-20 text-orange-300 mx-auto mb-4" />
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-2">
+                No Caterers Available
+              </h3>
+              <p className="text-gray-600 text-sm sm:text-base mb-6">
+                We couldn't find any caterers in {locality} at the moment. Please check back soon or try a different location.
+              </p>
             </div>
           </div>
         )}
