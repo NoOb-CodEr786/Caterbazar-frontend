@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import VendorDetailsPage from '@/components/Vendor/VendorProduct';
 import ReviewsSection from '@/components/Vendor/Reviews';
 import CateringProfessionalCTA from '@/components/Home/CateringProfessionalCTA';
@@ -10,6 +10,7 @@ import { getVendorProfile, VendorProfileData, GalleryImage } from '@/api/user/pu
 
 const Page = () => {
   const params = useParams();
+  const router = useRouter();
   const vendorId = params.id as string;
   const [vendorData, setVendorData] = useState<VendorProfileData | null>(null);
   const [setupImages, setSetupImages] = useState<GalleryImage[]>([]);
@@ -47,6 +48,24 @@ const Page = () => {
     fetchVendorData();
   }, [vendorId]);
 
+  // Check if user is logged in
+  const isUserLoggedIn = (): boolean => {
+    const accessToken = localStorage.getItem('accessToken');
+    const userRole = localStorage.getItem('userRole');
+    return !!(accessToken && userRole === 'user');
+  };
+
+  // Handle inquiry button click - check login status
+  const handleInquiryClick = (e: any) => {
+    if (!isUserLoggedIn()) {
+      // Redirect to customer signin
+      router.push('/auth/customer/signin');
+      return false;
+    }
+    // Allow the inquiry modal to open if user is logged in
+    return true;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -65,7 +84,7 @@ const Page = () => {
 
   return (
     <div>
-      <VendorDetailsPage vendor={vendorData} setupImages={setupImages} />
+      <VendorDetailsPage vendor={vendorData} setupImages={setupImages} onInquiryClick={handleInquiryClick} />
       <UserInfoSection vendor={vendorData} />
       <ReviewsSection vendorId={vendorId} />
       <CateringProfessionalCTA />

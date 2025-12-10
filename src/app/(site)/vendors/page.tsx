@@ -985,7 +985,7 @@ function SearchResultsContent() {
 
             {/* Results Grid */}
             {!loading && vendors.length > 0 && (
-              <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                 {vendors.map((vendor, index) => {
                   // Get setup image from gallery or fallback to profile photo
                   const setupImage = vendor.gallery?.find(

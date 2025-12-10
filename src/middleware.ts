@@ -12,12 +12,6 @@ const ROUTE_PERMISSIONS = {
   
   // Super admin routes - require 'superadmin' or 'admin' role
   '/superadmin': ['superadmin', 'admin'],
-  
-  // Vendor details pages - only accessible by users (customers)
-  '/vendors/': ['user'], // This will match any vendor detail page
-  
-  // Auth routes - accessible to all unauthenticated users
-  '/auth': ['guest'],
 };
 
 // Routes that don't require authentication
@@ -31,7 +25,7 @@ const PUBLIC_ROUTES = [
 function isPublicRoute(pathname: string): boolean {
   return PUBLIC_ROUTES.some(route => {
     if (route === '/') return pathname === '/';
-    return pathname.startsWith(route) && !pathname.startsWith('/vendors/');
+    return pathname.startsWith(route);
   });
 }
 
@@ -66,30 +60,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
   
+  // Allow vendor detail pages to everyone (public access)
+  if (isVendorDetailPage(pathname)) {
+    return NextResponse.next();
+  }
+  
   // Get user authentication status and role
   const authenticated = isAuthenticated(request);
   const userRole = getUserRole(request);
-  
-  // Handle vendor detail pages (e.g., /vendors/6927c3249b529b4fc5582475)
-  if (isVendorDetailPage(pathname)) {
-    if (!authenticated) {
-      // Redirect unauthenticated users to signin
-      return NextResponse.redirect(new URL('/auth/customer/signin', request.url));
-    }
-    
-      if (userRole !== 'user') {
-        // Only users (customers) can view vendor detail pages
-        // Redirect vendors to their dashboard, admins to their panel
-        if (userRole === 'vendor') {
-          return NextResponse.redirect(new URL('/dashboard', request.url));
-        } else if (userRole === 'superadmin' || userRole === 'admin') {
-          return NextResponse.redirect(new URL('/superadmin/dashboard', request.url));
-        } else {
-          // Unknown role, redirect to home
-          return NextResponse.redirect(new URL('/', request.url));
-        }
-      }    return NextResponse.next();
-  }
   
   // Check specific route permissions
   for (const [route, allowedRoles] of Object.entries(ROUTE_PERMISSIONS)) {
