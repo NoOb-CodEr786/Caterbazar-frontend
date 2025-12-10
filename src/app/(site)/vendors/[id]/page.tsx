@@ -84,7 +84,7 @@ const Page = () => {
 
   return (
     <div>
-      <VendorDetailsPage vendor={vendorData} setupImages={setupImages} onInquiryClick={handleInquiryClick} />
+      <VendorDetailsPage vendor={vendorData} setupImages={setupImages} />
       <UserInfoSection vendor={vendorData} />
       <ReviewsSection vendorId={vendorId} />
       <CateringProfessionalCTA />

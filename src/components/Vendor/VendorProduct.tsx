@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Star, MapPin, Heart, Share2, HelpCircle, ChevronRight, MessageCircle, Facebook, Instagram, Globe, Users, Calendar, Award, Shield } from 'lucide-react';
 import { VendorProfileData, GalleryImage } from '@/api/user/public.api';
 import InquiryModal from '@/components/Modals/InquiryModal';
@@ -10,6 +11,7 @@ interface VendorDetailsPageProps {
 }
 
 export default function VendorDetailsPage({ vendor, setupImages }: VendorDetailsPageProps) {
+  const router = useRouter();
   const [isFavorite, setIsFavorite] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isInquiryModalOpen, setIsInquiryModalOpen] = useState(false);
@@ -19,6 +21,24 @@ export default function VendorDetailsPage({ vendor, setupImages }: VendorDetails
     return text.split('_').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
+  };
+
+  // Check if user is logged in
+  const isUserLoggedIn = (): boolean => {
+    const accessToken = localStorage.getItem('accessToken');
+    const userRole = localStorage.getItem('userRole');
+    return !!(accessToken && userRole === 'user');
+  };
+
+  // Handle inquiry button click - check login status
+  const handleInquiryClick = () => {
+    if (!isUserLoggedIn()) {
+      // Redirect to customer signin
+      router.push('/auth/customer/signin');
+      return;
+    }
+    // Open inquiry modal if user is logged in
+    setIsInquiryModalOpen(true);
   };
 
   const cuisineDisplay = vendor.pricing.cuisineOptions
@@ -459,7 +479,7 @@ export default function VendorDetailsPage({ vendor, setupImages }: VendorDetails
                     );
                   })()}
                 <button 
-                  onClick={() => setIsInquiryModalOpen(true)}
+                  onClick={handleInquiryClick}
                   className="w-full border-2 border-orange-500 text-orange-500 hover:bg-orange-50 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold flex items-center justify-center gap-2 transition-colors"
                 >
                   <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
