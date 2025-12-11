@@ -85,7 +85,7 @@ const Page = () => {
   return (
     <div>
       <VendorDetailsPage vendor={vendorData} setupImages={setupImages} />
-      <UserInfoSection vendor={vendorData} />
+      {/* <UserInfoSection vendor={vendorData} /> */}
       <ReviewsSection vendorId={vendorId} />
       <CateringProfessionalCTA />
     </div>

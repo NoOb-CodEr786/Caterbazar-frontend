@@ -181,12 +181,12 @@ export default function ReviewsSection({ vendorId }: ReviewsSectionProps) {
             </div>
           </div>
 
-          <div className="mt-6">
+          {/* <div className="mt-6">
             <button className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors text-sm sm:text-base">
               <Star className="w-4 h-4 sm:w-5 sm:h-5" />
               Write a Review
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* Filters */}
