@@ -70,6 +70,12 @@ export default function Navbar() {
               >
                 Vendors
               </Link>
+              <Link
+                href="/about"
+                className="text-white hover:text-orange-300 font-medium transition-colors"
+              >
+                About Us
+              </Link>
               {/* <Link
                 href="/photos"
                 className="text-white hover:text-orange-300 font-medium transition-colors"
@@ -177,6 +183,13 @@ export default function Navbar() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Vendors
+              </Link>
+              <Link
+                href="/about"
+                className="text-white hover:text-orange-300 font-medium transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                About Us
               </Link>
               {/* <Link
                 href="/photos"

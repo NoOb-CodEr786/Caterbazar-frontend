@@ -1,13 +1,19 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { ChevronDown, MapPin, Utensils, ArrowRight, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import {
+  ChevronDown,
+  MapPin,
+  Utensils,
+  ArrowRight,
+  CheckCircle,
+} from "lucide-react";
 import { TypewriterEffect } from "../ui/typewriter-effect";
-import { getHeroImages, HeroImage } from '@/api/user/public.api';
+import { getHeroImages, HeroImage } from "@/api/user/public.api";
 
 export default function HeroSection() {
-  const [vendorType, setVendorType] = useState('');
-  const [location, setLocation] = useState('');
+  const [vendorType, setVendorType] = useState("");
+  const [location, setLocation] = useState("");
   const [caterbazarChoice, setCaterbazarChoice] = useState(false);
   const [heroImages, setHeroImages] = useState<HeroImage[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -34,7 +40,7 @@ export default function HeroSection() {
         setHeroImages(response.data.heroImages);
       }
     } catch (error) {
-      console.error('Error fetching hero images:', error);
+      console.error("Error fetching hero images:", error);
     } finally {
       setLoading(false);
     }
@@ -43,8 +49,7 @@ export default function HeroSection() {
   const words = [
     {
       text: "One",
-            className: "text-orange-500",
-
+      className: "text-orange-500",
     },
     {
       text: "Bazar",
@@ -54,14 +59,14 @@ export default function HeroSection() {
 
   const handleSearch = () => {
     const params = new URLSearchParams();
-    
-    if (vendorType) params.append('vendorCategory', vendorType);
-    if (location) params.append('state', location);
-    if (caterbazarChoice) params.append('caterbazarChoice', 'true');
-    
+
+    if (vendorType) params.append("vendorCategory", vendorType);
+    if (location) params.append("state", location);
+    if (caterbazarChoice) params.append("caterbazarChoice", "true");
+
     const queryString = params.toString();
-    const url = queryString ? `/vendors?${queryString}` : '/vendors';
-    
+    const url = queryString ? `/vendors?${queryString}` : "/vendors";
+
     window.location.href = url;
   };
 
@@ -75,12 +80,16 @@ export default function HeroSection() {
             <div>
               <div className="mb-3 sm:mb-4">
                 <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
-                  India’s 1st Cater Bazar - Top Caters {" "}
-                  <TypewriterEffect words={words} className="inline text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold" />
+                  India’s 1st Cater Bazar - Top Caters{" "}
+                  <TypewriterEffect
+                    words={words}
+                    className="inline text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold"
+                  />
                 </h1>
               </div>
               <p className="text-sm sm:text-base text-gray-600">
-                Curated menus, elegant setups, and flawless service perfection on every plate.
+                From weddings to corporate events, explore verified caterers
+                offering custom menus and seamless service.
               </p>
             </div>
           </div>
@@ -93,8 +102,14 @@ export default function HeroSection() {
                 <div className="w-full h-[400px] sm:h-[450px] lg:h-[550px] bg-gray-200 animate-pulse"></div>
               ) : (
                 <img
-                  src={heroImages[currentImageIndex]?.imageUrl || 'https://images.unsplash.com/photo-1555244162-803834f70033?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'}
-                  alt={heroImages[currentImageIndex]?.title || 'Chefs preparing food'}
+                  src={
+                    heroImages[currentImageIndex]?.imageUrl ||
+                    "https://images.unsplash.com/photo-1555244162-803834f70033?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+                  }
+                  alt={
+                    heroImages[currentImageIndex]?.title ||
+                    "Chefs preparing food"
+                  }
                   className="w-full h-[400px] sm:h-[450px] lg:h-[550px] object-cover transition-opacity duration-500"
                 />
               )}
@@ -117,8 +132,12 @@ export default function HeroSection() {
                       >
                         <option value="">Select Vendor</option>
                         <option value="full_catering">Full Catering</option>
-                        <option value="snacks_and_starter">Snacks & Starter</option>
-                        <option value="dessert_and_sweet">Dessert & Sweets</option>
+                        <option value="snacks_and_starter">
+                          Snacks & Starter
+                        </option>
+                        <option value="dessert_and_sweet">
+                          Dessert & Sweets
+                        </option>
                         <option value="beverage">Beverage</option>
                         <option value="paan">Paan</option>
                         <option value="water">Water</option>

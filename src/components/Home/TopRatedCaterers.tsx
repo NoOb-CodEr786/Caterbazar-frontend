@@ -75,7 +75,7 @@ export default function TopRatedCaterers() {
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-1 sm:mb-2">
               Top-Rated Caterers <span className="italic font-serif text-orange-400">Handpicked</span> for You
             </h2>
-            <p className="text-gray-300 text-xs sm:text-sm">Handpicked professionals making every event unforgettable.</p>
+            <p className="text-gray-300 text-xs sm:text-sm">From intimate gatherings to grand celebrations, we make every event truly memorable.</p>
           </div>
         </div>
 

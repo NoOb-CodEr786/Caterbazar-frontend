@@ -6,19 +6,34 @@ const features = [
     icon: CheckCircle,
     title: "Verified Vendors",
     description: "Only trusted and background-checked caterers onboarded.",
-    link: "Learn more",
+    details: [
+      "Only trusted and background-checked caterers are onboarded.",
+      "Every caterer meets strict quality and hygiene standards.",
+      "We ensure you get reliable professionals who make your event seamless.",
+      "Enjoy peace of mind knowing your catering is in expert hands."
+    ]
   },
   {
     icon: MessageCircle,
     title: "Direct WhatsApp Enquiry",
     description: "Chat instantly — no middleman, no waiting.",
-    link: "Learn more",
+    details: [
+      "Chat instantly with caterers, no middleman, no waiting.",
+      "Get real-time responses and personalized quotes directly.",
+      "Discuss menus, services, and packages easily over WhatsApp.",
+      "Save time and plan your event effortlessly with instant support."
+    ]
   },
   {
     icon: DollarSign,
     title: "Budget-Friendly Options",
     description: "Compare packages and pick what fits your budget.",
-    link: "Learn more",
+    details: [
+      "Compare catering packages and pick what fits your budget.",
+      "Enjoy premium services without overspending.",
+      "Flexible options let you customize menus and services as you like.",
+      "Get the best value without compromising on quality or experience."
+    ]
   },
 ];
 
@@ -56,14 +71,19 @@ export default function WhyChooseCaterbazar() {
                 </h3>
 
                 {/* Description */}
-                <p className="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">
+                <p className="text-gray-600 text-xs sm:text-sm mb-4 sm:mb-5">
                   {feature.description}
                 </p>
 
-                {/* Link */}
-                <button className="text-orange-500 hover:text-orange-600 font-semibold text-xs sm:text-sm transition-colors">
-                  {feature.link}
-                </button>
+                {/* Details List */}
+                <ul className="text-left space-y-2 sm:space-y-2.5 mb-4 sm:mb-5">
+                  {feature.details.map((detail, idx) => (
+                    <li key={idx} className="flex items-start gap-2 text-gray-700 text-xs sm:text-sm">
+                      <span className="text-orange-500 font-bold mt-0.5">✓</span>
+                      <span>{detail}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             );
           })}
