@@ -5,36 +5,33 @@ import { getVendorProfile, deleteFSSAICertificate } from '@/api/vendor/business.
 
 // All available localities across India
 const LOCALITIES = [
-   // Odisha Cities
-  'Bhubaneswar',
-  'Cuttack',
-  'Puri',
-  'Sambalpur',
-  'Rourkela',
-  'Berhampur',
-  'Balasore',
-  'Bhadrak',
-  // Major Cities
-  'Delhi NCR',
-  'Mumbai',
-  'Chennai',
-  'Pune',
-  'Lucknow',
-  'Jaipur',
-  'Kolkata',
-  'Hyderabad',
-  'Bangalore',
-  'Gurgaon',
-  'Goa',
-  'Udaipur',
-  'Jim Corbett',
-  'Chandigarh',
-  'Indore',
   'Agra',
-  'Kanpur',
   'Ahmedabad',
+  'Balasore',
+  'Bangalore',
+  'Berhampur',
+  'Bhadrak',
+  'Bhubaneswar',
+  'Chandigarh',
+  'Chennai',
+  'Cuttack',
+  'Delhi NCR',
+  'Goa',
+  'Gurgaon',
+  'Hyderabad',
+  'Indore',
+  'Jaipur',
+  'Jim Corbett',
+  'Kanpur',
   'Kochi',
- 
+  'Kolkata',
+  'Lucknow',
+  'Mumbai',
+  'Pune',
+  'Puri',
+  'Rourkela',
+  'Sambalpur',
+  'Udaipur'
 ];
 
 export default function BusinessDetails() {
@@ -113,6 +110,7 @@ export default function BusinessDetails() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isEditMode, setIsEditMode] = useState(false);
   
   // Validation state for required fields
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -264,9 +262,14 @@ export default function BusinessDetails() {
           setOthers(prev => ({ ...prev, fssaiCertified: true }));
         }
 
+        // Set edit mode since data was successfully loaded
+        setIsEditMode(true);
+
       } catch (err: any) {
         console.error('Error fetching profile:', err);
         setError(err.message || 'Failed to load business details');
+        // Set edit mode to false if no data exists
+        setIsEditMode(false);
       } finally {
         setLoading(false);
       }
@@ -867,18 +870,25 @@ export default function BusinessDetails() {
                 }`}
               >
                 <option value="">Select State</option>
+                <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
                 <option value="Andhra Pradesh">Andhra Pradesh</option>
                 <option value="Arunachal Pradesh">Arunachal Pradesh</option>
                 <option value="Assam">Assam</option>
                 <option value="Bihar">Bihar</option>
                 <option value="Chhattisgarh">Chhattisgarh</option>
+                <option value="Chandigarh">Chandigarh</option>
+                <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
+                <option value="Delhi">Delhi</option>
                 <option value="Goa">Goa</option>
                 <option value="Gujarat">Gujarat</option>
                 <option value="Haryana">Haryana</option>
                 <option value="Himachal Pradesh">Himachal Pradesh</option>
+                <option value="Jammu and Kashmir">Jammu and Kashmir</option>
                 <option value="Jharkhand">Jharkhand</option>
                 <option value="Karnataka">Karnataka</option>
                 <option value="Kerala">Kerala</option>
+                <option value="Ladakh">Ladakh</option>
+                <option value="Lakshadweep">Lakshadweep</option>
                 <option value="Madhya Pradesh">Madhya Pradesh</option>
                 <option value="Maharashtra">Maharashtra</option>
                 <option value="Manipur">Manipur</option>
@@ -887,6 +897,7 @@ export default function BusinessDetails() {
                 <option value="Nagaland">Nagaland</option>
                 <option value="Odisha">Odisha</option>
                 <option value="Punjab">Punjab</option>
+                <option value="Puducherry">Puducherry</option>
                 <option value="Rajasthan">Rajasthan</option>
                 <option value="Sikkim">Sikkim</option>
                 <option value="Tamil Nadu">Tamil Nadu</option>
@@ -895,14 +906,6 @@ export default function BusinessDetails() {
                 <option value="Uttar Pradesh">Uttar Pradesh</option>
                 <option value="Uttarakhand">Uttarakhand</option>
                 <option value="West Bengal">West Bengal</option>
-                <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
-                <option value="Chandigarh">Chandigarh</option>
-                <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
-                <option value="Delhi">Delhi</option>
-                <option value="Jammu and Kashmir">Jammu and Kashmir</option>
-                <option value="Ladakh">Ladakh</option>
-                <option value="Lakshadweep">Lakshadweep</option>
-                <option value="Puducherry">Puducherry</option>
               </select>
               {validationErrors.state && (
                 <p className="text-red-500 text-xs mt-1">{validationErrors.state}</p>
@@ -1533,10 +1536,10 @@ export default function BusinessDetails() {
             {saving ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Saving...</span>
+                <span>{isEditMode ? 'Updating...' : 'Saving...'}</span>
               </>
             ) : (
-              "Save Business Details"
+              isEditMode ? 'Update Business Details' : 'Save Business Details'
             )}
           </button>
         </div>

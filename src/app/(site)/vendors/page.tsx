@@ -60,6 +60,7 @@ function SearchResultsContent() {
 
         // Get initial query parameters from URL
         const urlVendorCategory = searchParams.get("vendorCategory");
+        const urlLocality = searchParams.get("locality");
         const urlState = searchParams.get("state");
         const urlCaterbazarChoice = searchParams.get("caterbazarChoice");
 
@@ -67,7 +68,7 @@ function SearchResultsContent() {
         if (vendorType || urlVendorCategory)
           params.vendorCategory = vendorType || urlVendorCategory;
         if (selectedState || urlState) params.state = selectedState || urlState;
-        if (selectedLocality) params.locality = selectedLocality;
+        if (selectedLocality || urlLocality) params.locality = selectedLocality || urlLocality;
         if (minGuests) params.minGuests = minGuests;
         if (maxGuests) params.maxGuests = maxGuests;
         if (vegPriceMin) params.vegPriceMin = vegPriceMin;
@@ -91,6 +92,7 @@ function SearchResultsContent() {
           if (urlVendorCategory && !vendorType)
             setVendorType(urlVendorCategory);
           if (urlState && !selectedState) setSelectedState(urlState);
+          if (urlLocality && !selectedLocality) setSelectedLocality(urlLocality);
           if (urlCaterbazarChoice === "true") setShowCaterbazarChoice(true);
         }
       } catch (error) {
@@ -137,34 +139,36 @@ function SearchResultsContent() {
   };
 
   const localities = [
-    "Delhi NCR",
-    "Mumbai",
-    "Chennai",
-    "Pune",
-    "Lucknow",
-    "Jaipur",
-    "Kolkata",
-    "Hyderabad",
-    "Bangalore",
-    "Gurgaon",
-    "Goa",
-    "Udaipur",
-    "Jim Corbett",
-    "Chandigarh",
-    "Indore",
     "Agra",
-    "Kanpur",
     "Ahmedabad",
-    "Kochi",
+    "Balasore",
+    "Bangalore",
+    "Berhampur",
+    "Bhadrak",
     "Bhubaneswar",
+    "Chandigarh",
+    "Chennai",
     "Cuttack",
+    "Delhi NCR",
+    "Goa",
+    "Gurgaon",
+    "Hyderabad",
+    "Indore",
+    "Jaipur",
+    "Jim Corbett",
+    "Kanpur",
+    "Kochi",
+    "Kolkata",
+    "Lucknow",
+    "Mumbai",
+    "Pune",
     "Puri",
     "Rourkela",
     "Sambalpur",
-    "Berhampur",
-    "Balasore",
-    "Bhadrak",
+    "Udaipur",
   ];
+
+  
   const states = [
     "Andhra Pradesh",
     "Arunachal Pradesh",
@@ -1018,9 +1022,9 @@ function SearchResultsContent() {
                             <span className="text-[10px] sm:text-xs font-semibold text-gray-800">
                               Caterbazar Choice
                             </span>
-                            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-orange-500 rounded-full flex items-center justify-center">
+                            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-orange-400 p-2 rounded-full flex items-center justify-center">
                               <span className="text-white text-[10px] sm:text-xs">
-                                ✓
+                                ⭐
                               </span>
                             </div>
                           </div>

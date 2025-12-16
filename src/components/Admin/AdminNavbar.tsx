@@ -24,7 +24,7 @@ import {
   type User as UserType,
 } from "@/api/superadmin/auth.api";
 
-export default function SuperAdminNavbar() {
+export default function AdminNavbar() {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -53,11 +53,11 @@ export default function SuperAdminNavbar() {
     setIsLoggingOut(true);
     try {
       await superAdminLogout();
-      router.push("/auth/superadmin/signin");
+      router.push("/auth/admin/signin");
     } catch (error) {
       console.error("Logout error:", error);
       // Even if API call fails, redirect to login
-      router.push("/auth/superadmin/signin");
+      router.push("/auth/admin/signin");
     } finally {
       setIsLoggingOut(false);
     }
@@ -91,7 +91,7 @@ export default function SuperAdminNavbar() {
           <div className="flex items-center space-x-4">
             {/* Logo */}
             <Link
-              href="/superadmin/dashboard"
+              href="/admin/dashboard"
               className="flex items-center space-x-3"
             >
               <div className="flex items-center">
@@ -105,7 +105,7 @@ export default function SuperAdminNavbar() {
                 <div className="flex items-center space-x-2">
                   <Shield className="w-5 h-5 text-white" />
                   <span className="text-white font-bold text-lg">
-                    Super Admin
+                    Sales Admin
                   </span>
                 </div>
               </div>
@@ -137,7 +137,7 @@ export default function SuperAdminNavbar() {
                   <p className="text-white text-sm font-medium">
                     {isLoadingUser ? "Loading..." : user?.fullName || "Admin"}
                   </p>
-                  <p className="text-white/60 text-xs">Super Administrator</p>
+                  <p className="text-white/60 text-xs">Sales Administrator</p>
                 </div>
               </button>
 
@@ -272,7 +272,7 @@ export default function SuperAdminNavbar() {
               </Link>
 
               <Link
-                href="/superadmin/dashboard"
+                href="/admin/dashboard"
                 className="flex items-center space-x-3 px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -281,7 +281,7 @@ export default function SuperAdminNavbar() {
               </Link>
 
               <Link
-                href="/superadmin/settings"
+                href="/admin/settings"
                 className="flex items-center space-x-3 px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all"
                 onClick={() => setIsMenuOpen(false)}
               >

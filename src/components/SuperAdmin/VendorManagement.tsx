@@ -12,7 +12,11 @@ import {
 } from '@/api/superadmin/vendor.api';
 import VendorDetailSidebar from './VendorDetailSidebar';
 
-export default function VendorManagement() {
+interface VendorManagementProps {
+  isAdminPanel?: boolean;
+}
+
+export default function VendorManagement({ isAdminPanel = false }: VendorManagementProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -492,6 +496,7 @@ export default function VendorManagement() {
             setIsSidebarOpen(false);
             setSelectedVendorId(null);
           }}
+          isAdminPanel={isAdminPanel}
         />
       )}
     </>

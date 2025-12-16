@@ -428,7 +428,7 @@ export default function GalleryManagement() {
                       alt="Preview"
                       className="w-full h-64 object-cover rounded-lg"
                     />
-                    <button
+                    {/* <button
                       onClick={(e) => {
                         e.preventDefault();
                         handleRemovePreview();
@@ -437,7 +437,7 @@ export default function GalleryManagement() {
                       type="button"
                     >
                       <X className="w-5 h-5 text-gray-700" />
-                    </button>
+                    </button> */}
                     {uploadForm.file && editingImage && (
                       <div className="absolute bottom-2 left-2 px-3 py-1 bg-green-600 text-white text-xs font-semibold rounded-full">
                         New image selected
@@ -481,7 +481,7 @@ export default function GalleryManagement() {
               {/* Caption */}
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Caption
+                  Caption <span className="text-red-600">*</span>
                 </label>
                 <textarea
                   value={uploadForm.caption}

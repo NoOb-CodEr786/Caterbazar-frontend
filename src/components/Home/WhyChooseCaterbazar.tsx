@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle, MessageCircle, DollarSign } from "lucide-react";
 
 const features = [
@@ -38,6 +41,8 @@ const features = [
 ];
 
 export default function WhyChooseCaterbazar() {
+  const router = useRouter();
+
   return (
     <section className="py-8 sm:py-12 lg:py-16 px-4 sm:px-6 bg-gray-50">
       <div className="max-w-7xl mx-auto">
@@ -75,15 +80,13 @@ export default function WhyChooseCaterbazar() {
                   {feature.description}
                 </p>
 
-                {/* Details List */}
-                <ul className="text-left space-y-2 sm:space-y-2.5 mb-4 sm:mb-5">
-                  {feature.details.map((detail, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-gray-700 text-xs sm:text-sm">
-                      <span className="text-orange-500 font-bold mt-0.5">✓</span>
-                      <span>{detail}</span>
-                    </li>
-                  ))}
-                </ul>
+                {/* Learn More Button */}
+                <button 
+                  onClick={() => router.push("/about")}
+                  className="px-4 sm:px-6 py-2 text-orange-500 text-xs sm:text-sm font-semibold rounded-lg hover:bg-orange-200 cursor-pointer transition-colors"
+                >
+                  Learn More
+                </button>
               </div>
             );
           })}

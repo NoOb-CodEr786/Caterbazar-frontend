@@ -98,11 +98,21 @@ export default function VendorDetailsPage({
     const shareUrl = getShareUrl();
 
     return {
-      whatsapp: `https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
-      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
-      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
-      email: `mailto:?subject=${encodeURIComponent(shareText)}&body=${encodeURIComponent(shareText + "\n\n" + shareUrl)}`,
+      whatsapp: `https://wa.me/?text=${encodeURIComponent(
+        shareText + " " + shareUrl
+      )}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+        shareUrl
+      )}`,
+      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+        shareText
+      )}&url=${encodeURIComponent(shareUrl)}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+        shareUrl
+      )}`,
+      email: `mailto:?subject=${encodeURIComponent(
+        shareText
+      )}&body=${encodeURIComponent(shareText + "\n\n" + shareUrl)}`,
     };
   };
 
@@ -267,8 +277,14 @@ export default function VendorDetailsPage({
                     <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600 mb-0.5 sm:mb-1">
                       Veg
                     </h3>
+                    <div className="mb-2">
+                      <span className="text-xs sm:text-sm text-gray-600">From </span>
+                      <span className="text-sm sm:text-base font-bold text-red-500 line-through">
+                        ₹{Math.round(vendor.pricing.vegPricePerPlate * 1.05)}
+                      </span>
+                    </div>
                     <div className="flex items-baseline gap-1 sm:gap-2">
-                      <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                      <span className="text-lg sm:text-xl font-bold text-gray-900">
                         ₹{vendor.pricing.vegPricePerPlate}
                       </span>
                       <span className="text-[10px] sm:text-xs text-gray-600">
@@ -281,8 +297,14 @@ export default function VendorDetailsPage({
                     <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-orange-600 mb-0.5 sm:mb-1">
                       Non-Veg
                     </h3>
+                    <div className="mb-2">
+                      <span className="text-xs sm:text-sm text-gray-600">From </span>
+                      <span className="text-sm sm:text-base font-bold text-red-500 line-through">
+                        ₹{Math.round(vendor.pricing.nonVegPricePerPlate * 1.05)}
+                      </span>
+                    </div>
                     <div className="flex items-baseline gap-1 sm:gap-2">
-                      <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                      <span className="text-lg sm:text-xl font-bold text-gray-900">
                         ₹{vendor.pricing.nonVegPricePerPlate}
                       </span>
                       <span className="text-[10px] sm:text-xs text-gray-600">
@@ -296,8 +318,14 @@ export default function VendorDetailsPage({
                   <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-0.5 sm:mb-1">
                     Starting Price
                   </h3>
+                  <div className="mb-2">
+                    <span className="text-xs sm:text-sm text-gray-600">From </span>
+                    <span className="text-sm sm:text-base font-bold text-red-500 line-through">
+                      ₹{Math.round(vendor.pricing.vegPricePerPlate * 1.05)}
+                    </span>
+                  </div>
                   <div className="flex items-baseline gap-1 sm:gap-2">
-                    <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                    <span className="text-lg sm:text-xl font-bold text-gray-900">
                       ₹{vendor.pricing.vegPricePerPlate}
                     </span>
                     <span className="text-[10px] sm:text-xs text-gray-600">
@@ -557,19 +585,33 @@ export default function VendorDetailsPage({
             <div className="px-2 sm:px-0">
               <div className="flex justify-between items-start gap-3 mb-4">
                 <div className="flex-1">
-                  <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">
-                    About{" "}
-                    {vendor.businessRegistrationId?.brandName ||
-                      vendor.userId.fullName}
-                  </h2>
-                  <div className="flex items-center gap-1 my-2">
-                    <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400" />
-                    <span className="text-xs sm:text-sm font-semibold">
-                      {vendor.stats.averageRating.toFixed(1)}
-                    </span>
-                    <span className="text-xs sm:text-sm text-gray-600">
-                      • {vendor.stats.totalReviews} reviews
-                    </span>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
+                      {vendor.businessRegistrationId?.brandName ||
+                        vendor.userId.fullName}
+                    </h2>
+                    {vendor.isCaterbazarChoice && (
+                      <span className="inline-block bg-gradient-to-r from-orange-600 to-orange-400 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-bold">
+                        ⭐ Caterbazar Choice
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 sm:gap-4 my-2 flex-wrap">
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400" />
+                      <span className="text-xs sm:text-sm font-semibold">
+                        {vendor.stats.averageRating.toFixed(1)}
+                      </span>
+                      <span className="text-xs sm:text-sm text-gray-600">
+                        • {vendor.stats.totalReviews} reviews
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-gray-600">
+                      <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
+                      <span className="text-xs sm:text-sm">
+                        {vendor.address.locality}, {vendor.address.state}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -680,25 +722,8 @@ export default function VendorDetailsPage({
                   )}
                 </div>
               </div>
-              <div className="space-y-3 sm:space-y-4 text-xs sm:text-sm lg:text-base text-gray-700">
-                <p>
-                  {vendor.bio ||
-                    "Professional catering service dedicated to making your events memorable with exceptional food and service."}
-                </p>
-                <p>
-                  Established in {vendor.businessInfo.yearOfEstablishment}, with{" "}
-                  {vendor.businessInfo.yearsInBusiness}+ years of experience in
-                  the catering industry.
-                </p>
-                {vendor.pricing.servicesSpecialization.length > 0 && (
-                  <p>
-                    Specializing in:{" "}
-                    {vendor.pricing.servicesSpecialization
-                      .map(formatText)
-                      .join(", ")}
-                  </p>
-                )}
-              </div>
+
+
 
               {/* Business Info */}
               <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -803,10 +828,70 @@ export default function VendorDetailsPage({
                 </div>
               )}
 
+                            {/* Why Choose Us Section */}
+              <div className="mt-6 sm:mt-10">
+                <div className="bg-gradient-to-r from-orange-50 via-yellow-50 to-orange-50 border border-orange-100 rounded-lg sm:rounded-xl p-5 sm:p-8 shadow-sm">
+                  <h3 className="text-base sm:text-lg text-center font-bold text-gray-900 mb-6 sm:mb-8">
+                    Why Choose Us?
+                  </h3>
+                  <div className="flex flex-col sm:flex-row items-stretch justify-between gap-4 sm:gap-6">
+                    {/* Years in Business */}
+                    <div className="flex items-center justify-center sm:justify-start gap-3 flex-1 p-3 sm:p-4 rounded-lg bg-white/60">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                        <svg
+                          className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-600"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 className="text-sm sm:text-base font-bold text-gray-900">
+                          {new Date().getFullYear() -
+                            vendor.businessInfo.yearOfEstablishment}{" "}
+                          Years
+                        </h4>
+                        <p className="text-xs sm:text-sm text-gray-600">
+                          in Business
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="hidden sm:flex items-center">
+                      <div className="w-px h-16 bg-orange-200"></div>
+                    </div>
+                    <div className="sm:hidden h-px bg-orange-200 w-full"></div>
+
+                    {/* Events Completed */}
+                    <div className="flex items-center justify-center sm:justify-start gap-3 flex-1 p-3 sm:p-4 rounded-lg bg-white/60">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                        <svg
+                          className="w-6 h-6 sm:w-7 sm:h-7 text-purple-600"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75-3.54-4.04 5.25h5.79l1.5-2.26 2.5 3.26H19V9h-5.04z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 className="text-sm sm:text-base font-bold text-gray-900">
+                          {vendor.stats.totalOrders || 0}+
+                        </h4>
+                        <p className="text-xs sm:text-sm text-gray-600">
+                          Events Completed
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Operations Info */}
               <div className="mt-6">
                 <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3">
-                  Operations
+                  Others Information
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="p-3 bg-gray-50 rounded-lg">
@@ -822,7 +907,9 @@ export default function VendorDetailsPage({
                   <div className="p-3 bg-gray-50 rounded-lg">
                     <p className="text-xs text-gray-600 mb-1">Service Radius</p>
                     <p className="text-sm font-semibold text-gray-900">
-                      {vendor.operations.operationalRadius} km
+                      {vendor.operations.operationalRadius
+                        ? `${vendor.operations.operationalRadius} km`
+                        : "Information not available"}
                     </p>
                   </div>
                   <div className="p-3 bg-gray-50 rounded-lg">
@@ -830,7 +917,9 @@ export default function VendorDetailsPage({
                       Advance Booking
                     </p>
                     <p className="text-sm font-semibold text-gray-900">
-                      {vendor.operations.weeksAdvanceBooking} weeks minimum
+                      {vendor.operations.weeksAdvanceBooking
+                        ? `${vendor.operations.weeksAdvanceBooking} weeks minimum`
+                        : "Information not available"}
                     </p>
                   </div>
                   <div className="p-3 bg-gray-50 rounded-lg">
@@ -886,6 +975,19 @@ export default function VendorDetailsPage({
                   </p>
                 </div>
               </div>
+
+              {/* About Vendor */}
+              <div className="mt-6">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3">
+                  About Vendor
+                </h3>
+                <div className="space-y-3 sm:space-y-4 text-xs sm:text-sm lg:text-base text-gray-700 leading-relaxed">
+                  <p>
+                    {vendor.bio ||
+                      "Professional catering service dedicated to making your events memorable with exceptional food and service."}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -905,8 +1007,14 @@ export default function VendorDetailsPage({
                     <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600 mb-0.5 sm:mb-1">
                       Veg
                     </h3>
+                    <div className="mb-2">
+                      <span className="text-xs sm:text-sm text-gray-600">From </span>
+                      <span className="text-sm sm:text-base font-bold text-red-500 line-through">
+                        ₹{Math.round(vendor.pricing.vegPricePerPlate * 1.05)}
+                      </span>
+                    </div>
                     <div className="flex items-baseline gap-1 sm:gap-2">
-                      <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                      <span className="text-lg sm:text-xl font-bold text-gray-900">
                         ₹{vendor.pricing.vegPricePerPlate}
                       </span>
                       <span className="text-[10px] sm:text-xs text-gray-600">
@@ -919,8 +1027,14 @@ export default function VendorDetailsPage({
                     <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-orange-600 mb-0.5 sm:mb-1">
                       Non-Veg
                     </h3>
+                    <div className="mb-2">
+                      <span className="text-xs sm:text-sm text-gray-600">From </span>
+                      <span className="text-sm sm:text-base font-bold text-red-500 line-through">
+                        ₹{Math.round(vendor.pricing.nonVegPricePerPlate * 1.05)}
+                      </span>
+                    </div>
                     <div className="flex items-baseline gap-1 sm:gap-2">
-                      <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                      <span className="text-lg sm:text-xl font-bold text-gray-900">
                         ₹{vendor.pricing.nonVegPricePerPlate}
                       </span>
                       <span className="text-[10px] sm:text-xs text-gray-600">
@@ -934,8 +1048,14 @@ export default function VendorDetailsPage({
                   <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-0.5 sm:mb-1">
                     Starting Price
                   </h3>
+                  <div className="mb-2">
+                    <span className="text-xs sm:text-sm text-gray-600">From </span>
+                    <span className="text-sm sm:text-base font-bold text-red-500 line-through">
+                      ₹{Math.round(vendor.pricing.vegPricePerPlate * 1.05)}
+                    </span>
+                  </div>
                   <div className="flex items-baseline gap-1 sm:gap-2">
-                    <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                    <span className="text-lg sm:text-xl font-bold text-gray-900">
                       ₹{vendor.pricing.vegPricePerPlate}
                     </span>
                     <span className="text-[10px] sm:text-xs text-gray-600">
@@ -946,19 +1066,6 @@ export default function VendorDetailsPage({
               )}
 
               {/* Profile Stats */}
-              {/* <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-lg p-4 mb-4 sm:mb-6">
-                <div className="grid grid-cols-2 gap-3 text-center">
-                  <div>
-                    <p className="text-xl sm:text-2xl font-bold text-orange-600">{vendor.stats.totalOrders || 0}</p>
-                    <p className="text-[10px] sm:text-xs text-gray-600">Total Orders</p>
-                  </div>
-                  <div>
-                    <p className="text-xl sm:text-2xl font-bold text-orange-600">{vendor.stats.totalCustomers || 0}</p>
-                    <p className="text-[10px] sm:text-xs text-gray-600">Happy Customers</p>
-                  </div>
-                </div>
-              </div> */}
-
               {/* Benefits */}
               <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
                 <div className="flex items-center gap-2 text-xs sm:text-sm">
@@ -999,16 +1106,6 @@ export default function VendorDetailsPage({
                     <span className="text-gray-700">FSSAI Certified</span>
                   </div>
                 )}
-                <div className="flex items-center gap-2 text-xs sm:text-sm">
-                  <div className="w-4 h-4 sm:w-5 sm:h-5 bg-green-100 rounded flex items-center justify-center shrink-0">
-                    <span className="text-green-600 text-[10px] sm:text-xs">
-                      ✓
-                    </span>
-                  </div>
-                  <span className="text-gray-700">
-                    {vendor.profileCompletionPercentage}% Profile Complete
-                  </span>
-                </div>
               </div>
 
               {/* Action Buttons */}

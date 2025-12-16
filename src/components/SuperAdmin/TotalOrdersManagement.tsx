@@ -8,7 +8,11 @@ import {
 } from 'lucide-react';
 import { getAllOrders, Order, OrderSummary, Pagination } from '@/api/superadmin/orders.api';
 
-export default function TotalOrdersManagement() {
+interface TotalOrdersManagementProps {
+  isAdminPanel?: boolean;
+}
+
+export default function TotalOrdersManagement({ isAdminPanel = false }: TotalOrdersManagementProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [eventTypeFilter, setEventTypeFilter] = useState('');
@@ -343,34 +347,36 @@ export default function TotalOrdersManagement() {
               </div>
 
               {/* Amount Details */}
-              <div className="border-b pb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <Package className="w-5 h-5 text-orange-500" />
-                  Amount Details
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-orange-50 p-4 rounded-lg">
-                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Amount</label>
-                    <p className="text-gray-900 font-bold text-lg mt-1">{formatAmount(selectedOrder.amount.total)}</p>
+              {!isAdminPanel && (
+                <div className="border-b pb-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <Package className="w-5 h-5 text-orange-500" />
+                    Amount Details
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-orange-50 p-4 rounded-lg">
+                      <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total Amount</label>
+                      <p className="text-gray-900 font-bold text-lg mt-1">{formatAmount(selectedOrder.amount.total)}</p>
+                    </div>
+                    <div className="bg-orange-50 p-4 rounded-lg">
+                      <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Per Plate</label>
+                      <p className="text-gray-900 font-bold text-lg mt-1">{formatAmount(selectedOrder.amount.perPlate)}</p>
+                    </div>
+                    {selectedOrder.amount.breakdown && (
+                      <>
+                        <div className="bg-green-50 p-4 rounded-lg">
+                          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Veg</label>
+                          <p className="text-gray-900 font-bold text-lg mt-1">{formatAmount(selectedOrder.amount.breakdown.veg)}</p>
+                        </div>
+                        <div className="bg-red-50 p-4 rounded-lg">
+                          <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Non-Veg</label>
+                          <p className="text-gray-900 font-bold text-lg mt-1">{formatAmount(selectedOrder.amount.breakdown.nonVeg)}</p>
+                        </div>
+                      </>
+                    )}
                   </div>
-                  <div className="bg-orange-50 p-4 rounded-lg">
-                    <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Per Plate</label>
-                    <p className="text-gray-900 font-bold text-lg mt-1">{formatAmount(selectedOrder.amount.perPlate)}</p>
-                  </div>
-                  {selectedOrder.amount.breakdown && (
-                    <>
-                      <div className="bg-green-50 p-4 rounded-lg">
-                        <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Veg</label>
-                        <p className="text-gray-900 font-bold text-lg mt-1">{formatAmount(selectedOrder.amount.breakdown.veg)}</p>
-                      </div>
-                      <div className="bg-red-50 p-4 rounded-lg">
-                        <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Non-Veg</label>
-                        <p className="text-gray-900 font-bold text-lg mt-1">{formatAmount(selectedOrder.amount.breakdown.nonVeg)}</p>
-                      </div>
-                    </>
-                  )}
                 </div>
-              </div>
+              )}
 
               {/* Customer Message */}
               {selectedOrder.message && (
@@ -575,13 +581,15 @@ export default function TotalOrdersManagement() {
               <th className="text-left py-4 px-6 font-semibold text-gray-900 min-w-[220px]">Order Details</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 min-w-[280px]">Customer & Vendor</th>
               <th className="text-left py-4 px-6 font-semibold text-gray-900 min-w-[250px]">Event Info</th>
-              <th className="text-left py-4 px-6 font-semibold text-gray-900 min-w-[200px]">Amount & Status</th>
+              {!isAdminPanel && (
+                <th className="text-left py-4 px-6 font-semibold text-gray-900 min-w-[200px]">Amount & Status</th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {orders.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-12 text-center">
+                <td colSpan={isAdminPanel ? 3 : 4} className="py-12 text-center">
                   <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-500">No orders found</p>
                 </td>
@@ -651,24 +659,26 @@ export default function TotalOrdersManagement() {
                     </div>
                   </td>
                   
-                  <td className="py-5 px-6">
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-sm font-bold text-gray-900">{formatAmount(order.amount.total)}</p>
-                        <p className="text-xs text-gray-500">{formatAmount(order.amount.perPlate)}/plate</p>
-                        {order.amount.breakdown && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            {order.amount.breakdown.veg > 0 && <span>Veg: {formatAmount(order.amount.breakdown.veg)}<br /></span>}
-                            {order.amount.breakdown.nonVeg > 0 && <span>Non-Veg: {formatAmount(order.amount.breakdown.nonVeg)}</span>}
-                          </div>
-                        )}
+                  {!isAdminPanel && (
+                    <td className="py-5 px-6">
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-sm font-bold text-gray-900">{formatAmount(order.amount.total)}</p>
+                          <p className="text-xs text-gray-500">{formatAmount(order.amount.perPlate)}/plate</p>
+                          {order.amount.breakdown && (
+                            <div className="text-xs text-gray-500 mt-1">
+                              {order.amount.breakdown.veg > 0 && <span>Veg: {formatAmount(order.amount.breakdown.veg)}<br /></span>}
+                              {order.amount.breakdown.nonVeg > 0 && <span>Non-Veg: {formatAmount(order.amount.breakdown.nonVeg)}</span>}
+                            </div>
+                          )}
+                        </div>
+                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                          {getStatusIcon(order.status)}
+                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        </span>
                       </div>
-                      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                        {getStatusIcon(order.status)}
-                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                      </span>
-                    </div>
-                  </td>
+                    </td>
+                  )}
                 </tr>
               ))
             )}

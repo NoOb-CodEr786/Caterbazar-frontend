@@ -138,13 +138,13 @@ export default function VendorNavbar() {
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center border-2 border-white/30">
                       <span className="text-white text-xs font-semibold">
-                        {getInitials(vendor.fullName)}
+                        {getInitials(vendor.vendorProfile?.businessRegistrationId?.brandName || vendor.fullName)}
                       </span>
                     </div>
                   )}
                   <div className="hidden sm:block text-left">
                     <p className="text-white text-sm font-medium">
-                      {vendor.fullName}
+                      {vendor.vendorProfile?.businessRegistrationId?.brandName || vendor.fullName}
                     </p>
                     <p className="text-white/60 text-xs">Vendor Account</p>
                   </div>

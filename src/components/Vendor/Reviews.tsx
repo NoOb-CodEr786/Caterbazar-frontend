@@ -15,6 +15,7 @@ export default function ReviewsSection({ vendorId }: ReviewsSectionProps) {
   const [sortBy, setSortBy] = useState('createdAt');
   const [filterStars, setFilterStars] = useState<number | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [showAllImages, setShowAllImages] = useState(false);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -116,7 +117,7 @@ export default function ReviewsSection({ vendorId }: ReviewsSectionProps) {
 
   return (
     <div className="bg-white py-6 sm:py-8 lg:py-12">
-      <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
+      <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
         {/* Gallery/Albums Section */}
         {highlightImages.length > 0 && (
           <div className="mb-8 sm:mb-10 lg:mb-12">
@@ -125,10 +126,10 @@ export default function ReviewsSection({ vendorId }: ReviewsSectionProps) {
               <span className="text-sm text-gray-600">{highlightImages.length} Photos</span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-              {highlightImages.map((image, index) => (
+              {(showAllImages ? highlightImages : highlightImages.slice(0, 5)).map((image, index) => (
                 <div 
                   key={image._id}
-                  onClick={() => setSelectedImageIndex(index)}
+                  onClick={() => setSelectedImageIndex(showAllImages ? highlightImages.indexOf(image) : index)}
                   className="relative aspect-square rounded-lg sm:rounded-xl overflow-hidden cursor-pointer group shadow-md hover:shadow-xl transition-shadow"
                 >
                   <img
@@ -140,6 +141,18 @@ export default function ReviewsSection({ vendorId }: ReviewsSectionProps) {
                 </div>
               ))}
             </div>
+            
+            {/* Show More Button */}
+            {!showAllImages && highlightImages.length > 5 && (
+              <div className="mt-4 flex justify-center">
+                <button
+                  onClick={() => setShowAllImages(true)}
+                  className="px-6 py-2.5 border-2 border-orange-500 text-orange-500 rounded-lg font-semibold hover:bg-orange-50 transition-colors text-sm sm:text-base"
+                >
+                  View {highlightImages.length - 5} More Photos
+                </button>
+              </div>
+            )}
           </div>
         )}
 

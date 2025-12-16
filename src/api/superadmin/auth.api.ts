@@ -8,6 +8,37 @@ export interface LoginCredentials {
   password: string;
 }
 
+export interface ForgotPasswordRequest {
+  phoneNumber: string;
+}
+
+export interface VerifyResetOtpRequest {
+  phoneNumber: string;
+  otp: string;
+}
+
+export interface VerifyResetOtpResponse {
+  statusCode: number;
+  data: {
+    resetToken: string;
+  };
+  message: string;
+  success: boolean;
+}
+
+export interface ResetPasswordRequest {
+  resetToken: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export interface ForgotPasswordResponse {
+  statusCode: number;
+  data: null | { expiresIn: number };
+  message: string;
+  success: boolean;
+}
+
 export interface User {
   _id: string;
   fullName: string;
@@ -85,12 +116,26 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Clear tokens and cookies, then redirect to login
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-      clearAuthCookies();
-      window.location.href = '/auth/superadmin/signin';
+      // Check if this is a password reset endpoint (don't redirect on these)
+      const passwordResetEndpoints = [
+        '/auth/admin/forgot-password',
+        '/auth/admin/verify-reset-otp',
+        '/auth/admin/reset-password',
+      ];
+      
+      const isPasswordResetRequest = passwordResetEndpoints.some(
+        (endpoint) => error.config?.url?.includes(endpoint)
+      );
+      
+      // Only redirect if NOT a password reset endpoint
+      if (!isPasswordResetRequest) {
+        // Clear tokens and cookies, then redirect to login
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        clearAuthCookies();
+        window.location.href = '/auth/superadmin/signin';
+      }
     }
     return Promise.reject(error);
   }
@@ -175,6 +220,42 @@ export const getCurrentUser = async (): Promise<User | null> => {
  */
 export const isAuthenticated = (): boolean => {
   return !!localStorage.getItem('accessToken');
+};
+
+/**
+ * Request OTP for Password Reset
+ */
+export const requestPasswordResetOtp = async (data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> => {
+  try {
+    const response = await api.post<ForgotPasswordResponse>('/auth/admin/forgot-password', data);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || { message: 'Failed to request OTP. Please try again.' };
+  }
+};
+
+/**
+ * Verify OTP and Get Reset Token
+ */
+export const verifyResetOtp = async (data: VerifyResetOtpRequest): Promise<VerifyResetOtpResponse> => {
+  try {
+    const response = await api.post<VerifyResetOtpResponse>('/auth/admin/verify-reset-otp', data);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || { message: 'Invalid OTP. Please try again.' };
+  }
+};
+
+/**
+ * Reset Password
+ */
+export const resetPassword = async (data: ResetPasswordRequest): Promise<ForgotPasswordResponse> => {
+  try {
+    const response = await api.post<ForgotPasswordResponse>('/auth/admin/reset-password', data);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || { message: 'Failed to reset password. Please try again.' };
+  }
 };
 
 export default api;

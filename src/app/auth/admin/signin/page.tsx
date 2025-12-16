@@ -5,7 +5,7 @@ import { Eye, EyeOff, Shield, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { superAdminLogin } from '@/api/superadmin/auth.api';
 
-export default function SuperAdminLogin() {
+export default function AdminLogin() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,17 +22,18 @@ export default function SuperAdminLogin() {
       const response = await superAdminLogin({ email, password });
       
       if (response.success) {
-        // Store user role in cookie for middleware validation
+        // Check if user is admin with correct phone number
         const user = response.data?.user;
-        document.cookie = `userRole=${user?.role || 'superadmin'}; path=/; max-age=86400`;
-        
-        // Store phone number if available
-        if (user?.phoneNumber) {
+        if (user?.role === 'admin' && user?.phoneNumber === '9178114124') {
+          // Store user role and phone number in cookies for middleware validation
+          document.cookie = `userRole=admin; path=/; max-age=86400`;
           document.cookie = `userPhoneNumber=${user.phoneNumber}; path=/; max-age=86400`;
+          
+          // Redirect to admin dashboard
+          router.push('/admin/dashboard');
+        } else {
+          setError('You do not have access to the Sales Admin panel.');
         }
-        
-        // Redirect to super admin dashboard
-        router.push('/superadmin/dashboard');
       } else {
         setError(response.message || 'Login failed. Please try again.');
       }
@@ -51,8 +52,8 @@ export default function SuperAdminLogin() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-linear-to-br from-orange-500 to-orange-600 rounded-2xl mb-4 shadow-lg">
             <Shield className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Super Admin</h1>
-          <p className="text-gray-600">Platform Control Access</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Sales Admin</h1>
+          <p className="text-gray-600">Platform Sales Management</p>
         </div>
 
         {/* Login Card */}
@@ -139,7 +140,7 @@ export default function SuperAdminLogin() {
 
         {/* Footer */}
         <p className="mt-6 text-center text-xs text-gray-500">
-          CaterBazar SuperAdmin Dashboard © 2025
+          CaterBazar Sales Admin Dashboard © 2025
         </p>
       </div>
     </div>

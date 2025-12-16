@@ -10,15 +10,18 @@ const ROUTE_PERMISSIONS = {
   // Vendor routes - require 'vendor' role  
   '/dashboard': ['vendor'],
   
-  // Super admin routes - require 'superadmin' or 'admin' role
-  '/superadmin': ['superadmin', 'admin'],
+  // Super admin routes - require 'admin' role (without specific phone)
+  '/superadmin': ['admin'],
+  
+  // Admin routes - require 'admin' role with phone number 9178114124
+  '/admin': ['admin'],
 };
 
 // Routes that don't require authentication
 const PUBLIC_ROUTES = [
   '/',
   '/vendors', // Vendor listing page (public)
-  '/auth',
+  '/auth', // All auth routes including forgot password flow
 ];
 
 // Function to check if a route is public
@@ -46,6 +49,12 @@ function getUserRole(request: NextRequest): string | null {
   return null;
 }
 
+// Function to get user phone number from request
+function getUserPhoneNumber(request: NextRequest): string | null {
+  const phoneCookie = request.cookies.get('userPhoneNumber')?.value;
+  return phoneCookie || null;
+}
+
 // Function to check if user is authenticated
 function isAuthenticated(request: NextRequest): boolean {
   const accessToken = request.cookies.get('accessToken')?.value;
@@ -68,6 +77,26 @@ export function middleware(request: NextRequest) {
   // Get user authentication status and role
   const authenticated = isAuthenticated(request);
   const userRole = getUserRole(request);
+  const userPhoneNumber = getUserPhoneNumber(request);
+  
+  // Special validation for admin role
+  if (authenticated && userRole === 'admin') {
+    // Admin with phone 9178114124 can access /admin routes
+    if (pathname.startsWith('/admin')) {
+      if (userPhoneNumber !== '9178114124') {
+        // Admin role without correct phone number - redirect to superadmin dashboard
+        return NextResponse.redirect(new URL('/superadmin/dashboard', request.url));
+      }
+    }
+    
+    // Admin without phone 9178114124 cannot access /admin routes
+    if (pathname.startsWith('/superadmin')) {
+      if (userPhoneNumber === '9178114124') {
+        // Admin with phone number - redirect to admin dashboard
+        return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+      }
+    }
+  }
   
   // Check specific route permissions
   for (const [route, allowedRoles] of Object.entries(ROUTE_PERMISSIONS)) {
@@ -75,9 +104,11 @@ export function middleware(request: NextRequest) {
       // Check if user is authenticated
       if (!authenticated && !allowedRoles.includes('guest')) {
         // Redirect to appropriate signin page based on route
-        if (route.startsWith('/superadmin')) {
+        if (route === '/admin') {
+          return NextResponse.redirect(new URL('/auth/admin/signin', request.url));
+        } else if (route === '/superadmin') {
           return NextResponse.redirect(new URL('/auth/superadmin/signin', request.url));
-        } else if (route.startsWith('/dashboard')) {
+        } else if (route === '/dashboard') {
           return NextResponse.redirect(new URL('/auth/vendor/signin', request.url));
         } else {
           return NextResponse.redirect(new URL('/auth/customer/signin', request.url));
@@ -92,9 +123,13 @@ export function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL('/profile', request.url));
           case 'vendor':
             return NextResponse.redirect(new URL('/dashboard', request.url));
-          case 'superadmin':
           case 'admin':
-            return NextResponse.redirect(new URL('/superadmin/dashboard', request.url));
+            // For admin role, check phone number to decide which dashboard
+            if (userPhoneNumber === '9178114124') {
+              return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+            } else {
+              return NextResponse.redirect(new URL('/superadmin/dashboard', request.url));
+            }
           default:
             return NextResponse.redirect(new URL('/', request.url));
         }

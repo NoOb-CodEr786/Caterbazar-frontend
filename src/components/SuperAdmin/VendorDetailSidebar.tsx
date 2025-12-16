@@ -16,9 +16,10 @@ interface VendorDetailSidebarProps {
   vendorId: string;
   isOpen: boolean;
   onClose: () => void;
+  isAdminPanel?: boolean;
 }
 
-export default function VendorDetailSidebar({ vendorId, isOpen, onClose }: VendorDetailSidebarProps) {
+export default function VendorDetailSidebar({ vendorId, isOpen, onClose, isAdminPanel = false }: VendorDetailSidebarProps) {
   const [vendor, setVendor] = useState<Vendor | null>(null);
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -174,7 +175,7 @@ export default function VendorDetailSidebar({ vendorId, isOpen, onClose }: Vendo
         {/* Header */}
         <div className="sticky top-0 bg-linear-to-r from-orange-500 to-red-500 text-white p-4 sm:p-6 z-10">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <h2 className="text-xl sm:text-2xl font-bold">Vendsor Details</h2>
+            <h2 className="text-xl sm:text-2xl font-bold">Vendor Details</h2>
             <button
               onClick={onClose}
               className="p-2 hover:bg-white/20 rounded-lg transition-colors"
@@ -742,6 +743,7 @@ export default function VendorDetailSidebar({ vendorId, isOpen, onClose }: Vendo
             </div>
 
             {/* Action Buttons */}
+            {!isAdminPanel && (
             <div className="space-y-2 sm:space-y-3 pt-4 border-t border-gray-200">
               {vendor.isActive ? (
                 <button 
@@ -806,6 +808,7 @@ export default function VendorDetailSidebar({ vendorId, isOpen, onClose }: Vendo
                 </button>
               )}
             </div>
+            )}
           </div>
         )}
       </div>

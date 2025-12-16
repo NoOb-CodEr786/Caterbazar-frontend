@@ -105,7 +105,7 @@ export default function CaterBazarLogin() {
               Welcome Back
             </h2>
             <p className="text-gray-600 text-sm">
-              Sign in to your CaterBdfazar account
+              Sign in to your CaterBazar account
             </p>
           </div>
 

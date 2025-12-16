@@ -71,6 +71,12 @@ export default function Navbar() {
                 Vendors
               </Link>
               <Link
+                href="/blog"
+                className="text-white hover:text-orange-300 font-medium transition-colors"
+              >
+                Blog
+              </Link>
+              <Link
                 href="/about"
                 className="text-white hover:text-orange-300 font-medium transition-colors"
               >
@@ -183,6 +189,13 @@ export default function Navbar() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Vendors
+              </Link>
+              <Link
+                href="/blog"
+                className="text-white hover:text-orange-300 font-medium transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Blog
               </Link>
               <Link
                 href="/about"

@@ -5,17 +5,16 @@ import {
   Users, UserCheck, Image, ShoppingBag, Shield, HelpCircle, FileCheck 
 } from 'lucide-react';
 
-interface SuperAdminSidebarProps {
+interface AdminSidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
 
-export default function SuperAdminSidebar({ activeTab, onTabChange }: SuperAdminSidebarProps) {
+export default function AdminSidebar({ activeTab, onTabChange }: AdminSidebarProps) {
   const menuItems = [
     { id: 'vendors', label: 'Vendor Management', icon: Users },
     { id: 'business-registrations', label: 'Business Registrations', icon: FileCheck },
     { id: 'customers', label: 'Customer Management', icon: UserCheck },
-    { id: 'hero-images', label: 'Hero Image Management', icon: Image },
     { id: 'total-orders', label: 'Total Orders', icon: ShoppingBag }
   ];
 
@@ -27,7 +26,7 @@ export default function SuperAdminSidebar({ activeTab, onTabChange }: SuperAdmin
             <Shield className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="font-semibold text-gray-900">Super Admin</h2>
+            <h2 className="font-semibold text-gray-900">Sales Admin</h2>
             <p className="text-sm text-gray-600">Platform Control</p>
           </div>
         </div>
