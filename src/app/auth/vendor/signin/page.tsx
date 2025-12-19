@@ -50,12 +50,8 @@ export default function VendorSignin() {
           <div className="max-w-md">
             <div className="text-7xl mb-4 font-serif">"</div>
             <p className="text-xl mb-8 leading-relaxed">
-              CatererBazar made my event planning a breeze! I found the perfect caterer in no time. Highly recommended!
+              Grow your catering business. Sign in to showcase your services, manage bookings and connect with new customers. 
             </p>
-            <div>
-              <p className="font-semibold text-lg">Priya Sharma</p>
-              <p className="text-gray-300 text-sm">Event Organizer</p>
-            </div>
           </div>
         </div>
       </div>

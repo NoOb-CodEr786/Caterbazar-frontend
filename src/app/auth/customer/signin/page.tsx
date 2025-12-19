@@ -66,13 +66,8 @@ export default function CaterBazarLogin() {
           <div className="max-w-md">
             <div className="text-7xl mb-4 font-serif">"</div>
             <p className="text-xl mb-8 leading-relaxed">
-              CatererBazar made my event planning a breeze! I found the perfect
-              caterer in no time. Highly recommended!
+              Find the perfect caterer for your event. Sign in to explore menus, compare caterers, and book with confidence.  
             </p>
-            <div>
-              <p className="font-semibold text-lg">Priya Sharma</p>
-              <p className="text-gray-300 text-sm">Event Organizer</p>
-            </div>
           </div>
         </div>
       </div>

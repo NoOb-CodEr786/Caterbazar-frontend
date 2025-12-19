@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -20,25 +20,25 @@ export default function Footer() {
               <div className="flex items-center justify-center md:justify-start gap-3">
                 <Mail className="w-5 h-5 text-orange-500 shrink-0" />
                 <a
-                  href="mailto:info@caterbazar.com"
+                  href="mailto:itcaterbazar@gmail.com"
                   className="text-sm text-gray-400 hover:text-orange-500 transition-colors"
                 >
-                  info@caterbazar.com
+                  itcaterbazar@gmail.com
                 </a>
               </div>
               <div className="flex items-center justify-center md:justify-start gap-3">
                 <Phone className="w-5 h-5 text-orange-500 shrink-0" />
                 <a
-                  href="tel:+911234567890"
+                  href="tel:+917655802071"
                   className="text-sm text-gray-400 hover:text-orange-500 transition-colors"
                 >
-                  +91 123 456 7890
+                  +91 7655 802 071
                 </a>
               </div>
               <div className="flex items-start justify-center md:justify-start gap-3">
                 <MapPin className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
                 <span className="text-sm text-gray-400">
-                  123 Business Street, Mumbai, Maharashtra 400001
+                  Chikkadpally, New Nallakunta, Hyderabad, Telangana, India, 500020
                 </span>
               </div>
             </div>
@@ -74,29 +74,37 @@ export default function Footer() {
             <h3 className="text-white font-semibold text-lg mb-6">Follow Us</h3>
             <div className="flex justify-center md:justify-end gap-6">
               <a
-                href="#"
-                className="text-gray-400 hover:text-orange-500 transition-colors"
+                href="https://www.facebook.com/profile.php?id=61585158548282"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white  transition-colors"
                 aria-label="Facebook"
               >
                 <Facebook className="w-6 h-6" />
               </a>
               <a
-                href="#"
-                className="text-gray-400 hover:text-orange-500 transition-colors"
-                aria-label="Twitter"
+                href="https://x.com/caterbazar"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400  transition-colors"
+                aria-label="X"
               >
-                <Twitter className="w-6 h-6" />
+                <img src="/images/X-icons.png" alt="X" className="w-6 h-6 invert" />
               </a>
               <a
-                href="#"
-                className="text-gray-400 hover:text-orange-500 transition-colors"
+                href="https://www.instagram.com/caterbazar/?hl=en"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white  transition-colors"
                 aria-label="Instagram"
               >
                 <Instagram className="w-6 h-6" />
               </a>
               <a
-                href="#"
-                className="text-gray-400 hover:text-orange-500 transition-colors"
+                href="https://www.linkedin.com/in/cater-bazar-03302b395/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white  transition-colors"
                 aria-label="LinkedIn"
               >
                 <Linkedin className="w-6 h-6" />

@@ -384,7 +384,7 @@ export default function ReviewsSection({ vendorId }: ReviewsSectionProps) {
                   )}
 
                   {/* Vendor Response */}
-                  {review.vendorResponse && (
+                  {review.vendorResponse?.message && (
                     <div className="bg-orange-50 rounded-lg p-3 mb-3">
                       <p className="text-xs font-semibold text-gray-900 mb-1">Vendor Response</p>
                       <p className="text-xs text-gray-700 mb-1">{review.vendorResponse.message}</p>
@@ -393,13 +393,13 @@ export default function ReviewsSection({ vendorId }: ReviewsSectionProps) {
                   )}
 
                   {/* Helpful Section */}
-                  <div className="flex items-center gap-3 sm:gap-4 pt-3 border-t border-gray-100">
+                  {/* <div className="flex items-center gap-3 sm:gap-4 pt-3 border-t border-gray-100">
                     <span className="text-xs sm:text-sm text-gray-600">Was this helpful?</span>
                     <button className="flex items-center gap-1 sm:gap-1.5 text-gray-600 hover:text-orange-500 transition-colors">
                       <ThumbsUp className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span className="text-xs sm:text-sm font-medium">{review.helpfulCount}</span>
                     </button>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

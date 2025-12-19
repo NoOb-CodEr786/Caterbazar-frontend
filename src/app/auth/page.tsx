@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Home } from "lucide-react";
 
 export default function CaterBazarLogin() {
   const [activeTab, setActiveTab] = useState("customer");
@@ -16,17 +17,12 @@ export default function CaterBazarLogin() {
           backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1555244162-803834f70033?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`,
         }}
       >
-        <div className="absolute inset-0 flex flex-col justify-end p-8 xl:p-12 text-white">
+        <div className="absolute inset-0 flex flex-col justify-end p-12 text-white">
           <div className="max-w-md">
-            <div className="text-5xl xl:text-6xl mb-4 xl:mb-6">"</div>
-            <p className="text-xl xl:text-2xl font-light mb-4 xl:mb-6 leading-relaxed">
-              CatererBazar made my event planning a breeze! I found the perfect
-              caterer in no time. Highly recommended!
+            <div className="text-7xl mb-4 font-serif">"</div>
+            <p className="text-xl mb-8 leading-relaxed">
+              Where trusted Caterers meet customers for memorable events.  
             </p>
-            <div>
-              <p className="font-semibold text-base xl:text-lg">Priya Sharma</p>
-              <p className="text-gray-300 text-sm xl:text-base">Event Organizer</p>
-            </div>
           </div>
         </div>
       </div>
@@ -34,6 +30,16 @@ export default function CaterBazarLogin() {
       {/* Right Side - Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8">
         <div className="w-full max-w-lg">
+          {/* Home Button */}
+          <button
+            onClick={() => router.push("/")}
+            className="mb-6 flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors"
+            aria-label="Go to home"
+          >
+            <Home className="w-4 h-4" />
+            <span className="text-sm">Back to Home</span>
+          </button>
+
           {/* Logo */}
           <div className="mb-6 sm:mb-8">
             <img
