@@ -58,6 +58,24 @@ export interface ReviewRegistrationResponse {
   success: boolean;
 }
 
+export interface UpdateRegistrationRequest {
+  brandName: string;
+  businessEmail: string;
+  businessMobile: string;
+  location: string;
+  vendorType: string;
+  referId?: string;
+}
+
+export interface UpdateRegistrationResponse {
+  statusCode: number;
+  data: {
+    registration: BusinessRegistration;
+  };
+  message: string;
+  success: boolean;
+}
+
 export interface RegistrationStatsResponse {
   statusCode: number;
   data: {
@@ -131,5 +149,23 @@ export const getRegistrationStats = async (): Promise<RegistrationStatsResponse>
     return response.data;
   } catch (error: any) {
     throw error.response?.data || { message: 'Failed to fetch registration statistics' };
+  }
+};
+
+/**
+ * Update business registration
+ */
+export const updateBusinessRegistration = async (
+  id: string,
+  data: UpdateRegistrationRequest
+): Promise<UpdateRegistrationResponse> => {
+  try {
+    const response = await api.put<UpdateRegistrationResponse>(
+      `/admin/business-registrations/${id}/update`,
+      data
+    );
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || { message: 'Failed to update business registration' };
   }
 };

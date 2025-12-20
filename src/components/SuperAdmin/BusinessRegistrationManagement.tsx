@@ -10,12 +10,16 @@ import {
   getAllBusinessRegistrations,
   reviewBusinessRegistration,
   getRegistrationStats,
-  type BusinessRegistration
+  updateBusinessRegistration,
+  type BusinessRegistration,
+  type UpdateRegistrationRequest
 } from '@/api/superadmin/business.api';
+import { getCurrentUser } from '@/api/superadmin/auth.api';
 
 export default function BusinessRegistrationManagement() {
   const [registrations, setRegistrations] = useState<BusinessRegistration[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [stats, setStats] = useState({
     pending: 0,
     approved: 0,
@@ -45,13 +49,35 @@ export default function BusinessRegistrationManagement() {
   const [adminNotes, setAdminNotes] = useState('');
   const [reviewing, setReviewing] = useState(false);
 
+  // Edit modal
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editFormData, setEditFormData] = useState<UpdateRegistrationRequest>({
+    brandName: '',
+    businessEmail: '',
+    businessMobile: '',
+    location: '',
+    vendorType: '',
+    referId: ''
+  });
+  const [updating, setUpdating] = useState(false);
+
   useEffect(() => {
+    fetchCurrentUser();
     fetchStats();
   }, []);
 
   useEffect(() => {
     fetchRegistrations();
   }, [statusFilter, currentPage, searchQuery]);
+
+  const fetchCurrentUser = async () => {
+    try {
+      const user = await getCurrentUser();
+      setCurrentUser(user);
+    } catch (error) {
+      console.error('Failed to fetch current user:', error);
+    }
+  };
 
   const fetchStats = async () => {
     try {
@@ -98,6 +124,59 @@ export default function BusinessRegistrationManagement() {
     setReviewAction('approved');
     setRejectionReason('');
     setAdminNotes('');
+  };
+
+  const handleEdit = (registration: BusinessRegistration) => {
+    setSelectedRegistration(registration);
+    setEditFormData({
+      brandName: registration.brandName,
+      businessEmail: registration.businessEmail,
+      businessMobile: registration.businessMobile,
+      location: registration.location,
+      vendorType: registration.vendorType,
+      referId: registration.referId || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateSubmit = async () => {
+    if (!selectedRegistration) return;
+
+    // Validation
+    if (!editFormData.brandName.trim()) {
+      alert('Brand name is required');
+      return;
+    }
+    if (!editFormData.businessEmail.trim()) {
+      alert('Business email is required');
+      return;
+    }
+    if (!editFormData.businessMobile.trim()) {
+      alert('Business mobile is required');
+      return;
+    }
+    if (!editFormData.location.trim()) {
+      alert('Location is required');
+      return;
+    }
+    if (!editFormData.vendorType) {
+      alert('Vendor type is required');
+      return;
+    }
+
+    setUpdating(true);
+    try {
+      const response = await updateBusinessRegistration(selectedRegistration._id, editFormData);
+      
+      if (response.success) {
+        setShowEditModal(false);
+        fetchRegistrations();
+      }
+    } catch (error: any) {
+      alert(error.message || 'Failed to update registration');
+    } finally {
+      setUpdating(false);
+    }
   };
 
   const handleSubmitReview = async () => {
@@ -328,6 +407,15 @@ export default function BusinessRegistrationManagement() {
                           >
                             <Eye className="w-4 h-4" />
                           </button>
+                          {currentUser?.phoneNumber !== '9178114124' && (
+                            <button
+                              onClick={() => handleEdit(registration)}
+                              className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                              title="Edit Details"
+                            >
+                              <FileText className="w-4 h-4" />
+                            </button>
+                          )}
                           {registration.status === 'pending' && (
                             <button
                               onClick={() => handleReview(registration)}
@@ -514,6 +602,146 @@ export default function BusinessRegistrationManagement() {
                 className="px-6 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && selectedRegistration && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-gray-900">Edit Business Registration</h3>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {/* Brand Name */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Brand Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.brandName}
+                  onChange={(e) => setEditFormData({ ...editFormData, brandName: e.target.value })}
+                  placeholder="Enter brand name"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                />
+              </div>
+
+              {/* Business Email */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Business Email <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  value={editFormData.businessEmail}
+                  onChange={(e) => setEditFormData({ ...editFormData, businessEmail: e.target.value })}
+                  placeholder="Enter business email"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                />
+              </div>
+
+              {/* Business Mobile */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Business Mobile <span className="text-red-500">*</span>
+                </label>
+                <div className="flex gap-2">
+                  <div className="w-16 px-3 py-2.5 border border-gray-300 rounded-lg bg-gray-50 flex items-center justify-center text-gray-700 font-medium">
+                    +91
+                  </div>
+                  <input
+                    type="tel"
+                    value={editFormData.businessMobile}
+                    onChange={(e) => setEditFormData({ ...editFormData, businessMobile: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+                    placeholder="10-digit mobile number"
+                    maxLength={10}
+                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Location */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Location <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.location}
+                  onChange={(e) => setEditFormData({ ...editFormData, location: e.target.value })}
+                  placeholder="Enter location (City, State)"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                />
+              </div>
+
+              {/* Vendor Type */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Vendor Type <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={editFormData.vendorType}
+                  onChange={(e) => setEditFormData({ ...editFormData, vendorType: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none appearance-none bg-white"
+                >
+                  <option value="">Select vendor type</option>
+                  <option value="full_catering">Full Catering</option>
+                  <option value="snacks_and_starter">Snacks and Starter</option>
+                  <option value="dessert_and_sweet">Dessert and Sweet</option>
+                  <option value="beverage">Beverage</option>
+                  <option value="paan">Paan</option>
+                  <option value="water">Water</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              {/* Refer ID */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Refer ID (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.referId}
+                  onChange={(e) => setEditFormData({ ...editFormData, referId: e.target.value })}
+                  placeholder="Enter refer ID if any"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="sticky bottom-0 bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end gap-3 rounded-b-2xl">
+              <button
+                onClick={() => setShowEditModal(false)}
+                disabled={updating}
+                className="px-6 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateSubmit}
+                disabled={updating}
+                className="px-6 py-2.5 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors disabled:bg-orange-300 flex items-center gap-2"
+              >
+                {updating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  'Update Registration'
+                )}
               </button>
             </div>
           </div>

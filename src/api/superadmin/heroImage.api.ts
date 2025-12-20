@@ -13,7 +13,7 @@ interface HeroImage {
   imageUrl: string;
   publicId: string;
   isActive: boolean;
-  uploadedBy: string | UploadedBy;
+  uploadedBy: string | UploadedBy | null;
   createdAt: string;
   updatedAt: string;
   __v: number;

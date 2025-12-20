@@ -244,7 +244,7 @@ export default function HeroImageManagement() {
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900 mb-1">{image.title}</h3>
                       <p className="text-xs text-gray-500">
-                        Uploaded by: {typeof image.uploadedBy === 'object' ? image.uploadedBy.fullName : 'Admin'}
+                        Uploaded by: {typeof image.uploadedBy === 'object' && image.uploadedBy ? image.uploadedBy.fullName : 'Admin'}
                       </p>
                     </div>
                     <div className="flex items-center gap-1">

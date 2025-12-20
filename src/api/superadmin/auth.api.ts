@@ -73,13 +73,22 @@ export interface LogoutResponse {
   success: boolean;
 }
 
-// Create axios instance
+// Create axios instance for authenticated requests
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
   withCredentials: true, // Important for cookies/sessions
+});
+
+// Create axios instance for unauthenticated requests (password reset, etc.)
+const publicApi = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: false, // No credentials for public endpoints
 });
 
 // Helper function to set auth cookies
@@ -227,7 +236,7 @@ export const isAuthenticated = (): boolean => {
  */
 export const requestPasswordResetOtp = async (data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> => {
   try {
-    const response = await api.post<ForgotPasswordResponse>('/auth/admin/forgot-password', data);
+    const response = await publicApi.post<ForgotPasswordResponse>('/auth/admin/forgot-password', data);
     return response.data;
   } catch (error: any) {
     throw error.response?.data || { message: 'Failed to request OTP. Please try again.' };
@@ -239,7 +248,7 @@ export const requestPasswordResetOtp = async (data: ForgotPasswordRequest): Prom
  */
 export const verifyResetOtp = async (data: VerifyResetOtpRequest): Promise<VerifyResetOtpResponse> => {
   try {
-    const response = await api.post<VerifyResetOtpResponse>('/auth/admin/verify-reset-otp', data);
+    const response = await publicApi.post<VerifyResetOtpResponse>('/auth/admin/verify-reset-otp', data);
     return response.data;
   } catch (error: any) {
     throw error.response?.data || { message: 'Invalid OTP. Please try again.' };
@@ -251,7 +260,7 @@ export const verifyResetOtp = async (data: VerifyResetOtpRequest): Promise<Verif
  */
 export const resetPassword = async (data: ResetPasswordRequest): Promise<ForgotPasswordResponse> => {
   try {
-    const response = await api.post<ForgotPasswordResponse>('/auth/admin/reset-password', data);
+    const response = await publicApi.post<ForgotPasswordResponse>('/auth/admin/reset-password', data);
     return response.data;
   } catch (error: any) {
     throw error.response?.data || { message: 'Failed to reset password. Please try again.' };

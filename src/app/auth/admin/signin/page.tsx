@@ -88,7 +88,7 @@ export default function AdminLogin() {
                   Password
                 </label>
                 <a
-                  href="/auth/superadmin/forgot-password"
+                  href="/auth/admin/forgot-password"
                   className="text-xs text-orange-600 hover:text-orange-700 font-medium"
                 >
                   Forgot Password?

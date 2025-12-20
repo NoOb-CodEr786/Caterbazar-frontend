@@ -25,7 +25,38 @@ interface UpcomingEvent {
   eventType?: string;
   customerName?: string;
   status?: string;
-  // Add more fields based on your actual event structure
+  userName?: string;
+  userEmail?: string;
+  userPhone?: string;
+  guestCount?: number;
+  foodPreference?: string;
+  message?: string;
+  viewedByVendor?: boolean;
+  viewedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  userId?: {
+    _id: string;
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+  };
+  eventLocation?: {
+    address: string;
+    city: string;
+    state: string;
+    pincode: string;
+  };
+  vendorResponse?: {
+    message: string;
+    respondedAt: string;
+  };
+  notificationsSent?: {
+    email: boolean;
+    sms: boolean;
+  };
+  vendorId?: string;
+  __v?: number;
 }
 
 interface UpcomingEventsResponse {

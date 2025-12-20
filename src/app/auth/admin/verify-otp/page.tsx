@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { verifyResetOtp } from "@/api/superadmin/auth.api";
 import { AlertCircle, ArrowLeft, Loader } from "lucide-react";
 
-export default function VerifyOtpPage() {
+export default function AdminVerifyOtpPage() {
   const router = useRouter();
   const [otp, setOtp] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -18,7 +18,7 @@ export default function VerifyOtpPage() {
     // Get phone number from session storage
     const storedPhone = sessionStorage.getItem("resetPhoneNumber");
     if (!storedPhone) {
-      router.push("/auth/superadmin/forgot-password");
+      router.push("/auth/admin/forgot-password");
       return;
     }
     setPhoneNumber(storedPhone);
@@ -68,7 +68,7 @@ export default function VerifyOtpPage() {
 
         // Redirect to reset password page
         setTimeout(() => {
-          router.push("/auth/superadmin/reset-password");
+          router.push("/auth/admin/reset-password");
         }, 1000);
       }
     } catch (err: any) {
@@ -186,7 +186,7 @@ export default function VerifyOtpPage() {
         {/* Back Link */}
         <div className="mt-4">
           <button
-            onClick={() => router.push("/auth/superadmin/forgot-password")}
+            onClick={() => router.push("/auth/admin/forgot-password")}
             className="flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium text-sm w-full justify-center"
           >
             <ArrowLeft className="w-4 h-4" />

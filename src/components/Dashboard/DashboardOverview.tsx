@@ -125,26 +125,76 @@ export default function DashboardOverview() {
             {upcomingEvents.map((event) => (
               <div 
                 key={event._id} 
-                className="p-4 border border-gray-200 rounded-lg hover:border-orange-300 transition-colors"
+                className="p-5 border border-gray-200 rounded-lg hover:border-orange-300 transition-colors hover:shadow-md"
               >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-semibold text-gray-900">
-                      {event.customerName || 'Customer Event'}
-                    </p>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {event.eventType || 'Event'}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-orange-600">
-                      {new Date(event.eventDate).toLocaleDateString()}
-                    </p>
-                    {event.status && (
-                      <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full mt-1 inline-block">
-                        {event.status}
-                      </span>
+                <div className="flex flex-col sm:flex-row justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="font-semibold text-gray-900 text-lg">
+                        {event.userName || event.userId?.fullName || 'Customer Event'}
+                      </p>
+                      {event.status && (
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          event.status === 'contacted' ? 'bg-green-100 text-green-700' :
+                          event.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-blue-100 text-blue-700'
+                        }`}>
+                          {event.status}
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+                      <div>
+                        <p className="text-xs text-gray-500">Event Type</p>
+                        <p className="text-sm text-gray-700 font-medium capitalize">
+                          {event.eventType?.replace('_', ' ')}
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs text-gray-500">Guest Count</p>
+                        <p className="text-sm text-gray-700 font-medium">
+                          {event.guestCount?.toLocaleString()} guests
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs text-gray-500">Food Preference</p>
+                        <p className="text-sm text-gray-700 font-medium capitalize">
+                          {event.foodPreference?.replace('_', ' ')}
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs text-gray-500">Location</p>
+                        <p className="text-sm text-gray-700 font-medium">
+                          {event.eventLocation?.city}, {event.eventLocation?.state}
+                        </p>
+                      </div>
+                    </div>
+
+                    {event.message && (
+                      <div className="mt-3 pt-3 border-t border-gray-100">
+                        <p className="text-xs text-gray-500 mb-1">Message</p>
+                        <p className="text-sm text-gray-700 italic">"{event.message}"</p>
+                      </div>
                     )}
+                  </div>
+                  
+                  <div className="text-left sm:text-right flex-shrink-0">
+                    <p className="text-xs text-gray-500 mb-1">Event Date</p>
+                    <p className="text-sm font-semibold text-orange-600 mb-1">
+                      {new Date(event.eventDate).toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-2">Contact</p>
+                    <p className="text-xs text-gray-700">{event.userPhone}</p>
+                    <p className="text-xs text-gray-700">{event.userEmail}</p>
                   </div>
                 </div>
               </div>

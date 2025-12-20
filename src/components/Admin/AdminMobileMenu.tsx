@@ -17,7 +17,7 @@ export default function AdminMobileMenu({ activeTab, onTabChange }: AdminMobileM
     { id: 'vendors', label: 'Vendor Management', icon: Users },
     { id: 'business-registrations', label: 'Business Registrations', icon: FileCheck },
     { id: 'customers', label: 'Customer Management', icon: UserCheck },
-    { id: 'hero-images', label: 'Hero Image Management', icon: Image },
+    // { id: 'hero-images', label: 'Hero Image Management', icon: Image },
     { id: 'total-orders', label: 'Total Orders', icon: ShoppingBag }
   ];
 
