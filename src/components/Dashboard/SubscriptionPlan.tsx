@@ -17,10 +17,8 @@ export default function SubscriptionPlan() {
     <div>
       <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">Subscription Plan</h1>
       
-      {/* Billing Toggle */}
-      <div className="bg-white rounded-xl p-4 sm:p-6 shadow-md border border-gray-200 mb-6">
+      {/* <div className="bg-white rounded-xl p-4 sm:p-6 shadow-md border border-gray-200 mb-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          {/* Billing Section - Left Side */}
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-sm sm:text-base font-medium text-gray-700">Billing:</span>
             <button
@@ -47,10 +45,8 @@ export default function SubscriptionPlan() {
               Save 20%
             </span>
           </div>
-
-         
         </div>
-      </div>
+      </div> */}
 
       {/* Choose Your Plan */}
       <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 text-center">
@@ -59,7 +55,7 @@ export default function SubscriptionPlan() {
 
       <div className="grid lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
         {/* Free Plan */}
-        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg border-2 border-green-500 relative">
+        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-lg  relative">
           <div className="absolute -top-3 left-1/2 -translate-x-1/2">
             <span className="flex items-center gap-1.5 px-4 py-1.5 bg-green-500 text-white text-sm font-semibold rounded-full">
               <Star className="w-4 h-4 fill-white" />
@@ -175,10 +171,10 @@ export default function SubscriptionPlan() {
               <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
               <span className="text-sm sm:text-base text-gray-700">Faster payouts (24-48hrs)</span>
             </li>
-            <li className="flex items-start gap-3">
+            {/* <li className="flex items-start gap-3">
               <X className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
               <span className="text-sm sm:text-base text-gray-400">API access</span>
-            </li>
+            </li> */}
           </ul>
 
           <button className="w-full py-3 sm:py-4 bg-orange-500 text-white rounded-lg font-semibold text-base sm:text-lg hover:bg-orange-600 transition-colors">

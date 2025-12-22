@@ -155,6 +155,7 @@ function SearchResultsContent() {
     "Hyderabad",
     "Indore",
     "Jaipur",
+    "Jajpur",
     "Jim Corbett",
     "Kanpur",
     "Kochi",

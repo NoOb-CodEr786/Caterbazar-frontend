@@ -176,6 +176,7 @@ export default function HeroSection() {
                         <option value="Hyderabad">Hyderabad</option>
                         <option value="Indore">Indore</option>
                         <option value="Jaipur">Jaipur</option>
+                        <option value="Jajpur">Jajpur</option>
                         <option value="Jim Corbett">Jim Corbett</option>
                         <option value="Kanpur">Kanpur</option>
                         <option value="Kochi">Kochi</option>
