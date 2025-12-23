@@ -410,7 +410,7 @@ export default function VendorDetailsPage({
                   };
 
                   // Get vendor's WhatsApp number or use default
-                  const vendorWhatsApp = vendor.socialMedia?.whatsappNumber || "8260061212";
+                  const vendorWhatsApp = "7655802071";
 
                   const handleWhatsAppClick = () => {
                     if (!isUserLoggedIn()) {
@@ -1111,7 +1111,7 @@ export default function VendorDetailsPage({
                   };
 
                   // Get vendor's WhatsApp number or use default
-                  const vendorWhatsApp = vendor.socialMedia?.whatsappNumber || "8260061212";
+                  const vendorWhatsApp = "7655802071";
 
                   const handleWhatsAppClick = () => {
                     if (!isUserLoggedIn()) {
