@@ -399,11 +399,18 @@ export default function VendorDetailsPage({
                     message += `I'm interested in booking your service for my event.\n`;
                     message += `Could you confirm availability and share more details along with a quotation?\n\n`;
                     
-                    // Add vendor details
-                    message += `Name: ${vendor.userId.fullName}\n`;
-                    message += `Email: ${vendor.userId.email}\n`;
-                    if (vendor.socialMedia?.whatsappNumber) {
-                      message += `Mobile: ${vendor.socialMedia.whatsappNumber}\n`;
+                    // Add customer details from localStorage
+                    try {
+                      const userDetails = localStorage.getItem('userDetails');
+                      if (userDetails) {
+                        const user = JSON.parse(userDetails);
+                        message += `Customer Details:\n`;
+                        if (user.fullName) message += `Name: ${user.fullName}\n`;
+                        if (user.email) message += `Email: ${user.email}\n`;
+                        if (user.phoneNumber || user.mobile) message += `Mobile: ${user.phoneNumber || user.mobile}\n`;
+                      }
+                    } catch (error) {
+                      console.error('Error reading user details:', error);
                     }
 
                     return encodeURIComponent(message);
@@ -1100,11 +1107,18 @@ export default function VendorDetailsPage({
                     message += `I'm interested in booking your service for my event.\n`;
                     message += `Could you confirm availability and share more details along with a quotation?\n\n`;
                     
-                    // Add vendor details
-                    message += `Name: ${vendor.userId.fullName}\n`;
-                    message += `Email: ${vendor.userId.email}\n`;
-                    if (vendor.socialMedia?.whatsappNumber) {
-                      message += `Mobile: ${vendor.socialMedia.whatsappNumber}\n`;
+                    // Add customer details from localStorage
+                    try {
+                      const userDetails = localStorage.getItem('userDetails');
+                      if (userDetails) {
+                        const user = JSON.parse(userDetails);
+                        message += `Customer Details:\n`;
+                        if (user.fullName) message += `Name: ${user.fullName}\n`;
+                        if (user.email) message += `Email: ${user.email}\n`;
+                        if (user.phoneNumber || user.mobile) message += `Mobile: ${user.phoneNumber || user.mobile}\n`;
+                      }
+                    } catch (error) {
+                      console.error('Error reading user details:', error);
                     }
 
                     return encodeURIComponent(message);
