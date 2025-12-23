@@ -40,6 +40,16 @@ export default function CitiesCarousel({
         "https://images.unsplash.com/photo-1523454118563-e48b6ada2029?q=80&w=1738&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
+      name: "Angul",
+      image:
+        "https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=928&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      name: "Balangir",
+      image:
+        "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    },
+    {
       name: "Balasore",
       image:
         "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -50,6 +60,16 @@ export default function CitiesCarousel({
         "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
     },
     {
+      name: "Bargarh",
+      image:
+        "https://plus.unsplash.com/premium_photo-1680902988871-70d583ca1e95?q=80&w=958&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      name: "Baripada",
+      image:
+        "https://images.unsplash.com/photo-1609137144813-7d9921338f24?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    },
+    {
       name: "Berhampur",
       image:
         "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
@@ -58,6 +78,11 @@ export default function CitiesCarousel({
       name: "Bhadrak",
       image:
         "https://images.unsplash.com/photo-1483653364400-eedcfb9f1f88?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      name: "Bhawanipatna",
+      image:
+        "https://images.unsplash.com/photo-1605649487212-47bdab064df7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
     },
     {
       name: "Bhubaneswar",
@@ -85,9 +110,24 @@ export default function CitiesCarousel({
         "https://plus.unsplash.com/premium_photo-1697730323859-b093b74df90a?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
+      name: "Deogarh",
+      image:
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    },
+    {
+      name: "Dhenkanal",
+      image:
+        "https://images.unsplash.com/photo-1576426340752-ae9effb0af50?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    },
+    {
       name: "Goa",
       image:
         "https://plus.unsplash.com/premium_photo-1697729701846-e34563b06d47?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      name: "Gunupur",
+      image:
+        "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
     },
     {
       name: "Gurgaon",
@@ -102,7 +142,12 @@ export default function CitiesCarousel({
     {
       name: "Indore",
       image:
-        "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+        "https://images.unsplash.com/photo-1514924013411-cbf25faa35bb?q=80&w=780&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      name: "Jagatsinghpur",
+      image:
+        "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
     },
     {
       name: "Jaipur",
@@ -115,12 +160,37 @@ export default function CitiesCarousel({
         "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
+      name: "Jeypore",
+      image:
+        "https://images.unsplash.com/photo-1483653364400-eedcfb9f1f88?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    },
+    {
+      name: "Jharsuguda",
+      image:
+        "https://images.unsplash.com/photo-1674790943339-8d0b49a1f515?q=80&w=766&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
       name: "Jim Corbett",
       image:
         "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
     },
     {
       name: "Kanpur",
+      image:
+        "https://images.unsplash.com/photo-1609137144813-7d9921338f24?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    },
+    {
+      name: "Kendrapara",
+      image:
+        "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    },
+    {
+      name: "Keonjhar",
+      image:
+        "https://plus.unsplash.com/premium_photo-1697730150275-dba1cfe8af9c?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      name: "Khordha",
       image:
         "https://images.unsplash.com/photo-1609137144813-7d9921338f24?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
     },
@@ -135,14 +205,49 @@ export default function CitiesCarousel({
         "https://images.unsplash.com/photo-1558431382-27e303142255?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
     },
     {
+      name: "Koraput",
+      image:
+        "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    },
+    {
       name: "Lucknow",
       image:
         "https://images.unsplash.com/photo-1609137144813-7d9921338f24?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
     },
     {
+      name: "Malkangiri",
+      image:
+        "https://images.unsplash.com/photo-1605649487212-47bdab064df7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    },
+    {
       name: "Mumbai",
       image:
         "https://images.unsplash.com/photo-1566552881560-0be862a7c445?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    },
+    {
+      name: "Nabarangpur",
+      image:
+        "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    },
+    {
+      name: "Nayagarh",
+      image:
+        "https://images.unsplash.com/photo-1483653364400-eedcfb9f1f88?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    },
+    {
+      name: "Nuapada",
+      image:
+        "https://plus.unsplash.com/premium_photo-1714051661316-4432704b02f8?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      name: "Paralakhemundi",
+      image:
+        "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    },
+    {
+      name: "Phulbani",
+      image:
+        "https://plus.unsplash.com/premium_photo-1742439621336-bbc82f9f65ac?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       name: "Pune",
@@ -155,6 +260,11 @@ export default function CitiesCarousel({
         "https://images.unsplash.com/photo-1706790574525-d218c4c52b5c?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
+      name: "Rayagada",
+      image:
+        "https://images.unsplash.com/photo-1609137144813-7d9921338f24?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    },
+    {
       name: "Rourkela",
       image:
         "https://images.unsplash.com/photo-1605649487212-47bdab064df7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
@@ -163,6 +273,26 @@ export default function CitiesCarousel({
       name: "Sambalpur",
       image:
         "https://images.unsplash.com/photo-1576426340752-ae9effb0af50?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    {
+      name: "Sonepur",
+      image:
+        "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    },
+    {
+      name: "Sundargarh",
+      image:
+        "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    },
+    {
+      name: "Talcher",
+      image:
+        "https://images.unsplash.com/photo-1483653364400-eedcfb9f1f88?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+    },
+    {
+      name: "Titlagarh",
+      image:
+        "https://plus.unsplash.com/premium_photo-1674309438579-587b58d8486e?q=80&w=850&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       name: "Udaipur",

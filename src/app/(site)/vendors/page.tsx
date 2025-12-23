@@ -10,10 +10,27 @@ import {
   ChevronRight,
   Filter,
   X,
+  Check,
+  ChevronsUpDown,
 } from "lucide-react";
 import CitiesCarousel from "@/components/Vendor/CitiesCarousel";
 import { useRouter, useSearchParams } from "next/navigation";
 import { searchVendors, VendorData } from "@/api/user/public.api";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 function SearchResultsContent() {
   const router = useRouter();
@@ -37,6 +54,14 @@ function SearchResultsContent() {
   const [minRating, setMinRating] = useState<number | "">("");
   const [showCaterbazarChoice, setShowCaterbazarChoice] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+
+  // Combobox open states
+  const [sortByOpen, setSortByOpen] = useState(false);
+  const [vendorTypeOpen, setVendorTypeOpen] = useState(false);
+  const [localityOpen, setLocalityOpen] = useState(false);
+  const [mobileSortByOpen, setMobileSortByOpen] = useState(false);
+  const [mobileVendorTypeOpen, setMobileVendorTypeOpen] = useState(false);
+  const [mobileLocalityOpen, setMobileLocalityOpen] = useState(false);
 
   // Data States
   const [vendors, setVendors] = useState<VendorData[]>([]);
@@ -138,35 +163,81 @@ function SearchResultsContent() {
     setSortBy("popularity");
   };
 
+  const sortByOptions = [
+    { value: "popularity", label: "Popularity" },
+    { value: "rating", label: "Highest Rated" },
+    { value: "vegPricePerPlate", label: "Price: Low to High" },
+    { value: "-vegPricePerPlate", label: "Price: High to Low" },
+    { value: "createdAt", label: "Newest First" },
+  ];
+
+  const vendorTypes = [
+    { value: "", label: "All Types" },
+    { value: "full_catering", label: "Full Catering" },
+    { value: "snacks_and_starter", label: "Snacks & Starter" },
+    { value: "dessert_and_sweet", label: "Dessert & Sweets" },
+    { value: "beverage", label: "Beverage" },
+    { value: "paan", label: "Paan" },
+    { value: "water", label: "Water" },
+    { value: "other", label: "Other" },
+  ];
+
   const localities = [
-    "Agra",
-    "Ahmedabad",
-    "Balasore",
-    "Bangalore",
-    "Berhampur",
-    "Bhadrak",
-    "Bhubaneswar",
-    "Chandigarh",
-    "Chennai",
-    "Cuttack",
-    "Delhi NCR",
-    "Goa",
-    "Gurgaon",
-    "Hyderabad",
-    "Indore",
-    "Jaipur",
-    "Jajpur",
-    "Jim Corbett",
-    "Kanpur",
-    "Kochi",
-    "Kolkata",
-    "Lucknow",
-    "Mumbai",
-    "Pune",
-    "Puri",
-    "Rourkela",
-    "Sambalpur",
-    "Udaipur",
+    { value: "", label: "All Localities" },
+    { value: "Agra", label: "Agra" },
+    { value: "Ahmedabad", label: "Ahmedabad" },
+    { value: "Angul", label: "Angul" },
+    { value: "Balangir", label: "Balangir" },
+    { value: "Balasore", label: "Balasore" },
+    { value: "Bangalore", label: "Bangalore" },
+    { value: "Bargarh", label: "Bargarh" },
+    { value: "Baripada", label: "Baripada" },
+    { value: "Berhampur", label: "Berhampur" },
+    { value: "Bhadrak", label: "Bhadrak" },
+    { value: "Bhawanipatna", label: "Bhawanipatna" },
+    { value: "Bhubaneswar", label: "Bhubaneswar" },
+    { value: "Chandigarh", label: "Chandigarh" },
+    { value: "Chennai", label: "Chennai" },
+    { value: "Cuttack", label: "Cuttack" },
+    { value: "Delhi NCR", label: "Delhi NCR" },
+    { value: "Deogarh", label: "Deogarh" },
+    { value: "Dhenkanal", label: "Dhenkanal" },
+    { value: "Goa", label: "Goa" },
+    { value: "Gunupur", label: "Gunupur" },
+    { value: "Gurgaon", label: "Gurgaon" },
+    { value: "Hyderabad", label: "Hyderabad" },
+    { value: "Indore", label: "Indore" },
+    { value: "Jagatsinghpur", label: "Jagatsinghpur" },
+    { value: "Jaipur", label: "Jaipur" },
+    { value: "Jajpur", label: "Jajpur" },
+    { value: "Jeypore", label: "Jeypore" },
+    { value: "Jharsuguda", label: "Jharsuguda" },
+    { value: "Jim Corbett", label: "Jim Corbett" },
+    { value: "Kanpur", label: "Kanpur" },
+    { value: "Kendrapara", label: "Kendrapara" },
+    { value: "Keonjhar", label: "Keonjhar" },
+    { value: "Khordha", label: "Khordha" },
+    { value: "Kochi", label: "Kochi" },
+    { value: "Kolkata", label: "Kolkata" },
+    { value: "Koraput", label: "Koraput" },
+    { value: "Lucknow", label: "Lucknow" },
+    { value: "Malkangiri", label: "Malkangiri" },
+    { value: "Mumbai", label: "Mumbai" },
+    { value: "Nabarangpur", label: "Nabarangpur" },
+    { value: "Nayagarh", label: "Nayagarh" },
+    { value: "Nuapada", label: "Nuapada" },
+    { value: "Paralakhemundi", label: "Paralakhemundi" },
+    { value: "Phulbani", label: "Phulbani" },
+    { value: "Pune", label: "Pune" },
+    { value: "Puri", label: "Puri" },
+    { value: "Rayagada", label: "Rayagada" },
+    { value: "Rourkela", label: "Rourkela" },
+    { value: "Sambalpur", label: "Sambalpur" },
+    { value: "Sonepur", label: "Sonepur" },
+    { value: "Sundargarh", label: "Sundargarh" },
+    { value: "Talcher", label: "Talcher" },
+    { value: "Titlagarh", label: "Titlagarh" },
+    { value: "Udaipur", label: "Udaipur" },
   ];
 
   
@@ -250,22 +321,49 @@ function SearchResultsContent() {
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
                   Sort by
                 </label>
-                <div className="relative">
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm appearance-none bg-white"
-                  >
-                    <option value="popularity">Popularity</option>
-                    <option value="rating">Highest Rated</option>
-                    <option value="vegPricePerPlate">Price: Low to High</option>
-                    <option value="-vegPricePerPlate">
-                      Price: High to Low
-                    </option>
-                    <option value="createdAt">Newest First</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-                </div>
+                <Popover open={sortByOpen} onOpenChange={setSortByOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={sortByOpen}
+                      className="w-full justify-between shadow-none h-9 text-sm font-normal text-gray-600 bg-white hover:bg-gray-50 border-gray-300"
+                    >
+                      {sortBy
+                        ? sortByOptions.find((option) => option.value === sortBy)?.label
+                        : "Select sort option"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0 bg-white border-gray-300 shadow-none" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search sort option..." className="h-9" />
+                      <CommandList>
+                        <CommandEmpty>No option found.</CommandEmpty>
+                        <CommandGroup>
+                          {sortByOptions.map((option) => (
+                            <CommandItem
+                              key={option.value}
+                              value={option.value}
+                              onSelect={(currentValue) => {
+                                setSortBy(currentValue === sortBy ? "" : currentValue)
+                                setSortByOpen(false)
+                              }}
+                            >
+                              {option.label}
+                              <Check
+                                className={cn(
+                                  "ml-auto h-4 w-4",
+                                  sortBy === option.value ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* Vendor Type */}
@@ -273,23 +371,49 @@ function SearchResultsContent() {
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
                   Vendor Type
                 </label>
-                <div className="relative">
-                  <select
-                    value={vendorType}
-                    onChange={(e) => setVendorType(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm appearance-none bg-white"
-                  >
-                    <option value="">All Types</option>
-                    <option value="full_catering">Full Catering</option>
-                    <option value="snacks_and_starter">Snacks & Starter</option>
-                    <option value="dessert_and_sweet">Dessert & Sweets</option>
-                    <option value="beverage">Beverage</option>
-                    <option value="paan">Paan</option>
-                    <option value="water">Water</option>
-                    <option value="other">Other</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-                </div>
+                <Popover open={vendorTypeOpen} onOpenChange={setVendorTypeOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={vendorTypeOpen}
+                      className="w-full justify-between shadow-none h-9 text-sm font-normal text-gray-600 bg-white hover:bg-gray-50 border-gray-300"
+                    >
+                      {vendorType
+                        ? vendorTypes.find((type) => type.value === vendorType)?.label
+                        : "All Types"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0 bg-white border-gray-300 shadow-none" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search vendor type..." className="h-9" />
+                      <CommandList>
+                        <CommandEmpty>No vendor type found.</CommandEmpty>
+                        <CommandGroup>
+                          {vendorTypes.map((type) => (
+                            <CommandItem
+                              key={type.value}
+                              value={type.value}
+                              onSelect={(currentValue) => {
+                                setVendorType(currentValue === vendorType ? "" : currentValue)
+                                setVendorTypeOpen(false)
+                              }}
+                            >
+                              {type.label}
+                              <Check
+                                className={cn(
+                                  "ml-auto h-4 w-4",
+                                  vendorType === type.value ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* Search within results */}
@@ -333,21 +457,49 @@ function SearchResultsContent() {
                 <label className="block text-sm font-semibold text-gray-900 mb-3">
                   Locality
                 </label>
-                <div className="relative">
-                  <select
-                    value={selectedLocality}
-                    onChange={(e) => setSelectedLocality(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm appearance-none bg-white"
-                  >
-                    <option value="">All Localities</option>
-                    {localities.map((locality) => (
-                      <option key={locality} value={locality}>
-                        {locality}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-                </div>
+                <Popover open={localityOpen} onOpenChange={setLocalityOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={localityOpen}
+                      className="w-full justify-between shadow-none h-9 text-sm font-normal text-gray-600 bg-white hover:bg-gray-50 border-gray-300"
+                    >
+                      {selectedLocality
+                        ? localities.find((loc) => loc.value === selectedLocality)?.label
+                        : "All Localities"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0 bg-white border-gray-300 shadow-none" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search locality..." className="h-9" />
+                      <CommandList>
+                        <CommandEmpty>No locality found.</CommandEmpty>
+                        <CommandGroup>
+                          {localities.map((loc) => (
+                            <CommandItem
+                              key={loc.value}
+                              value={loc.value}
+                              onSelect={(currentValue) => {
+                                setSelectedLocality(currentValue === selectedLocality ? "" : currentValue)
+                                setLocalityOpen(false)
+                              }}
+                            >
+                              {loc.label}
+                              <Check
+                                className={cn(
+                                  "ml-auto h-4 w-4",
+                                  selectedLocality === loc.value ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* Food Preference */}
@@ -598,47 +750,98 @@ function SearchResultsContent() {
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
                       Sort by
                     </label>
-                    <div className="relative">
-                      <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm appearance-none bg-white"
-                      >
-                        <option value="">Default</option>
-                        <option value="popularity">Popularity</option>
-                        <option value="rating">Rating</option>
-                        <option value="price_low">Price: Low to High</option>
-                        <option value="price_high">Price: High to Low</option>
-                      </select>
-                      <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-                    </div>
+                    <Popover open={mobileSortByOpen} onOpenChange={setMobileSortByOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={mobileSortByOpen}
+                          className="w-full justify-between shadow-none h-9 text-sm font-normal text-gray-600 bg-white hover:bg-gray-50 border-gray-300"
+                        >
+                          {sortBy
+                            ? sortByOptions.find((option) => option.value === sortBy)?.label
+                            : "Select sort option"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0 bg-white border-gray-300 shadow-none" align="start">
+                        <Command>
+                          <CommandInput placeholder="Search sort option..." className="h-9" />
+                          <CommandList>
+                            <CommandEmpty>No option found.</CommandEmpty>
+                            <CommandGroup>
+                              {sortByOptions.map((option) => (
+                                <CommandItem
+                                  key={option.value}
+                                  value={option.value}
+                                  onSelect={(currentValue) => {
+                                    setSortBy(currentValue === sortBy ? "" : currentValue)
+                                    setMobileSortByOpen(false)
+                                  }}
+                                >
+                                  {option.label}
+                                  <Check
+                                    className={cn(
+                                      "ml-auto h-4 w-4",
+                                      sortBy === option.value ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   {/* Vendor Type */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
                       Vendor Type
                     </label>
-                    <div className="relative">
-                      <select
-                        value={vendorType}
-                        onChange={(e) => setVendorType(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm appearance-none bg-white"
-                      >
-                        <option value="">All Types</option>
-                        <option value="full_catering">Full Catering</option>
-                        <option value="snacks_and_starter">
-                          Snacks & Starter
-                        </option>
-                        <option value="dessert_and_sweet">
-                          Dessert & Sweets
-                        </option>
-                        <option value="beverage">Beverage</option>
-                        <option value="paan">Paan</option>
-                        <option value="water">Water</option>
-                        <option value="other">Other</option>
-                      </select>
-                      <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-                    </div>
+                    <Popover open={mobileVendorTypeOpen} onOpenChange={setMobileVendorTypeOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={mobileVendorTypeOpen}
+                          className="w-full justify-between shadow-none h-9 text-sm font-normal text-gray-600 bg-white hover:bg-gray-50 border-gray-300"
+                        >
+                          {vendorType
+                            ? vendorTypes.find((type) => type.value === vendorType)?.label
+                            : "All Types"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0 bg-white border-gray-300 shadow-none" align="start">
+                        <Command>
+                          <CommandInput placeholder="Search vendor type..." className="h-9" />
+                          <CommandList>
+                            <CommandEmpty>No vendor type found.</CommandEmpty>
+                            <CommandGroup>
+                              {vendorTypes.map((type) => (
+                                <CommandItem
+                                  key={type.value}
+                                  value={type.value}
+                                  onSelect={(currentValue) => {
+                                    setVendorType(currentValue === vendorType ? "" : currentValue)
+                                    setMobileVendorTypeOpen(false)
+                                  }}
+                                >
+                                  {type.label}
+                                  <Check
+                                    className={cn(
+                                      "ml-auto h-4 w-4",
+                                      vendorType === type.value ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
 
                   {/* Search within results */}
@@ -684,21 +887,49 @@ function SearchResultsContent() {
                     <label className="block text-sm font-semibold text-gray-900 mb-3">
                       Locality
                     </label>
-                    <div className="relative">
-                      <select
-                        value={selectedLocality}
-                        onChange={(e) => setSelectedLocality(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-sm appearance-none bg-white"
-                      >
-                        <option value="">All Localities</option>
-                        {localities.map((locality) => (
-                          <option key={locality} value={locality}>
-                            {locality}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-                    </div>
+                    <Popover open={mobileLocalityOpen} onOpenChange={setMobileLocalityOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={mobileLocalityOpen}
+                          className="w-full justify-between shadow-none h-9 text-sm font-normal text-gray-600 bg-white hover:bg-gray-50 border-gray-300"
+                        >
+                          {selectedLocality
+                            ? localities.find((loc) => loc.value === selectedLocality)?.label
+                            : "All Localities"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0 bg-white border-gray-300 shadow-none" align="start">
+                        <Command>
+                          <CommandInput placeholder="Search locality..." className="h-9" />
+                          <CommandList>
+                            <CommandEmpty>No locality found.</CommandEmpty>
+                            <CommandGroup>
+                              {localities.map((loc) => (
+                                <CommandItem
+                                  key={loc.value}
+                                  value={loc.value}
+                                  onSelect={(currentValue) => {
+                                    setSelectedLocality(currentValue === selectedLocality ? "" : currentValue)
+                                    setMobileLocalityOpen(false)
+                                  }}
+                                >
+                                  {loc.label}
+                                  <Check
+                                    className={cn(
+                                      "ml-auto h-4 w-4",
+                                      selectedLocality === loc.value ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
 
                   {/* Food Preference */}
