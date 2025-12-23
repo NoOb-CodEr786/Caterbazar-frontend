@@ -138,6 +138,7 @@ export const userLogin = async (loginData: {
       localStorage.setItem("accessToken", response.data.data.accessToken);
       localStorage.setItem("refreshToken", response.data.data.refreshToken);
       localStorage.setItem("userRole", response.data.data.user.role);
+      localStorage.setItem("user", JSON.stringify(response.data.data.user));
       
       // Set cookies for middleware
       setAuthCookies(response.data.data.accessToken, response.data.data.refreshToken, response.data.data.user.role);
@@ -168,6 +169,7 @@ export const verifyOTP = async (otpData: {
       localStorage.setItem("accessToken", response.data.data.accessToken);
       localStorage.setItem("refreshToken", response.data.data.refreshToken);
       localStorage.setItem("userRole", response.data.data.user.role);
+      localStorage.setItem("user", JSON.stringify(response.data.data.user));
       
       // Set cookies for middleware
       setAuthCookies(response.data.data.accessToken, response.data.data.refreshToken, response.data.data.user.role);
@@ -233,6 +235,7 @@ export const userLogout = async (): Promise<void> => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("userRole");
+    localStorage.removeItem("user");
     
     // Clear cookies
     clearAuthCookies();

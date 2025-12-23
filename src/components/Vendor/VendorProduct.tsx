@@ -401,13 +401,13 @@ export default function VendorDetailsPage({
                     
                     // Add customer details from localStorage
                     try {
-                      const userDetails = localStorage.getItem('userDetails');
-                      if (userDetails) {
-                        const user = JSON.parse(userDetails);
+                      const userStr = localStorage.getItem('user');
+                      if (userStr) {
+                        const user = JSON.parse(userStr);
                         message += `Customer Details:\n`;
                         if (user.fullName) message += `Name: ${user.fullName}\n`;
                         if (user.email) message += `Email: ${user.email}\n`;
-                        if (user.phoneNumber || user.mobile) message += `Mobile: ${user.phoneNumber || user.mobile}\n`;
+                        if (user.phoneNumber) message += `Mobile: ${user.phoneNumber}\n`;
                       }
                     } catch (error) {
                       console.error('Error reading user details:', error);
@@ -1109,13 +1109,13 @@ export default function VendorDetailsPage({
                     
                     // Add customer details from localStorage
                     try {
-                      const userDetails = localStorage.getItem('userDetails');
-                      if (userDetails) {
-                        const user = JSON.parse(userDetails);
+                      const userStr = localStorage.getItem('user');
+                      if (userStr) {
+                        const user = JSON.parse(userStr);
                         message += `Customer Details:\n`;
                         if (user.fullName) message += `Name: ${user.fullName}\n`;
                         if (user.email) message += `Email: ${user.email}\n`;
-                        if (user.phoneNumber || user.mobile) message += `Mobile: ${user.phoneNumber || user.mobile}\n`;
+                        if (user.phoneNumber) message += `Mobile: ${user.phoneNumber}\n`;
                       }
                     } catch (error) {
                       console.error('Error reading user details:', error);
